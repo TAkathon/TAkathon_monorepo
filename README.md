@@ -10,10 +10,11 @@ The platform transforms chaotic team formation into a structured, efficient proc
 
 - Student authentication (JWT-based)
 - Skill-based student profiles
+- Student-led team creation
+- Invite friends to team
+- AI-powered teammate matching (fill open spots)
 - Hackathon creation (organizer role)
-- Join hackathon flow
-- Rule-based team auto-generation
-- Organizer dashboard with team overview
+- Organizer dashboard with participant/team overview
 
 ---
 
@@ -21,13 +22,15 @@ The platform transforms chaotic team formation into a structured, efficient proc
 
 The system follows a modular monolith architecture with clear separation of concerns.
 
+**Team Formation Flow**: Students create teams → Invite friends → Request AI teammate suggestions for open spots
+
 Frontend (Next.js)
         ↓
 REST API (FastAPI)
         ↓
 Service Layer
         ↓
-Matching Engine
+Matching Engine (AI-powered teammate suggestions)
         ↓
 PostgreSQL Database
 
@@ -44,12 +47,14 @@ Interactive FigJam diagrams documenting system flows:
 
 ## 🧠 Matching Engine (V1)
 
-The team generation system uses a deterministic scoring algorithm to:
+The AI-powered teammate matching system helps students find compatible team members using:
 
-- Ensure skill coverage across teams
-- Balance experience levels
-- Enforce team size constraints
-- Avoid uneven distributions
+- Skill compatibility scoring
+- Experience level balance
+- Team role fit analysis
+- Availability matching
+
+**How it works**: Students create teams and invite friends. For open spots, they can request AI-matched suggestions of compatible participants.
 
 This module is designed to be replaceable with an ML-based system in future versions.
 
@@ -84,24 +89,50 @@ This module is designed to be replaceable with an ML-based system in future vers
 - user_skills
 - hackathons
 - hackathon_participants
-- teams
+- teams (student-created, has captain/creator)
 - team_members
+- team_invitations (pending invites and join requests)
+
+---
+
+## 📁 Project Structure
+
+```
+/backend
+  /app
+    /api          # Route handlers
+    /models       # SQLAlchemy models
+    /services     # Business logic
+    /matching     # AI teammate recommendation engine
+  /alembic        # Database migrations
+  /tests
+  requirements.txt
+
+/frontend
+  /app            # Next.js 14 App Router
+  /components     # React components
+  /lib            # Utilities, API client
+  package.json
+
+/docker-compose.yml
+```
 
 ---
 
 ## 🔐 Roles
 
 ### Student
-- Create profile
-- Set skill levels
+- Create profile with skills and experience levels
 - Join hackathons
-- View assigned team
+- Create teams and invite friends
+- Request AI teammate suggestions for open spots
+- Manage team composition
 
 ### Organizer
-- Create hackathon
-- View participants
-- Generate teams
-- View/export teams
+- Create and manage hackathons
+- View registered participants
+- View all teams and participant distribution
+- Export team data
 
 ---
 

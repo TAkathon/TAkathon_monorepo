@@ -5,9 +5,11 @@
 This is a **modular monolith** for hackathon team formation with:
 - **Frontend**: Next.js app (React, TailwindCSS, Axios)
 - **Backend**: FastAPI REST API (SQLAlchemy, PostgreSQL, Alembic, JWT)
-- **Matching Engine**: Deterministic scoring algorithm (designed for future ML replacement)
+- **Matching Engine**: AI-powered teammate recommendation system (designed for future ML replacement)
 
 Data flow: `Next.js → FastAPI → Service Layer → Matching Engine → PostgreSQL`
+
+**Core Concept**: Students create and manage their own teams. They can invite friends directly or use AI matchmaking to find compatible teammates for open spots.
 
 ## Project Structure
 
@@ -46,37 +48,43 @@ Monorepo WITHOUT npm workspaces (backend=Python, frontend=Node, no shared packag
 - `user_skills` - Many-to-many with proficiency levels
 - `hackathons` - Event metadata
 - `hackathon_participants` - Registration data
-- `teams` - Generated teams
-- `team_members` - Team assignments
+- `teams` - Student-created teams (with creator/captain)
+- `team_members` - Team membership and invitations
+- `team_invitations` - Pending invites and join requests
 
 ### User Roles
-- **Student**: Profile creation, skill setting, hackathon joining, team viewing
-- **Organizer**: Hackathon creation, participant management, team generation/export
+- **Student**: Profile creation, skill setting, hackathon joining, team creation, inviting friends, requesting AI teammate matches
+- **Organizer**: Hackathon creation, participant viewing, team overview, data export
 
 ## Critical Patterns
 
 ### Matching Engine (V1 Algorithm)
-Internal module at `backend/app/matching/` (NOT separate package yet). Current scoring criteria:
-1. Skill coverage across team
+Internal module at `backend/app/matching/` (NOT separate package yet). Used for **AI teammate recommendations** when students need to fill open team spots.
+
+Scoring criteria for candidate matches:
+1. Skill complementarity (fill gaps in team's skill set)
 2. Experience level balance
-3. Team size constraints (enforced)
-4. Distribution fairness
+3. Availability overlap
+4. Role fit (frontend/backend/design/PM)
 
 **Key principle**: Deterministic and replaceable - designed for future ML swap but kept internal until reuse justifies extraction. Avoid tight coupling to FastAPI routes.
+
+**Usage flow**: Student creates team → invites friends → requests AI suggestions for remaining spots → reviews matches → sends invites
 
 ### Authentication
 JWT-based system. All API routes require role-based access control:
 - Public routes: registration, login
-- Student routes: profile, join hackathon, view own team
-- Organizer routes: create hackathon, generate teams, view all participants
+- Student routes: profile, join hackathon, create team, invite members, request AI matches, manage team
+- Organizer routes: create hackathon, view participants, view all teams, export data
 
 ### API Design
 RESTful conventions:
 - `/api/v1/auth/*` - Authentication endpoints
-- `/api/v1/students/*` - Student operations
+- `/api/v1/students/*` - Student profile operations
 - `/api/v1/organizers/*` - Organizer operations
 - `/api/v1/hackathons/*` - Event management
-- `/api/v1/teams/*` - Team queries
+- `/api/v1/teams/*` - Team creation, invitations, management
+- `/api/v1/matching/*` - AI teammate recommendations
 
 ## Development Workflows
 
@@ -113,8 +121,8 @@ Use Docker Compose for local development with:
 Strategic coverage (not 90% blanket coverage):
 - **Backend**: pytest for API endpoints and matching algorithm logic
 - **Frontend**: Jest/React Testing Library for critical user flows
-- **Integration**: End-to-end team generation with sample participant data
-- **Priority**: Auth flows, team generation, role-based access control
+- **Integration**: End-to-end team creation and AI matching with sample participant data
+- **Priority**: Auth flows, team creation/invitations, AI matching recommendations, role-based access control
 
 ## Deployment
 
@@ -126,7 +134,9 @@ Target platforms: Render or DigitalOcean
 ## Future Considerations
 
 The matching engine is V1 (rule-based) and lives in `backend/app/matching/`. Design interfaces to allow:
-- Swapping in ML-based scoring (replace scoring.py)
-- A/B testing different algorithms
-- Performance metrics collection for comparison
+- Swapping in ML-based scoring (replace scoring.py) for better teammate recommendations
+- A/B testing different matching algorithms
+- Performance metrics collection (match acceptance rate, team success)
 - Extraction to separate package only when reused across multiple platforms
+
+**Important**: Matching is opt-in and student-driven, not mandatory bulk team generation by organizers
