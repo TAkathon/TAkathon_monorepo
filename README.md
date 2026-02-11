@@ -1,121 +1,68 @@
 # TAkathon
 
-TAkathon is a Hackathon Team Builder, a SaaS platform that helps students form balanced hackathon teams based on skills and availability while giving organizers a structured overview of participants and teams.
+> Hackathon Team Builder - AI-powered platform for forming balanced hackathon teams
 
-The platform transforms chaotic team formation into a structured, efficient process.
-
----
-
-## 🚀 Core Features (MVP)
-
-- Student authentication (JWT-based)
-- Skill-based student profiles
-- Hackathon creation (organizer role)
-- Join hackathon flow
-- Rule-based team auto-generation
-- Organizer dashboard with team overview
+TAkathon helps students create teams, invite friends, and find compatible teammates using AI matching. Organizers can create hackathons and manage participants efficiently.
 
 ---
 
-## 🏗 Architecture
+## 🌿 Development Branch Structure (Gitflow)
 
-The system follows a modular monolith architecture with clear separation of concerns.
+This repository follows **Gitflow** branching strategy:
 
-Frontend (Next.js)
-        ↓
-REST API (FastAPI)
-        ↓
-Service Layer
-        ↓
-Matching Engine
-        ↓
-PostgreSQL Database
+- **`main`** - Production-ready stable releases (you are here)
+- **`dev`** - Active development branch (all features and architecture)
+- **`feature/*`** - Feature branches
+- **`hotfix/*`** - Emergency fixes
+- **`release/*`** - Release preparation
 
-### 📐 Design & User Flows
+### 🚀 Get Started with Development
 
-Interactive FigJam diagrams documenting system flows:
+**All project code, setup instructions, and documentation are on the `dev` branch:**
 
-- **[App Navigation Flow](https://www.figma.com/online-whiteboard/create-diagram/f254f5a6-4574-49aa-a39c-cfbcf96e11e3?utm_source=other&utm_content=edit_in_figjam)** - Complete navigation structure for student and organizer roles
-- **[Authentication & Onboarding Flow](https://www.figma.com/online-whiteboard/create-diagram/5c7fe26b-5ed0-4b77-8f78-4da95c10d8f0?utm_source=other&utm_content=edit_in_figjam)** - Registration and login flows for both user types
-- **[Team Generation Workflow](https://www.figma.com/online-whiteboard/create-diagram/59e0efc1-fad3-4661-b02f-a5d7d7842330?utm_source=other&utm_content=edit_in_figjam)** - Detailed matching engine process from participant review to team export
-- **[Student Journey: Profile to Team](https://www.figma.com/online-whiteboard/create-diagram/685cee4a-2e87-4d3a-807b-ba85a7900bf1?utm_source=other&utm_content=edit_in_figjam)** - Complete student experience from profile setup to team collaboration
+```bash
+git checkout dev
+```
 
----
-
-## 🧠 Matching Engine (V1)
-
-The team generation system uses a deterministic scoring algorithm to:
-
-- Ensure skill coverage across teams
-- Balance experience levels
-- Enforce team size constraints
-- Avoid uneven distributions
-
-This module is designed to be replaceable with an ML-based system in future versions.
+Once on `dev`, check:
+- `SETUP.md` - Complete setup guide and quick start
+- `README.md` - Full project documentation
+- `.github/copilot-instructions.md` - Architecture and development guidelines
 
 ---
 
-## 🛠 Tech Stack
+## Quick Overview
 
-### Backend
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Alembic
-- JWT Authentication
+**What TAkathon does:**
+- Students create teams and invite friends
+- AI suggests compatible teammates for open spots
+- Organizers create hackathons and view team distribution
+- Skill-based matching ensures balanced teams
 
-### Frontend
-- Next.js
-- TailwindCSS
-- Axios
+**Tech Stack:**
+- Frontend: Next.js 14 + TailwindCSS
+- Backend: FastAPI + PostgreSQL
+- Matching: AI-powered recommendation engine
 
-### DevOps
-- Docker
-- Docker Compose
-- GitHub Actions (CI)
-- Cloud deployment (Render / DigitalOcean)
+**Architecture:** Modular monolith with clear separation (Frontend → API → Service Layer → Matching Engine → Database)
 
 ---
 
-## 📦 Database Design (Core Tables)
+## 📐 Design Resources
 
-- users
-- skills
-- user_skills
-- hackathons
-- hackathon_participants
-- teams
-- team_members
+Interactive FigJam user flow diagrams:
 
----
-
-## 🔐 Roles
-
-### Student
-- Create profile
-- Set skill levels
-- Join hackathons
-- View assigned team
-
-### Organizer
-- Create hackathon
-- View participants
-- Generate teams
-- View/export teams
+- [App Navigation Flow](https://www.figma.com/online-whiteboard/create-diagram/f254f5a6-4574-49aa-a39c-cfbcf96e11e3?utm_source=other&utm_content=edit_in_figjam)
+- [Authentication & Onboarding](https://www.figma.com/online-whiteboard/create-diagram/5c7fe26b-5ed0-4b77-8f78-4da95c10d8f0?utm_source=other&utm_content=edit_in_figjam)
+- [Team Generation Workflow](https://www.figma.com/online-whiteboard/create-diagram/59e0efc1-fad3-4661-b02f-a5d7d7842330?utm_source=other&utm_content=edit_in_figjam)
+- [Student Journey](https://www.figma.com/online-whiteboard/create-diagram/685cee4a-2e87-4d3a-807b-ba85a7900bf1?utm_source=other&utm_content=edit_in_figjam)
 
 ---
 
-## 📈 Future Expansion
+## 📝 License
 
-- ML-based compatibility scoring
-- Public student profiles
-- Hackathon performance tracking
-- Company access to top teams
-- Portfolio generation
+See LICENSE file for details.
 
 ---
 
-## 🎯 Vision
-
-Start narrow. Solve team formation.
-Expand into a structured hackathon ecosystem.
+**Ready to code?** → Switch to the `dev` branch to get started!

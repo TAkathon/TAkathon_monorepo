@@ -1,132 +1,67 @@
 # TAkathon Copilot Instructions
 
-## Architecture Overview
+## ⚠️ Git Workflow (Gitflow) - CRITICAL
 
-This is a **modular monolith** for hackathon team formation with:
-- **Frontend**: Next.js app (React, TailwindCSS, Axios)
-- **Backend**: FastAPI REST API (SQLAlchemy, PostgreSQL, Alembic, JWT)
-- **Matching Engine**: Deterministic scoring algorithm (designed for future ML replacement)
+**This project follows Gitflow branching strategy. Always follow these rules:**
 
-Data flow: `Next.js → FastAPI → Service Layer → Matching Engine → PostgreSQL`
+### Branch Structure
+- **`main`** - Production-ready code only (stable releases, minimal files)
+- **`dev`** - **Main development branch** (all active development happens here)
+- **`feature/*`** - Feature branches (branch from `dev`, merge back to `dev`)
+- **`hotfix/*`** - Emergency fixes (branch from `main`, merge to both `main` and `dev`)
+- **`release/*`** - Release preparation (branch from `dev`, merge to `main` and `dev`)
 
-## Project Structure
+### Workflow Rules
+1. **NEVER commit directly to `main`** - Only merge from `release/*` or `hotfix/*`
+2. **All development happens on `dev`** - Switch to `dev` branch for coding
+3. **Create feature branches**: `git checkout -b feature/feature-name dev`
+4. **Merge features to `dev`**: Create PR from `feature/*` → `dev`
+5. **Releases**: Create `release/*` from `dev`, test, then merge to `main` and `dev`
 
-Monorepo WITHOUT npm workspaces (backend=Python, frontend=Node, no shared packages):
+### Commit Message Convention
 ```
-/backend
-  /app
-    /api          # Route handlers
-    /models       # SQLAlchemy models
-    /services     # Business logic
-    /matching     # Team generation engine (internal module)
-      engine.py
-      scoring.py
-      validators.py
-  /alembic        # Database migrations
-  /tests
-  requirements.txt
-/frontend
-  /app            # Next.js 14 App Router
-    layout.tsx
-    page.tsx
-    /dashboard
-    /hackathons
-  /components
-  /lib            # Utilities, API client
-  package.json
-/docker-compose.yml
-/README.md
+<type>: <subject>
+
+<optional body>
 ```
 
-## Core Domain Models
+**Types**: 
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `chore:` - Maintenance, config, setup
+- `docs:` - Documentation
+- `style:` - Code formatting
+- `refactor:` - Code refactoring
+- `test:` - Testing
+- `perf:` - Performance
 
-### Database Tables
-- `users` - Student/organizer accounts
-- `skills` - Skill taxonomy
-- `user_skills` - Many-to-many with proficiency levels
-- `hackathons` - Event metadata
-- `hackathon_participants` - Registration data
-- `teams` - Generated teams
-- `team_members` - Team assignments
+**Examples**:
+```bash
+git commit -m "feat: add student team creation endpoint"
+git commit -m "fix: resolve JWT token expiration"
+git commit -m "chore: update dependencies"
+```
 
-### User Roles
-- **Student**: Profile creation, skill setting, hackathon joining, team viewing
-- **Organizer**: Hackathon creation, participant management, team generation/export
+### 🚀 Get Started
 
-## Critical Patterns
+**To start development:**
+```bash
+git checkout dev
+```
 
-### Matching Engine (V1 Algorithm)
-Internal module at `backend/app/matching/` (NOT separate package yet). Current scoring criteria:
-1. Skill coverage across team
-2. Experience level balance
-3. Team size constraints (enforced)
-4. Distribution fairness
+All project architecture, code, and documentation are on the `dev` branch.
 
-**Key principle**: Deterministic and replaceable - designed for future ML swap but kept internal until reuse justifies extraction. Avoid tight coupling to FastAPI routes.
+## Quick Project Overview
 
-### Authentication
-JWT-based system. All API routes require role-based access control:
-- Public routes: registration, login
-- Student routes: profile, join hackathon, view own team
-- Organizer routes: create hackathon, generate teams, view all participants
+TAkathon is a hackathon team builder where:
+- Students create teams, invite friends, or use AI to find compatible teammates
+- Organizers create hackathons and manage participants
+- AI matching engine suggests compatible teammates based on skills
 
-### API Design
-RESTful conventions:
-- `/api/v1/auth/*` - Authentication endpoints
-- `/api/v1/students/*` - Student operations
-- `/api/v1/organizers/*` - Organizer operations
-- `/api/v1/hackathons/*` - Event management
-- `/api/v1/teams/*` - Team queries
+**Tech Stack**: Next.js 14 + FastAPI + PostgreSQL  
+**Architecture**: Modular monolith (frontend + backend + matching engine)
 
-## Development Workflows
+---
 
-### Backend (FastAPI)
-- **ORM**: Use SQLAlchemy declarative models
-- **Migrations**: Alembic for schema changes
-- **Validation**: Pydantic models for request/response
-- **Database**: PostgreSQL (avoid SQLite except local dev)
-
-### Frontend (Next.js 14+ App Router)
-- **Routing**: App Router (`app/` directory) - use layouts, server components, modern routing
-- **Styling**: TailwindCSS (utility-first approach)
-- **API calls**: Axios with centralized configuration in `lib/`
-- **State**: Zustand for auth state, user profile, current hackathon - fetch everything else from API (avoid over-caching)
-
-### Docker
-Use Docker Compose for local development with:
-- Backend service (FastAPI)
-- Frontend service (Next.js dev server)
-- PostgreSQL container
-- Volume mounts for hot-reload
-
-## Key Conventions
-
-1. **Monorepo coordination**: Keep frontend/backend separate (no workspaces) - sync API contracts manually
-2. **Service boundaries**: `backend/app/matching/` has clear input/output schemas (JSON)
-3. **Database migrations**: Always generate Alembic migrations for schema changes
-4. **JWT handling**: Store in httpOnly cookies (frontend) and validate on every protected route (backend)
-5. **Error responses**: Standardize API error format (status code, message, details)
-6. **State management**: Use Zustand minimally - fetch from API, don't over-cache
-
-## Testing Strategy
-
-Strategic coverage (not 90% blanket coverage):
-- **Backend**: pytest for API endpoints and matching algorithm logic
-- **Frontend**: Jest/React Testing Library for critical user flows
-- **Integration**: End-to-end team generation with sample participant data
-- **Priority**: Auth flows, team generation, role-based access control
-
-## Deployment
-
-Target platforms: Render or DigitalOcean
-- Docker-based deployment
-- GitHub Actions for CI (linting, tests)
-- Environment variables for secrets (DB URL, JWT secret)
-
-## Future Considerations
-
-The matching engine is V1 (rule-based) and lives in `backend/app/matching/`. Design interfaces to allow:
-- Swapping in ML-based scoring (replace scoring.py)
-- A/B testing different algorithms
-- Performance metrics collection for comparison
-- Extraction to separate package only when reused across multiple platforms
+**For complete architecture details, setup instructions, and development:**  
+👉 **Switch to the `dev` branch**

@@ -1,0 +1,15 @@
+# TAkathon - Minimal Main Branch
+
+node_modules/
+.next/
+__pycache__/
+*.pyc
+*.py[cod]
+.env
+.env.local
+*.log
+.DS_Store
+dist/
+build/
+venv/
+env/
