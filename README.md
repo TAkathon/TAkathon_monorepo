@@ -31,6 +31,15 @@ Matching Engine
         ↓
 PostgreSQL Database
 
+### 📐 Design & User Flows
+
+Interactive FigJam diagrams documenting system flows:
+
+- **[App Navigation Flow](https://www.figma.com/online-whiteboard/create-diagram/f254f5a6-4574-49aa-a39c-cfbcf96e11e3?utm_source=other&utm_content=edit_in_figjam)** - Complete navigation structure for student and organizer roles
+- **[Authentication & Onboarding Flow](https://www.figma.com/online-whiteboard/create-diagram/5c7fe26b-5ed0-4b77-8f78-4da95c10d8f0?utm_source=other&utm_content=edit_in_figjam)** - Registration and login flows for both user types
+- **[Team Generation Workflow](https://www.figma.com/online-whiteboard/create-diagram/59e0efc1-fad3-4661-b02f-a5d7d7842330?utm_source=other&utm_content=edit_in_figjam)** - Detailed matching engine process from participant review to team export
+- **[Student Journey: Profile to Team](https://www.figma.com/online-whiteboard/create-diagram/685cee4a-2e87-4d3a-807b-ba85a7900bf1?utm_source=other&utm_content=edit_in_figjam)** - Complete student experience from profile setup to team collaboration
+
 ---
 
 ## 🧠 Matching Engine (V1)
