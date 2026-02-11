@@ -1,6 +1,6 @@
-# Hackathon Team Builder
+# TAkathon
 
-Hackathon Team Builder is a SaaS platform that helps students form balanced hackathon teams based on skills and availability while giving organizers a structured overview of participants and teams.
+TAkathon is a Hackathon Team Builder, a SaaS platform that helps students form balanced hackathon teams based on skills and availability while giving organizers a structured overview of participants and teams.
 
 The platform transforms chaotic team formation into a structured, efficient process.
 
