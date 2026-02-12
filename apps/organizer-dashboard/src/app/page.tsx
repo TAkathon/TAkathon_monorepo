@@ -116,27 +116,30 @@ export default function OverviewPage() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {stats.map((stat) => (
-                        <div key={stat.name} className="glass p-6 rounded-xl hover:bg-white/10 transition-all group">
-                            <div className="flex items-start justify-between">
-                                <div className="p-3 bg-primary/10 rounded-lg text-primary group-hover:scale-110 transition-transform">
-                                    <stat.icon className="w-6 h-6" />
+                    {stats.map((stat) => {
+                        const Icon = stat.icon;
+                        return (
+                            <div key={stat.name} className="glass p-6 rounded-xl hover:bg-white/10 transition-all group">
+                                <div className="flex items-start justify-between">
+                                    <div className="p-3 bg-primary/10 rounded-lg text-primary group-hover:scale-110 transition-transform">
+                                        <Icon className="w-6 h-6" />
+                                    </div>
+                                    <div className={`flex items-center gap-1 text-sm font-medium ${
+                                        stat.changeType === "increase" ? "text-green-400" : 
+                                        stat.changeType === "decrease" ? "text-red-400" : "text-white/40"
+                                    }`}>
+                                        {stat.changeType === "increase" && <ArrowUpRight className="w-4 h-4" />}
+                                        {stat.changeType === "decrease" && <ArrowDownRight className="w-4 h-4" />}
+                                        {stat.change !== "0" && stat.change}
+                                    </div>
                                 </div>
-                                <div className={`flex items-center gap-1 text-sm font-medium ${
-                                    stat.changeType === "increase" ? "text-green-400" : 
-                                    stat.changeType === "decrease" ? "text-red-400" : "text-white/40"
-                                }`}>
-                                    {stat.changeType === "increase" && <ArrowUpRight className="w-4 h-4" />}
-                                    {stat.changeType === "decrease" && <ArrowDownRight className="w-4 h-4" />}
-                                    {stat.change !== "0" && stat.change}
+                                <div className="mt-4">
+                                    <h3 className="text-white/60 text-sm font-medium">{stat.name}</h3>
+                                    <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
                                 </div>
                             </div>
-                            <div className="mt-4">
-                                <h3 className="text-white/60 text-sm font-medium">{stat.name}</h3>
-                                <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

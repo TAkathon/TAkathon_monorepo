@@ -39,23 +39,26 @@ export default function SettingsPage() {
                             { id: "notifications", label: "Notifications", icon: Bell },
                             { id: "security", label: "Security", icon: Shield },
                             { id: "billing", label: "Subscription", icon: CreditCard },
-                        ].map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-                                    activeTab === tab.id 
-                                        ? "bg-primary/10 text-primary border border-primary/20" 
-                                        : "text-white/60 hover:bg-white/5 hover:text-white"
-                                }`}
-                            >
-                                <div className="flex items-center gap-3 font-medium">
-                                    <tab.icon className="w-5 h-5" />
-                                    {tab.label}
-                                </div>
-                                <ChevronRight className={`w-4 h-4 transition-transform ${activeTab === tab.id ? "rotate-90" : ""}`} />
-                            </button>
-                        ))}
+                        ].map((tab) => {
+                            const Icon = tab.icon;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+                                        activeTab === tab.id 
+                                            ? "bg-primary/10 text-primary border border-primary/20" 
+                                            : "text-white/60 hover:bg-white/5 hover:text-white"
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3 font-medium">
+                                        <Icon className="w-5 h-5" />
+                                        {tab.label}
+                                    </div>
+                                    <ChevronRight className={`w-4 h-4 transition-transform ${activeTab === tab.id ? "rotate-90" : ""}`} />
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {/* Content */}
