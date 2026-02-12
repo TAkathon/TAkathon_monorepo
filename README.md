@@ -60,6 +60,51 @@ This module is designed to be replaceable with an ML-based system in future vers
 
 ---
 
+## 🛠 Getting Started
+
+### Prerequisites
+- **Node.js**: v18 or later
+- **npm**: v9 or later
+- **Nx**: Installed globally (`npm install -g nx`) or use `npx nx`
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/TAkathon/TAkathon_monorepo.git
+   cd TAkathon_monorepo
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running the Project
+
+#### Using Nx (Recommended)
+Nx allows you to manage the entire monorepo efficiently.
+- **Run Student Portal**: `npx nx dev student-portal`
+- **Run Organizer Dashboard**: `npx nx dev organizer-dashboard`
+- **Build All**: `npx nx run-many -t build`
+- **Lint All**: `npx nx run-many -t lint`
+
+#### Using npm
+You can also run individual apps using standard npm scripts from their respective directories.
+- **Student Portal**:
+  ```bash
+  cd apps/student-portal
+  npm run dev
+  ```
+- **Organizer Dashboard**:
+  ```bash
+  cd apps/organizer-dashboard
+  npm run dev
+  ```
+
+### Environment Variables
+Create a `.env` file in the root directory (or in specific app directories if needed) based on the provided `.env.example` files.
+
+---
+
 ## 🛠 Tech Stack
 
 ### Backend

@@ -11,7 +11,26 @@ This is a **modular monolith Nx monorepo** for hackathon team formation with:
 
 Data flow: `Next.js Apps → Core Gateway (NestJS) → [AI Engine (FastAPI) | PostgreSQL]`
 
-**Core Concept**: Students create and manage their own teams. They can invite friends directly or use AI matchmaking to find compatible teammates for open spots.
+## Frontend Development Guidelines
+
+### Design System
+- **Theme**: Dark mode by default (`#1A0A00`).
+- **Primary Color**: `#D94C1A` (Orange/Rust).
+- **UI Pattern**: Glassmorphism (defined in `globals.css`).
+- **Component Library**: Lucide React for icons, Tailwind CSS for styling.
+
+### App Structure (Next.js 15)
+- Use **App Router** (`src/app`).
+- Shared layout components in `src/components/` (e.g., `DashboardLayout`).
+- Pages follow a consistent layout: Sidebar, Top bar (search/notifications), Main content area.
+
+### Design Consistency
+- **Glassmorphism**: Use the `.glass` class for cards and panels.
+- **Buttons**: Use `.btn-primary` and `.btn-secondary` for consistency.
+- **Inputs**: Use `.input-field` for form elements.
+- **Responsive**: All dashboards must be mobile-friendly (use `md:` or `lg:` for grid/flex layouts).
+
+### Core Concept
 
 ## Project Structure
 
