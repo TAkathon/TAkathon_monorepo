@@ -12,6 +12,7 @@ import {
     Calendar,
     Target,
     MessageCircle,
+    ChevronDown,
 } from "lucide-react";
 
 const myTeams = [
@@ -228,18 +229,23 @@ export default function TeamsPage() {
                                     <label className="block text-sm font-medium text-white/60 mb-2">
                                         Hackathon
                                     </label>
-                                    <select
-                                        value={newTeam.hackathon}
-                                        onChange={(e) =>
-                                            setNewTeam({ ...newTeam, hackathon: e.target.value })
-                                        }
-                                        className="input-field"
-                                    >
-                                        <option value="">Select a hackathon...</option>
-                                        <option value="ai-innovators">AI Innovators Challenge</option>
-                                        <option value="web3-summit">Web3 Summit Hackathon</option>
-                                        <option value="climate-tech">Climate Tech Solutions</option>
-                                    </select>
+                                    <div className="relative">
+                                        <select
+                                            value={newTeam.hackathon}
+                                            onChange={(e) =>
+                                                setNewTeam({ ...newTeam, hackathon: e.target.value })
+                                            }
+                                            className="input-field appearance-none pr-10"
+                                        >
+                                            <option value="">Select a hackathon...</option>
+                                            <option value="ai-innovators">AI Innovators Challenge</option>
+                                            <option value="web3-summit">Web3 Summit Hackathon</option>
+                                            <option value="climate-tech">Climate Tech Solutions</option>
+                                        </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                                            <ChevronDown className="w-4 h-4" />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div>

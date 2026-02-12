@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { User, Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin } from "lucide-react";
+import { User, Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin, Trash2 } from "lucide-react";
 
 export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
@@ -78,7 +78,7 @@ export default function ProfilePage() {
 
                         {/* Basic Info */}
                         <div className="flex-1 space-y-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Full Name */}
                                 <div>
                                     <label className="block text-sm font-medium text-white/60 mb-2">
@@ -175,7 +175,7 @@ export default function ProfilePage() {
                 {/* Education */}
                 <div className="glass rounded-xl p-6">
                     <h2 className="text-xl font-bold text-white mb-4">Education</h2>
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-white/60 mb-2">
                                 University
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                                     className="input-field"
                                 />
                             ) : (
-                                <p className="text-white/70">{profile.major}</p>
+                                <p className="text-white font-semibold">{profile.major}</p>
                             )}
                         </div>
                     </div>
@@ -214,7 +214,13 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold text-white">Skills</h2>
                         {isEditing && (
-                            <button className="text-sm text-primary hover:text-primary-light">
+                            <button
+                                onClick={() => {
+                                    const name = prompt("Enter skill name:");
+                                    if (name) setSkills([...skills, { name, level: "Beginner" }]);
+                                }}
+                                className="text-sm text-primary hover:text-primary-light"
+                            >
                                 + Add Skill
                             </button>
                         )}
@@ -223,20 +229,30 @@ export default function ProfilePage() {
                         {skills.map((skill, index) => (
                             <div
                                 key={index}
-                                className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                                className="flex items-center justify-between p-3 bg-white/5 rounded-lg group"
                             >
                                 <span className="text-white font-medium">{skill.name}</span>
-                                <span
-                                    className={`px-2 py-1 text-xs rounded-full ${
-                                        skill.level === "Advanced"
-                                            ? "bg-green-500/20 text-green-400"
-                                            : skill.level === "Intermediate"
-                                            ? "bg-blue-500/20 text-blue-400"
-                                            : "bg-yellow-500/20 text-yellow-400"
-                                    }`}
-                                >
-                                    {skill.level}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span
+                                        className={`px-2 py-1 text-xs rounded-full ${
+                                            skill.level === "Advanced"
+                                                ? "bg-green-500/20 text-green-400"
+                                                : skill.level === "Intermediate"
+                                                ? "bg-blue-500/20 text-blue-400"
+                                                : "bg-yellow-500/20 text-yellow-400"
+                                        }`}
+                                    >
+                                        {skill.level}
+                                    </span>
+                                    {isEditing && (
+                                        <button
+                                            onClick={() => setSkills(skills.filter((_, i) => i !== index))}
+                                            className="p-1 text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>

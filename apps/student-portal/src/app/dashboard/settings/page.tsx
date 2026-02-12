@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Bell, Lock, Globe, Eye, Mail, Shield, Trash2 } from "lucide-react";
+import { Bell, Lock, Globe, Eye, Mail, Shield, Trash2, ChevronDown } from "lucide-react";
 
 export default function SettingsPage() {
     const [emailNotifications, setEmailNotifications] = useState(true);
@@ -104,16 +104,21 @@ export default function SettingsPage() {
                             <label className="block text-sm font-medium text-white mb-2">
                                 Profile Visibility
                             </label>
-                            <select
-                                value={profileVisibility}
-                                onChange={(e) => setProfileVisibility(e.target.value)}
-                                className="input-field"
-                            >
-                                <option value="public">Public - Anyone can see my profile</option>
-                                <option value="members">Members Only - Only registered users</option>
-                                <option value="teams">Teams Only - Only my teammates</option>
-                                <option value="private">Private - Hidden from everyone</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={profileVisibility}
+                                    onChange={(e) => setProfileVisibility(e.target.value)}
+                                    className="input-field appearance-none pr-10"
+                                >
+                                    <option value="public">Public - Anyone can see my profile</option>
+                                    <option value="members">Members Only - Only registered users</option>
+                                    <option value="teams">Teams Only - Only my teammates</option>
+                                    <option value="private">Private - Hidden from everyone</option>
+                                </select>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                                    <ChevronDown className="w-4 h-4" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

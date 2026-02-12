@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, MapPin, Users, Clock, Filter, Search } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown } from "lucide-react";
 
 const hackathons = [
     {
@@ -86,7 +86,7 @@ export default function HackathonsPage() {
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                     {/* Search */}
                     <div className="flex-1 relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -100,18 +100,21 @@ export default function HackathonsPage() {
                     </div>
 
                     {/* Status Filter */}
-                    <div className="relative">
+                    <div className="relative min-w-[200px]">
                         <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                         <select
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value)}
-                            className="pl-11 pr-8 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer"
+                            className="w-full pl-11 pr-8 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer"
                         >
                             <option value="All">All Status</option>
                             <option value="Open">Open</option>
                             <option value="Filling Fast">Filling Fast</option>
                             <option value="Closed">Closed</option>
                         </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                            <ChevronDown className="w-4 h-4" />
+                        </div>
                     </div>
                 </div>
 
