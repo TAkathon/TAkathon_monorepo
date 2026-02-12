@@ -7,13 +7,15 @@
     "build": {
       "executor": "@nx/next:build",
       "options": {
-        "root": "apps/organizer-dashboard"
+        "root": "apps/organizer-dashboard",
+        "outputPath": "dist/apps/organizer-dashboard"
       }
     },
     "dev": {
-      "executor": "@nx/next:dev",
+      "executor": "@nx/next:server",
       "options": {
-        "root": "apps/organizer-dashboard",
+        "buildTarget": "organizer-dashboard:build",
+        "dev": true,
         "port": 3002
       }
     },

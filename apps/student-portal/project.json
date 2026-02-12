@@ -7,13 +7,15 @@
     "build": {
       "executor": "@nx/next:build",
       "options": {
-        "root": "apps/student-portal"
+        "root": "apps/student-portal",
+        "outputPath": "dist/apps/student-portal"
       }
     },
     "dev": {
-      "executor": "@nx/next:dev",
+      "executor": "@nx/next:server",
       "options": {
-        "root": "apps/student-portal",
+        "buildTarget": "student-portal:build",
+        "dev": true,
         "port": 3001
       }
     },
