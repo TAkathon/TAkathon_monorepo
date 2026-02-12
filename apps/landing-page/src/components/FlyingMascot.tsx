@@ -16,19 +16,28 @@ export default function FlyingMascot() {
 
     useEffect(() => {
         const handleScroll = () => {
-            // Show mascot only after scrolling down a bit (e.g., 300px)
-            if (window.scrollY > 300) {
-                setIsVisible(true);
+            // Show mascot only after scrolling down past the hero section (approx 300px)
+            // This syncs with the fade-out in HeroSection
+            if (window.scrollY > 250) {
+                if (!isVisible) {
+                    setIsVisible(true);
+                    // Start from center of screen roughly where the hero mascot was
+                    // We can default to center of viewport
+                    x.set(window.innerWidth / 2);
+                    y.set(window.innerHeight / 3);
+                }
             } else {
                 setIsVisible(false);
             }
         };
 
         const handleMouseMove = (e: MouseEvent) => {
-            // Update target position
-            // Add slight offset so it's not directly under the cursor
-            mouseX.set(e.clientX + 20);
-            mouseY.set(e.clientY + 20);
+            if (isVisible) {
+                // Update target position
+                // Add slight offset so it's not directly under the cursor
+                mouseX.set(e.clientX + 20);
+                mouseY.set(e.clientY + 20);
+            }
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
@@ -38,7 +47,7 @@ export default function FlyingMascot() {
             window.removeEventListener("scroll", handleScroll);
             window.removeEventListener("mousemove", handleMouseMove);
         };
-    }, [mouseX, mouseY]);
+    }, [mouseX, mouseY, isVisible, x, y]);
 
     return (
         <motion.div
@@ -49,12 +58,12 @@ export default function FlyingMascot() {
                 left: 0,
                 top: 0
             }}
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.5 }}
             animate={{
                 opacity: isVisible ? 1 : 0,
-                scale: isVisible ? 1 : 0.8,
+                scale: isVisible ? 1 : 0.5,
             }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
         >
             <motion.div
                 animate={{

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useMousePosition, useMagnetic } from "@/lib/hooks";
 import SparkleField from "./SparkleField";
@@ -32,6 +32,10 @@ export default function HeroSection() {
     const mouse = useMousePosition();
     const primaryRef = useRef<HTMLButtonElement>(null);
     const mascotRef = useRef<HTMLDivElement>(null);
+
+    const { scrollY } = useScroll();
+    const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+    const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
 
     useMagnetic(primaryRef);
 
@@ -79,18 +83,16 @@ export default function HeroSection() {
                 </motion.h1>
 
                 {/* Mascot with eye-follow */}
+                {/* Mascot with eye-follow */}
                 <motion.div
                     ref={mascotRef}
-                    variants={fadeUp}
-                    className="relative mx-auto w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 mb-10"
+                    style={{ opacity, scale }}
+                    className="relative mx-auto w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 -mt-16 md:-mt-24 mb-10 z-0"
                 >
-                    {/* Glow ring behind mascot */}
-                    <div className="absolute inset-[-20%] rounded-full bg-gradient-radial from-primary-dark/40 to-transparent animate-breathe" />
-
                     <motion.div
                         animate={{ y: [0, -8, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="relative w-full h-full flex items-center justify-center bg-primary/10 rounded-full border border-primary/20"
+                        className="relative w-full h-full flex items-center justify-center"
                     >
                         {/* Fallback styling when mascot.png is missing */}
                         <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
@@ -111,13 +113,13 @@ export default function HeroSection() {
                         />
                         {/* Eye highlight that follows cursor */}
                         <div
-                            className="absolute top-[32%] left-[44%] w-2 h-2 bg-white/80 rounded-full blur-[1px] pointer-events-none transition-transform duration-200"
+                            className="absolute top-[32%] left-[44%] w-2 h-2 bg-white/80 rounded-full blur-[1px] pointer-events-none transition-transform duration-200 z-20"
                             style={{
                                 transform: `translate(${eyeOffsetX}px, ${eyeOffsetY}px)`,
                             }}
                         />
                         <div
-                            className="absolute top-[32%] left-[56%] w-2 h-2 bg-white/80 rounded-full blur-[1px] pointer-events-none transition-transform duration-200"
+                            className="absolute top-[32%] left-[56%] w-2 h-2 bg-white/80 rounded-full blur-[1px] pointer-events-none transition-transform duration-200 z-20"
                             style={{
                                 transform: `translate(${eyeOffsetX}px, ${eyeOffsetY}px)`,
                             }}
