@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@shared/utils";
 import {
     Home,
     Calendar,
@@ -33,24 +33,30 @@ export default function DashboardLayout({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
-    const { user, isAuthenticated, logout } = useAuthStore();
+    const { user, isAuthenticated, logout, _hasHydrated } = useAuthStore();
 
     useEffect(() => {
+        if (!_hasHydrated) return;
+
         // Simple protected route logic
         if (!isAuthenticated) {
             router.replace("/login");
         } else if (user?.role !== "student") {
             // If an organizer somehow gets here, redirect them
-            window.location.href = "http://localhost:3002/";
+            if (user?.role === "organizer") {
+                window.location.href = "http://localhost:3002/";
+            } else if (user?.role === "sponsor") {
+                window.location.href = "http://localhost:3003/";
+            }
         }
-    }, [isAuthenticated, user, router]);
+    }, [isAuthenticated, user, router, _hasHydrated]);
 
     const handleLogout = () => {
         logout();
         router.push("/login");
     };
 
-    if (!isAuthenticated || user?.role !== "student") {
+    if (!_hasHydrated || !isAuthenticated || user?.role !== "student") {
         return (
             <div className="min-h-screen bg-dark flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
