@@ -172,6 +172,11 @@ nx affected:build
 nx affected:test
 ```
 
+### Git & Merge Workflow
+- **Branching**: Always create a feature branch (`feat/`), bugfix branch (`fix/`), or chore branch (`chore/`) from `dev`.
+- **Pull Requests**: Every merge into the `dev` or `main` branch **must** be performed via a Pull Request (PR). Direct merges or pushes to these branches are prohibited.
+- **Commit Messages**: Follow conventional commits (see `COMMIT_CONVENTIONS.md`).
+
 ### Backend (Core Gateway - NestJS)
 - **Framework**: NestJS with TypeScript
 - **ORM**: TypeORM or Prisma for PostgreSQL
