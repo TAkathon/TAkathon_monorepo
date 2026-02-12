@@ -1,0 +1,35 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "organizer-dashboard",
+  "projectType": "application",
+  "sourceRoot": "apps/organizer-dashboard/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "options": {
+        "root": "apps/organizer-dashboard"
+      }
+    },
+    "dev": {
+      "executor": "@nx/next:dev",
+      "options": {
+        "root": "apps/organizer-dashboard",
+        "port": 3002
+      }
+    },
+    "start": {
+      "executor": "@nx/next:start",
+      "options": {
+        "root": "apps/organizer-dashboard",
+        "port": 3002
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/organizer-dashboard/**/*.{ts,tsx}"]
+      }
+    }
+  },
+  "tags": []
+}
