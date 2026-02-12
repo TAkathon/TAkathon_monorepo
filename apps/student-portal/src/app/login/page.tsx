@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, User as UserIcon, ShieldCheck } from "lucide-react";
-import { useAuthStore, UserRole } from "@/store/authStore";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, User as UserIcon, ShieldCheck, Building2 } from "lucide-react";
+import { useAuthStore, UserRole } from "@shared/utils";
 
 export default function LoginPage() {
     const router = useRouter();
-    const { login, isAuthenticated, user } = useAuthStore();
+    const { login, isAuthenticated, user, _hasHydrated } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
     const [selectedRole, setSelectedRole] = useState<UserRole>("student");
     const [formData, setFormData] = useState({
@@ -17,14 +17,18 @@ export default function LoginPage() {
     });
 
     useEffect(() => {
+        if (!_hasHydrated) return;
+
         if (isAuthenticated) {
             if (user?.role === "student") {
                 router.replace("/dashboard");
             } else if (user?.role === "organizer") {
                 window.location.href = "http://localhost:3002/";
+            } else if (user?.role === "sponsor") {
+                window.location.href = "http://localhost:3003/";
             }
         }
-    }, [isAuthenticated, user, router]);
+    }, [isAuthenticated, user, router, _hasHydrated]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,11 +46,10 @@ export default function LoginPage() {
         // Role-based redirection
         if (selectedRole === "student") {
             router.push("/dashboard");
-        } else {
-            // Since we're in student-portal, we redirect to the organizer dashboard URL
-            // In a real monorepo, these would be separate domains or handled by a proxy
-            // For local testing, we'll assume organizer dashboard is on a different port/path
+        } else if (selectedRole === "organizer") {
             window.location.href = "http://localhost:3002/";
+        } else if (selectedRole === "sponsor") {
+            window.location.href = "http://localhost:3003/";
         }
     };
 
@@ -78,30 +81,42 @@ export default function LoginPage() {
                     </div>
 
                     {/* Role Selection */}
-                    <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="grid grid-cols-3 gap-3 mb-8">
                         <button
                             type="button"
                             onClick={() => setSelectedRole("student")}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
+                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
                                 selectedRole === "student"
                                     ? "bg-primary/20 border-primary text-white"
                                     : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
                             }`}
                         >
-                            <UserIcon className="w-6 h-6" />
-                            <span className="text-sm font-medium">Student</span>
+                            <UserIcon className="w-5 h-5" />
+                            <span className="text-xs font-medium">Student</span>
                         </button>
                         <button
                             type="button"
                             onClick={() => setSelectedRole("organizer")}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
+                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
                                 selectedRole === "organizer"
                                     ? "bg-primary/20 border-primary text-white"
                                     : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
                             }`}
                         >
-                            <ShieldCheck className="w-6 h-6" />
-                            <span className="text-sm font-medium">Organizer</span>
+                            <ShieldCheck className="w-5 h-5" />
+                            <span className="text-xs font-medium">Organizer</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedRole("sponsor")}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
+                                selectedRole === "sponsor"
+                                    ? "bg-primary/20 border-primary text-white"
+                                    : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                            }`}
+                        >
+                            <Building2 className="w-5 h-5" />
+                            <span className="text-xs font-medium">Sponsor</span>
                         </button>
                     </div>
 
@@ -158,7 +173,7 @@ export default function LoginPage() {
                                 <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0" />
                                 <span className="text-white/60 group-hover:text-white/80 transition-colors">Remember me</span>
                             </label>
-                            <Link href="/forgot-password" disabled className="text-primary hover:text-primary-light transition-colors pointer-events-none opacity-50">
+                            <Link href="/forgot-password" title="Coming soon" className="text-primary hover:text-primary-light transition-colors pointer-events-none opacity-50">
                                 Forgot password?
                             </Link>
                         </div>
@@ -168,7 +183,7 @@ export default function LoginPage() {
                             type="submit"
                             className="w-full btn-primary flex items-center justify-center gap-2 group"
                         >
-                            <span>Sign In as {selectedRole === "student" ? "Student" : "Organizer"}</span>
+                            <span>Sign In as {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </form>
@@ -194,7 +209,7 @@ export default function LoginPage() {
 
                 {/* Back to home */}
                 <div className="text-center mt-6">
-                    <Link href="/" className="text-sm text-white/40 hover:text-white/70 transition-colors pointer-events-none">
+                    <Link href="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">
                         ← Back to Home
                     </Link>
                 </div>

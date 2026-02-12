@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User as UserIcon, ArrowRight, ShieldCheck } from "lucide-react";
-import { useAuthStore, UserRole } from "@/store/authStore";
+import { Eye, EyeOff, Mail, Lock, User as UserIcon, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
+import { useAuthStore, UserRole } from "@shared/utils";
 
 export default function SignUpPage() {
     const router = useRouter();
@@ -26,6 +26,8 @@ export default function SignUpPage() {
                 router.replace("/dashboard");
             } else if (user?.role === "organizer") {
                 window.location.href = "http://localhost:3002/";
+            } else if (user?.role === "sponsor") {
+                window.location.href = "http://localhost:3003/";
             }
         }
     }, [isAuthenticated, user, router]);
@@ -51,9 +53,10 @@ export default function SignUpPage() {
         // Role-based redirection
         if (selectedRole === "student") {
             router.push("/dashboard");
-        } else {
-            // Since we're in student-portal, we redirect to the organizer dashboard URL
+        } else if (selectedRole === "organizer") {
             window.location.href = "http://localhost:3002/";
+        } else if (selectedRole === "sponsor") {
+            window.location.href = "http://localhost:3003/";
         }
     };
 
@@ -85,30 +88,42 @@ export default function SignUpPage() {
                     </div>
 
                     {/* Role Selection */}
-                    <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="grid grid-cols-3 gap-3 mb-8">
                         <button
                             type="button"
                             onClick={() => setSelectedRole("student")}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
+                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
                                 selectedRole === "student"
                                     ? "bg-primary/20 border-primary text-white"
                                     : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
                             }`}
                         >
-                            <UserIcon className="w-6 h-6" />
-                            <span className="text-sm font-medium">Student</span>
+                            <UserIcon className="w-5 h-5" />
+                            <span className="text-xs font-medium">Student</span>
                         </button>
                         <button
                             type="button"
                             onClick={() => setSelectedRole("organizer")}
-                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
+                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
                                 selectedRole === "organizer"
                                     ? "bg-primary/20 border-primary text-white"
                                     : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
                             }`}
                         >
-                            <ShieldCheck className="w-6 h-6" />
-                            <span className="text-sm font-medium">Organizer</span>
+                            <ShieldCheck className="w-5 h-5" />
+                            <span className="text-xs font-medium">Organizer</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedRole("sponsor")}
+                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
+                                selectedRole === "sponsor"
+                                    ? "bg-primary/20 border-primary text-white"
+                                    : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                            }`}
+                        >
+                            <Building2 className="w-5 h-5" />
+                            <span className="text-xs font-medium">Sponsor</span>
                         </button>
                     </div>
 
@@ -217,11 +232,11 @@ export default function SignUpPage() {
                             />
                             <label htmlFor="terms" className="text-sm text-white/60">
                                 I agree to the{" "}
-                                <Link href="/terms" disabled className="text-primary hover:text-primary-light pointer-events-none opacity-50">
+                                <Link href="/terms" title="Coming soon" className="text-primary hover:text-primary-light pointer-events-none opacity-50">
                                     Terms of Service
                                 </Link>{" "}
                                 and{" "}
-                                <Link href="/privacy" disabled className="text-primary hover:text-primary-light pointer-events-none opacity-50">
+                                <Link href="/privacy" title="Coming soon" className="text-primary hover:text-primary-light pointer-events-none opacity-50">
                                     Privacy Policy
                                 </Link>
                             </label>
@@ -232,7 +247,7 @@ export default function SignUpPage() {
                             type="submit"
                             className="w-full btn-primary flex items-center justify-center gap-2 group"
                         >
-                            <span>Create {selectedRole === "student" ? "Student" : "Organizer"} Account</span>
+                            <span>Create {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)} Account</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </form>
