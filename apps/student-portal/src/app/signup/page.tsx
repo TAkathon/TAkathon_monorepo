@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Mail, Lock, User as UserIcon, ArrowRight, ShieldCheck } from "lucide-react";
+import { useAuthStore, UserRole } from "@/store/authStore";
 
 export default function SignUpPage() {
+    const router = useRouter();
+    const { login, isAuthenticated, user } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [selectedRole, setSelectedRole] = useState<UserRole>("student");
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -15,14 +20,41 @@ export default function SignUpPage() {
         agreeToTerms: false,
     });
 
+    useEffect(() => {
+        if (isAuthenticated) {
+            if (user?.role === "student") {
+                router.replace("/dashboard");
+            } else if (user?.role === "organizer") {
+                window.location.href = "http://localhost:3002/";
+            }
+        }
+    }, [isAuthenticated, user, router]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement registration logic
+        
         if (formData.password !== formData.confirmPassword) {
             alert("Passwords don't match!");
             return;
         }
-        console.log("Sign up attempt:", formData);
+
+        // Mock registration logic
+        const mockUser = {
+            id: Math.random().toString(36).substr(2, 9),
+            email: formData.email,
+            fullName: formData.fullName,
+            role: selectedRole,
+        };
+
+        login(mockUser);
+
+        // Role-based redirection
+        if (selectedRole === "student") {
+            router.push("/dashboard");
+        } else {
+            // Since we're in student-portal, we redirect to the organizer dashboard URL
+            window.location.href = "http://localhost:3002/";
+        }
     };
 
     return (
@@ -52,6 +84,34 @@ export default function SignUpPage() {
                         </p>
                     </div>
 
+                    {/* Role Selection */}
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                        <button
+                            type="button"
+                            onClick={() => setSelectedRole("student")}
+                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
+                                selectedRole === "student"
+                                    ? "bg-primary/20 border-primary text-white"
+                                    : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                            }`}
+                        >
+                            <UserIcon className="w-6 h-6" />
+                            <span className="text-sm font-medium">Student</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedRole("organizer")}
+                            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
+                                selectedRole === "organizer"
+                                    ? "bg-primary/20 border-primary text-white"
+                                    : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                            }`}
+                        >
+                            <ShieldCheck className="w-6 h-6" />
+                            <span className="text-sm font-medium">Organizer</span>
+                        </button>
+                    </div>
+
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Full Name */}
@@ -60,7 +120,7 @@ export default function SignUpPage() {
                                 Full Name
                             </label>
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                                 <input
                                     id="fullName"
                                     type="text"
@@ -117,7 +177,6 @@ export default function SignUpPage() {
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                             </div>
-                            <p className="text-xs text-white/40 mt-1">Minimum 8 characters</p>
                         </div>
 
                         {/* Confirm Password */}
@@ -158,11 +217,11 @@ export default function SignUpPage() {
                             />
                             <label htmlFor="terms" className="text-sm text-white/60">
                                 I agree to the{" "}
-                                <Link href="/terms" className="text-primary hover:text-primary-light">
+                                <Link href="/terms" disabled className="text-primary hover:text-primary-light pointer-events-none opacity-50">
                                     Terms of Service
                                 </Link>{" "}
                                 and{" "}
-                                <Link href="/privacy" className="text-primary hover:text-primary-light">
+                                <Link href="/privacy" disabled className="text-primary hover:text-primary-light pointer-events-none opacity-50">
                                     Privacy Policy
                                 </Link>
                             </label>
@@ -173,7 +232,7 @@ export default function SignUpPage() {
                             type="submit"
                             className="w-full btn-primary flex items-center justify-center gap-2 group"
                         >
-                            <span>Create Account</span>
+                            <span>Create {selectedRole === "student" ? "Student" : "Organizer"} Account</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </form>
@@ -199,7 +258,7 @@ export default function SignUpPage() {
 
                 {/* Back to home */}
                 <div className="text-center mt-6">
-                    <Link href="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">
+                    <Link href="/" className="text-sm text-white/40 hover:text-white/70 transition-colors pointer-events-none">
                         ← Back to Home
                     </Link>
                 </div>
