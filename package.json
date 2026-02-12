@@ -2,22 +2,34 @@
   "name": "takathon_monorepo",
   "version": "1.0.0",
   "description": "TAkathon is a Hackathon Team Builder, a SaaS platform that helps students form balanced hackathon teams based on skills and availability while giving organizers a structured overview of participants and teams.",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nx serve",
+    "build": "nx build",
+    "test": "nx test",
+    "lint": "nx lint",
+    "dev:student": "nx dev student-portal",
+    "dev:organizer": "nx dev organizer-dashboard"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/TAkathon/TAkathon_monorepo.git"
+  "devDependencies": {
+    "@nx/eslint": "^20.4.4",
+    "@nx/eslint-plugin": "^20.4.4",
+    "@nx/jest": "^20.4.4",
+    "@nx/js": "^20.4.4",
+    "@nx/next": "^20.4.4",
+    "@nx/react": "^20.4.4",
+    "@nx/workspace": "^20.4.4",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.16.0",
+    "jest": "^29.7.0",
+    "nx": "^20.4.4",
+    "typescript": "^5.7.0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/TAkathon/TAkathon_monorepo/issues"
-  },
-  "homepage": "https://github.com/TAkathon/TAkathon_monorepo#readme"
+  "dependencies": {
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
 }
