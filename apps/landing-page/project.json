@@ -1,0 +1,37 @@
+{
+  "name": "landing-page",
+  "projectType": "application",
+  "root": "apps/landing-page",
+  "sourceRoot": "apps/landing-page/src",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/landing-page",
+        "command": "next dev"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/landing-page",
+        "command": "next build"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/landing-page",
+        "command": "next start"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/landing-page",
+        "command": "next lint"
+      }
+    }
+  },
+  "tags": []
+}
