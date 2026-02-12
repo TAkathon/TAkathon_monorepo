@@ -2,127 +2,259 @@
 
 ## Architecture Overview
 
-This is a **modular monolith** for hackathon team formation with:
-- **Frontend**: Next.js app (React, TailwindCSS, Axios)
-- **Backend**: FastAPI REST API (SQLAlchemy, PostgreSQL, Alembic, JWT)
-- **Matching Engine**: AI-powered teammate recommendation system (designed for future ML replacement)
+This is a **modular monolith Nx monorepo** for hackathon team formation with:
+- **Frontend Apps**: Three Next.js apps (student-portal, organizer-dashboard, sponsor-panel)
+- **Core Gateway**: NestJS/Node.js backend (Auth, Database, API routing)
+- **AI Engine**: FastAPI/Python service (Matching algorithms, AI coaching)
+- **Shared Libraries**: TypeScript types, UI components, utilities, Python AI logic
+- **Database**: PostgreSQL with centralized schema and migrations
 
-Data flow: `Next.js → FastAPI → Service Layer → Matching Engine → PostgreSQL`
+Data flow: `Next.js Apps → Core Gateway (NestJS) → [AI Engine (FastAPI) | PostgreSQL]`
 
-**Core Concept**: Students create and manage their own teams. They can invite friends directly or use AI matchmaking to find compatible teammates for open spots.
+## Frontend Development Guidelines
+
+### Design System
+- **Theme**: Dark mode by default (`#1A0A00`).
+- **Primary Color**: `#D94C1A` (Orange/Rust).
+- **UI Pattern**: Glassmorphism (defined in `globals.css`).
+- **Component Library**: Lucide React for icons, Tailwind CSS for styling.
+
+### App Structure (Next.js 15)
+- Use **App Router** (`src/app`).
+- Shared layout components in `src/components/` (e.g., `DashboardLayout`).
+- Pages follow a consistent layout: Sidebar, Top bar (search/notifications), Main content area.
+
+### Design Consistency
+- **Glassmorphism**: Use the `.glass` class for cards and panels.
+- **Buttons**: Use `.btn-primary` and `.btn-secondary` for consistency.
+- **Inputs**: Use `.input-field` for form elements.
+- **Responsive**: All dashboards must be mobile-friendly (use `md:` or `lg:` for grid/flex layouts).
+
+### Core Concept
 
 ## Project Structure
 
-Monorepo WITHOUT npm workspaces (backend=Python, frontend=Node, no shared packages):
+Nx monorepo with workspace management, build caching, and dependency graph:
 ```
-/backend
-  /app
-    /api          # Route handlers
-    /models       # SQLAlchemy models
-    /services     # Business logic
-    /matching     # Team generation engine (internal module)
-      engine.py
-      scoring.py
-      validators.py
-  /alembic        # Database migrations
-  /tests
-  requirements.txt
-/frontend
-  /app            # Next.js 14 App Router
-    layout.tsx
-    page.tsx
-    /dashboard
-    /hackathons
-  /components
-  /lib            # Utilities, API client
-  package.json
+/apps
+  /student-portal          # Next.js app for students
+    /src/app              # App Router
+    /src/components
+    /src/lib
+  /organizer-dashboard     # Next.js app for organizers  
+  /sponsor-panel           # Next.js app for sponsors
+  /core-gateway            # NestJS backend
+    /src/api              # Route handlers
+    /src/auth             # JWT authentication
+    /src/database         # DB schemas & ORM
+    /src/chat             # Real-time features
+  /ai-engine               # FastAPI Python service
+    /app
+      /matching           # Team matching algorithms
+        engine.py
+        scoring.py
+        validators.py
+      /coaching           # AI coaching (future)
+      /api                # FastAPI routes
+      /models             # Data models
+      /services           # Business logic
+    /tests
+/libs
+  /shared
+    /types                # TypeScript type definitions
+    /ui                   # Shared React components
+    /utils                # Common utilities
+  /python
+    /ai-logic             # Shared AI utilities
+      /src
+        embeddings.py
+        prompts.py
+        utils.py
+/database
+  schema.sql              # PostgreSQL schema
+  /migrations             # Database migrations
+/docs
+  architecture.md
+  api-specification.md
+/nx.json
+/workspace.json
 /docker-compose.yml
-/README.md
 ```
 
 ## Core Domain Models
 
 ### Database Tables
-- `users` - Student/organizer accounts
+Located in `database/schema.sql`:
+- `users` - Student/organizer/sponsor accounts
 - `skills` - Skill taxonomy
 - `user_skills` - Many-to-many with proficiency levels
 - `hackathons` - Event metadata
 - `hackathon_participants` - Registration data
 - `teams` - Student-created teams (with creator/captain)
-- `team_members` - Team membership and invitations
+- `team_members` - Team membership
 - `team_invitations` - Pending invites and join requests
 
 ### User Roles
 - **Student**: Profile creation, skill setting, hackathon joining, team creation, inviting friends, requesting AI teammate matches
 - **Organizer**: Hackathon creation, participant viewing, team overview, data export
+- **Sponsor**: Hackathon browsing, team project viewing, talent discovery
 
 ## Critical Patterns
 
 ### Matching Engine (V1 Algorithm)
-Internal module at `backend/app/matching/` (NOT separate package yet). Used for **AI teammate recommendations** when students need to fill open team spots.
+Located at `apps/ai-engine/app/matching/` (FastAPI service). Used for **AI teammate recommendations** when students need to fill open team spots.
+
+**Architecture**:
+- Client → Core Gateway (NestJS) → AI Engine (FastAPI)
+- Core Gateway handles auth, validation, and data fetching
+- AI Engine focuses solely on scoring and recommendation logic
 
 Scoring criteria for candidate matches:
-1. Skill complementarity (fill gaps in team's skill set)
-2. Experience level balance
-3. Availability overlap
-4. Role fit (frontend/backend/design/PM)
+1. Skill complementarity (40%) - Fill gaps in team's skill set
+2. Experience level balance (30%) - Mix of proficiencies
+3. Availability overlap (30%) - Time zone and commitment match
 
-**Key principle**: Deterministic and replaceable - designed for future ML swap but kept internal until reuse justifies extraction. Avoid tight coupling to FastAPI routes.
+**Key principle**: Deterministic and replaceable - designed for future ML swap. Clean service boundaries with JSON input/output schemas.
 
 **Usage flow**: Student creates team → invites friends → requests AI suggestions for remaining spots → reviews matches → sends invites
 
+### Service Communication
+- **Frontend → Core Gateway**: REST API with JWT auth
+- **Core Gateway → AI Engine**: Internal HTTP calls (FastAPI endpoints)
+- **Core Gateway → Database**: Direct PostgreSQL access via ORM
+- All business logic and validation in Core Gateway
+- AI Engine stateless (no database access, pure computation)
+
 ### Authentication
-JWT-based system. All API routes require role-based access control:
+JWT-based system via Core Gateway. All API routes require role-based access control:
 - Public routes: registration, login
-- Student routes: profile, join hackathon, create team, invite members, request AI matches, manage team
-- Organizer routes: create hackathon, view participants, view all teams, export data
+- Student routes: profile, join hackathon, create team, invite members, request AI matches
+- Organizer routes: create hackathon, view participants, view teams, export data
+- Sponsor routes: browse hackathons, view teams, discover talent
 
 ### API Design
-RESTful conventions:
+RESTful conventions (Core Gateway serves all):
 - `/api/v1/auth/*` - Authentication endpoints
 - `/api/v1/students/*` - Student profile operations
 - `/api/v1/organizers/*` - Organizer operations
 - `/api/v1/hackathons/*` - Event management
 - `/api/v1/teams/*` - Team creation, invitations, management
-- `/api/v1/matching/*` - AI teammate recommendations
+- `/api/v1/matching/*` - AI teammate recommendations (proxied to ai-engine)
+- `/api/v1/skills/*` - Skill taxonomy
 
 ## Development Workflows
 
-### Backend (FastAPI)
-- **ORM**: Use SQLAlchemy declarative models
-- **Migrations**: Alembic for schema changes
-- **Validation**: Pydantic models for request/response
-- **Database**: PostgreSQL (avoid SQLite except local dev)
+### Nx Commands
+Use Nx for all build, test, and dev operations:
+```bash
+# Serve apps in dev mode
+nx serve student-portal
+nx serve core-gateway
+nx serve ai-engine
+
+# Build apps
+nx build student-portal
+nx build organizer-dashboard
+nx build core-gateway
+
+# Run tests
+nx test ai-engine
+nx test shared-types
+
+# Lint code
+nx lint student-portal
+
+# View dependency graph
+nx graph
+
+# Run affected (CI optimization)
+nx affected:build
+nx affected:test
+```
+
+### Git & Merge Workflow
+- **Branching**: Always create a feature branch (`feat/`), bugfix branch (`fix/`), or chore branch (`chore/`) from `dev`.
+- **Pull Requests**: Every merge into the `dev` or `main` branch **must** be performed via a Pull Request (PR). Direct merges or pushes to these branches are prohibited.
+- **Commit Messages**: Follow conventional commits (see `COMMIT_CONVENTIONS.md`).
+
+### Backend (Core Gateway - NestJS)
+- **Framework**: NestJS with TypeScript
+- **ORM**: TypeORM or Prisma for PostgreSQL
+- **Validation**: class-validator decorators
+- **Architecture**: Module-based (auth, teams, hackathons, users)
+- **Database**: PostgreSQL (migrations via ORM)
+
+### AI Engine (FastAPI)
+- **Framework**: FastAPI with Python 3.11+
+- **Models**: Pydantic for request/response
+- **Purpose**: Stateless computation service
+- **No database access**: Receives data from core-gateway
+- **Testing**: pytest for matching logic
 
 ### Frontend (Next.js 14+ App Router)
-- **Routing**: App Router (`app/` directory) - use layouts, server components, modern routing
+- **Routing**: App Router (`app/` directory) - use layouts, server components
 - **Styling**: TailwindCSS (utility-first approach)
+- **Shared components**: Import from `@takathon/shared/ui`
+- **Shared types**: Import from `@takathon/shared/types`
 - **API calls**: Axios with centralized configuration in `lib/`
 - **State**: Zustand for auth state, user profile, current hackathon - fetch everything else from API (avoid over-caching)
 
+### Shared Libraries
+- **libs/shared/types**: TypeScript type definitions (user, team, hackathon models)
+- **libs/shared/ui**: Reusable React/Tailwind components (buttons, inputs, modals)
+- **libs/shared/utils**: Common utilities (validators, formatters, constants)
+- **libs/python/ai-logic**: Shared Python utilities (embeddings, prompts)
+
+Import shared code:
+```typescript
+// In Next.js apps
+import { Button } from '@takathon/shared/ui';
+import { User, Team } from '@takathon/shared/types';
+import { validateEmail } from '@takathon/shared/utils';
+```
+
 ### Docker
 Use Docker Compose for local development with:
-- Backend service (FastAPI)
-- Frontend service (Next.js dev server)
+- Core Gateway service (NestJS)
+- AI Engine service (FastAPI)
+- Frontend services (Next.js dev servers)
 - PostgreSQL container
 - Volume mounts for hot-reload
 
 ## Key Conventions
 
-1. **Monorepo coordination**: Keep frontend/backend separate (no workspaces) - sync API contracts manually
-2. **Service boundaries**: `backend/app/matching/` has clear input/output schemas (JSON)
-3. **Database migrations**: Always generate Alembic migrations for schema changes
-4. **JWT handling**: Store in httpOnly cookies (frontend) and validate on every protected route (backend)
-5. **Error responses**: Standardize API error format (status code, message, details)
-6. **State management**: Use Zustand minimally - fetch from API, don't over-cache
+1. **Nx Monorepo**: Use Nx commands exclusively for build/test/serve operations
+2. **Shared Libraries**: Maximize code reuse through `libs/shared/*` - avoid duplication across apps
+3. **Service boundaries**: AI Engine has clean input/output schemas (JSON) - no database access
+4. **Database migrations**: Core Gateway owns database schema - use ORM migrations
+5. **JWT handling**: Store in httpOnly cookies (frontend) and validate on every protected route (backend)
+6. **Error responses**: Standardize API error format (status code, message, details)
+7. **State management**: Use Zustand minimally - fetch from API, don't over-cache
+8. **Type safety**: Use shared types from `@takathon/shared/types` for API contracts
+9. **Component reuse**: Build UI components in `libs/shared/ui` for use across all frontends
+10. **Nx constraints**: Respect module boundaries - apps can import from libs but not other apps
 
 ## Testing Strategy
 
 Strategic coverage (not 90% blanket coverage):
-- **Backend**: pytest for API endpoints and matching algorithm logic
+- **Core Gateway**: NestJS testing framework for API endpoints and business logic
+- **AI Engine**: pytest for matching algorithm logic and scoring functions
 - **Frontend**: Jest/React Testing Library for critical user flows
+- **Shared Libraries**: Unit tests for utilities and validators in `libs/shared/utils`
 - **Integration**: End-to-end team creation and AI matching with sample participant data
 - **Priority**: Auth flows, team creation/invitations, AI matching recommendations, role-based access control
+
+Use Nx to run tests:
+```bash
+# Test specific app
+nx test ai-engine
+
+# Test all affected by changes
+nx affected:test
+
+# Test shared library
+nx test shared-utils
+```
 
 ## Deployment
 
@@ -133,7 +265,7 @@ Target platforms: Render or DigitalOcean
 
 ## Future Considerations
 
-The matching engine is V1 (rule-based) and lives in `backend/app/matching/`. Design interfaces to allow:
+The matching engine is V1 (rule-based) and lives in `apps/ai-engine/app/matching/`. Design interfaces to allow:
 - Swapping in ML-based scoring (replace scoring.py) for better teammate recommendations
 - A/B testing different matching algorithms
 - Performance metrics collection (match acceptance rate, team success)
