@@ -2,23 +2,31 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 
-export default function LoginPage() {
+export default function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
+        fullName: "",
         email: "",
         password: "",
+        confirmPassword: "",
+        agreeToTerms: false,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement authentication logic
-        console.log("Login attempt:", formData);
+        // TODO: Implement registration logic
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords don't match!");
+            return;
+        }
+        console.log("Sign up attempt:", formData);
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-12">
             {/* Background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-dark via-dark-50 to-dark opacity-50" />
             
@@ -26,7 +34,7 @@ export default function LoginPage() {
             <div className="absolute top-20 left-10 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
 
-            {/* Login Card */}
+            {/* Sign Up Card */}
             <div className="relative z-10 w-full max-w-md mx-4">
                 <div className="glass rounded-2xl p-8 shadow-2xl">
                     {/* Logo */}
@@ -40,12 +48,31 @@ export default function LoginPage() {
                             </span>
                         </Link>
                         <p className="text-white/60 mt-2 text-sm">
-                            Welcome back! Sign in to continue
+                            Create your account and start building teams
                         </p>
                     </div>
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        {/* Full Name */}
+                        <div>
+                            <label htmlFor="fullName" className="block text-sm font-medium text-white/80 mb-2">
+                                Full Name
+                            </label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                                <input
+                                    id="fullName"
+                                    type="text"
+                                    required
+                                    value={formData.fullName}
+                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                    className="input-field pl-11"
+                                    placeholder="John Doe"
+                                />
+                            </div>
+                        </div>
+
                         {/* Email */}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
@@ -76,6 +103,7 @@ export default function LoginPage() {
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     required
+                                    minLength={8}
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                     className="input-field pl-11 pr-11"
@@ -89,17 +117,55 @@ export default function LoginPage() {
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                             </div>
+                            <p className="text-xs text-white/40 mt-1">Minimum 8 characters</p>
                         </div>
 
-                        {/* Remember & Forgot */}
-                        <div className="flex items-center justify-between text-sm">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0" />
-                                <span className="text-white/60 group-hover:text-white/80 transition-colors">Remember me</span>
+                        {/* Confirm Password */}
+                        <div>
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-white/80 mb-2">
+                                Confirm Password
                             </label>
-                            <Link href="/forgot-password" className="text-primary hover:text-primary-light transition-colors">
-                                Forgot password?
-                            </Link>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                                <input
+                                    id="confirmPassword"
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    required
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                    className="input-field pl-11 pr-11"
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                                >
+                                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Terms & Conditions */}
+                        <div className="flex items-start gap-2">
+                            <input
+                                id="terms"
+                                type="checkbox"
+                                required
+                                checked={formData.agreeToTerms}
+                                onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
+                                className="mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0"
+                            />
+                            <label htmlFor="terms" className="text-sm text-white/60">
+                                I agree to the{" "}
+                                <Link href="/terms" className="text-primary hover:text-primary-light">
+                                    Terms of Service
+                                </Link>{" "}
+                                and{" "}
+                                <Link href="/privacy" className="text-primary hover:text-primary-light">
+                                    Privacy Policy
+                                </Link>
+                            </label>
                         </div>
 
                         {/* Submit Button */}
@@ -107,7 +173,7 @@ export default function LoginPage() {
                             type="submit"
                             className="w-full btn-primary flex items-center justify-center gap-2 group"
                         >
-                            <span>Sign In</span>
+                            <span>Create Account</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </form>
@@ -122,11 +188,11 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    {/* Sign Up Link */}
+                    {/* Login Link */}
                     <p className="text-center text-sm text-white/60">
-                        Don't have an account?{" "}
-                        <Link href="/signup" className="text-primary hover:text-primary-light font-semibold transition-colors">
-                            Create one now
+                        Already have an account?{" "}
+                        <Link href="/" className="text-primary hover:text-primary-light font-semibold transition-colors">
+                            Sign in
                         </Link>
                     </p>
                 </div>
