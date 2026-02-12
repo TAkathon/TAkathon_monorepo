@@ -6,23 +6,22 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@shared/utils";
 import {
     Home,
-    Calendar,
-    Users,
-    User,
-    Settings,
+    Search,
+    Inbox,
+    Wallet,
+    Building2,
     LogOut,
     Bell,
-    Search,
     Menu,
     X,
 } from "lucide-react";
 
 const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Hackathons", href: "/dashboard/hackathons", icon: Calendar },
-    { name: "My Teams", href: "/dashboard/teams", icon: Users },
-    { name: "Profile", href: "/dashboard/profile", icon: User },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: "Overview", href: "/dashboard", icon: Home },
+    { name: "Discover Opportunities", href: "/dashboard/opportunities", icon: Search },
+    { name: "Requests Management", href: "/dashboard/requests", icon: Inbox },
+    { name: "Budget Tracking", href: "/dashboard/budget", icon: Wallet },
+    { name: "Sponsor Profile", href: "/dashboard/profile", icon: Building2 },
 ];
 
 export default function DashboardLayout({
@@ -38,25 +37,23 @@ export default function DashboardLayout({
     useEffect(() => {
         if (!_hasHydrated) return;
 
-        // Simple protected route logic
         if (!isAuthenticated) {
-            router.replace("/login");
-        } else if (user?.role !== "student") {
-            // If an organizer somehow gets here, redirect them
-            if (user?.role === "organizer") {
+            window.location.href = "http://localhost:3001/login";
+        } else if (user?.role !== "sponsor") {
+            if (user?.role === "student") {
+                window.location.href = "http://localhost:3001/";
+            } else if (user?.role === "organizer") {
                 window.location.href = "http://localhost:3002/";
-            } else if (user?.role === "sponsor") {
-                window.location.href = "http://localhost:3003/";
             }
         }
     }, [isAuthenticated, user, router, _hasHydrated]);
 
     const handleLogout = () => {
         logout();
-        router.push("/login");
+        window.location.href = "http://localhost:3001/login";
     };
 
-    if (!_hasHydrated || !isAuthenticated || user?.role !== "student") {
+    if (!_hasHydrated || !isAuthenticated || user?.role !== "sponsor") {
         return (
             <div className="min-h-screen bg-dark flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -79,6 +76,12 @@ export default function DashboardLayout({
                                 AKATHON
                             </span>
                         </Link>
+                    </div>
+
+                    <div className="px-6 py-2">
+                        <span className="text-[10px] font-bold tracking-widest text-primary uppercase bg-primary/10 px-2 py-1 rounded">
+                            Sponsor Panel
+                        </span>
                     </div>
 
                     {/* Navigation */}
@@ -199,7 +202,7 @@ export default function DashboardLayout({
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                                 <input
                                     type="text"
-                                    placeholder="Search hackathons, teams..."
+                                    placeholder="Search events, requests..."
                                     className="w-full pl-11 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-primary/50 transition-all"
                                 />
                             </div>
@@ -218,6 +221,9 @@ export default function DashboardLayout({
                                 <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-primary font-semibold">
                                     {user?.fullName?.split(' ').map(n => n[0]).join('') || 'JD'}
                                 </div>
+                                <span className="text-sm font-medium text-white/80 hidden sm:block">
+                                    {user?.fullName || 'Sponsor User'}
+                                </span>
                             </button>
                         </div>
                     </div>
