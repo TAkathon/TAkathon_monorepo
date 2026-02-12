@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export type UserRole = "student" | "organizer" | null;
 
@@ -29,6 +29,7 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: "auth-storage",
+            storage: createJSONStorage(() => localStorage),
         }
     )
 );
