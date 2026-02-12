@@ -16,7 +16,8 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@shared/utils": ["../../libs/shared/utils/src/index.ts"]
     },
     "resolveJsonModule": true,
     "isolatedModules": true,
