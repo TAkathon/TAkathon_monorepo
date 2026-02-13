@@ -1,0 +1,39 @@
+{
+  "name": "core-gateway",
+  "projectType": "application",
+  "sourceRoot": "apps/core-gateway/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx tsc -p apps/core-gateway/tsconfig.json"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node apps/core-gateway/dist/index.js"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx ts-node apps/core-gateway/src/index.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/core-gateway/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx ts-node apps/core-gateway/test/token.spec.ts && npx ts-node apps/core-gateway/test/auth.spec.ts"
+      }
+    }
+  },
+  "tags": []
+}
