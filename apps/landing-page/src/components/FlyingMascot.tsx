@@ -16,13 +16,20 @@ export default function FlyingMascot() {
 
     useEffect(() => {
         const handleScroll = () => {
+            const scrollY = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+
+            // Check if we're near the bottom (contact section area)
+            // The contact section is at the bottom, so if we're close to end, fade out
+            const isNearBottom = (windowHeight + scrollY) >= (documentHeight - 600); // Adjust threshold as needed
+
             // Show mascot only after scrolling down past the hero section (approx 300px)
-            // This syncs with the fade-out in HeroSection
-            if (window.scrollY > 250) {
+            // AND if we are NOT near the bottom where the contact mascot is
+            if (scrollY > 250 && !isNearBottom) {
                 if (!isVisible) {
                     setIsVisible(true);
-                    // Start from center of screen roughly where the hero mascot was
-                    // We can default to center of viewport
+                    // Start from center of screen if just appearing
                     x.set(window.innerWidth / 2);
                     y.set(window.innerHeight / 3);
                 }
@@ -42,6 +49,9 @@ export default function FlyingMascot() {
 
         window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("mousemove", handleMouseMove, { passive: true });
+
+        // Initial check
+        handleScroll();
 
         return () => {
             window.removeEventListener("scroll", handleScroll);
@@ -63,6 +73,7 @@ export default function FlyingMascot() {
                 opacity: isVisible ? 1 : 0,
                 scale: isVisible ? 1 : 0.5,
             }}
+            exit={{ opacity: 0, scale: 0.5 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
         >
             <motion.div
