@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
 import authRouter from "./routes/auth";
+import { requestLogger, logStartup } from "./middleware/logger";
 
 dotenv.config({ path: path.resolve(process.cwd(), "apps/core-gateway/.env") });
 
@@ -29,6 +30,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+app.use(requestLogger);
 
 app.get("/api/v1/health", (_req, res) => {
   res.json({ ok: true, service: "core-gateway" });
@@ -37,3 +39,4 @@ app.get("/api/v1/health", (_req, res) => {
 app.use("/api/v1/auth", authRouter);
 
 app.listen(PORT);
+logStartup(PORT, CORS_ORIGINS);
