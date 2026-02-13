@@ -1,7 +1,11 @@
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 import { UserRole } from "@takathon/shared/types";
 
+// Initialize Prisma Client
+const prisma = new PrismaClient();
+
+// Keep StoredUser interface for compatibility or refactor to use Prisma's User type
 export interface StoredUser {
   id: string;
   email: string;
@@ -10,9 +14,6 @@ export interface StoredUser {
   passwordHash: string;
 }
 
-// In-memory user store (to be replaced with DB)
-const usersByEmail = new Map<string, StoredUser>();
-
 export class UserService {
   static async createUser(input: { 
     email: string; 
@@ -20,14 +21,39 @@ export class UserService {
     role: UserRole; 
     passwordHash: string 
   }): Promise<StoredUser> {
-    const id = crypto.randomUUID();
-    const user: StoredUser = { id, ...input };
-    usersByEmail.set(user.email, user);
-    return user;
+    const user = await prisma.user.create({
+      data: {
+        email: input.email,
+        fullName: input.fullName,
+        role: input.role as any, // Cast to match Prisma enum if needed
+        passwordHash: input.passwordHash,
+        username: input.email.split("@")[0] + "_" + Math.floor(Math.random() * 10000), // Generate unique username
+      },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role as unknown as UserRole,
+      passwordHash: user.passwordHash,
+    };
   }
 
   static async findByEmail(email: string): Promise<StoredUser | undefined> {
-    return usersByEmail.get(email);
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) return undefined;
+
+    return {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role as unknown as UserRole,
+      passwordHash: user.passwordHash,
+    };
   }
 
   static async validatePassword(user: StoredUser, password: string): Promise<boolean> {
@@ -44,4 +70,3 @@ export class UserService {
     };
   }
 }
-
