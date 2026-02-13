@@ -1,6 +1,6 @@
 # TAkathon Copilot Instructions
 
-## Architecture Overview
+## ⚠️ Git Workflow (Gitflow) - CRITICAL
 
 This is a **modular monolith Nx monorepo** for hackathon team formation with:
 - **Frontend Apps**: Three Next.js apps (student-portal, organizer-dashboard, sponsor-panel)
@@ -32,7 +32,12 @@ Data flow: `Next.js Apps → Core Gateway (NestJS) → [AI Engine (FastAPI) | Po
 
 ### Core Concept
 
-## Project Structure
+### Workflow Rules
+1. **NEVER commit directly to `main`** - Only merge from `release/*` or `hotfix/*`
+2. **All development happens on `dev`** - Switch to `dev` branch for coding
+3. **Create feature branches**: `git checkout -b feature/feature-name dev`
+4. **Merge features to `dev`**: Create PR from `feature/*` → `dev`
+5. **Releases**: Create `release/*` from `dev`, test, then merge to `main` and `dev`
 
 Nx monorepo with workspace management, build caching, and dependency graph:
 ```

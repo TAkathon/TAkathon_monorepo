@@ -1,12 +1,12 @@
 # TAkathon
 
-TAkathon is a Hackathon Team Builder, a SaaS platform that helps students form balanced hackathon teams based on skills and availability while giving organizers a structured overview of participants and teams.
+> Hackathon Team Builder - AI-powered platform for forming balanced hackathon teams
 
-The platform transforms chaotic team formation into a structured, efficient process.
+TAkathon helps students create teams, invite friends, and find compatible teammates using AI matching. Organizers can create hackathons and manage participants efficiently.
 
 ---
 
-## 🚀 Core Features (MVP)
+## 🌿 Development Branch Structure (Gitflow)
 
 - Student authentication (JWT-based)
 - Skill-based student profiles
@@ -43,9 +43,7 @@ Interactive FigJam diagrams documenting system flows:
 - **[Team Generation Workflow](https://www.figma.com/online-whiteboard/create-diagram/59e0efc1-fad3-4661-b02f-a5d7d7842330?utm_source=other&utm_content=edit_in_figjam)** - Detailed matching engine process from participant review to team export
 - **[Student Journey: Profile to Team](https://www.figma.com/online-whiteboard/create-diagram/685cee4a-2e87-4d3a-807b-ba85a7900bf1?utm_source=other&utm_content=edit_in_figjam)** - Complete student experience from profile setup to team collaboration
 
----
-
-## 🧠 Matching Engine (V1)
+### 🚀 Get Started with Development
 
 The AI-powered teammate matching system helps students find compatible team members using:
 
@@ -56,7 +54,10 @@ The AI-powered teammate matching system helps students find compatible team memb
 
 **How it works**: Students create teams and invite friends. For open spots, they can request AI-matched suggestions of compatible participants.
 
-This module is designed to be replaceable with an ML-based system in future versions.
+Once on `dev`, check:
+- `SETUP.md` - Complete setup guide and quick start
+- `README.md` - Full project documentation
+- `.github/copilot-instructions.md` - Architecture and development guidelines
 
 ---
 
@@ -107,27 +108,22 @@ Create a `.env` file in the root directory (or in specific app directories if ne
 
 ## 🛠 Tech Stack
 
-### Backend
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Alembic
-- JWT Authentication
+**What TAkathon does:**
+- Students create teams and invite friends
+- AI suggests compatible teammates for open spots
+- Organizers create hackathons and view team distribution
+- Skill-based matching ensures balanced teams
 
-### Frontend
-- Next.js
-- TailwindCSS
-- Axios
+**Tech Stack:**
+- Frontend: Next.js 14 + TailwindCSS
+- Backend: FastAPI + PostgreSQL
+- Matching: AI-powered recommendation engine
 
-### DevOps
-- Docker
-- Docker Compose
-- GitHub Actions (CI)
-- Cloud deployment (Render / DigitalOcean)
+**Architecture:** Modular monolith with clear separation (Frontend → API → Service Layer → Matching Engine → Database)
 
 ---
 
-## 📦 Database Design (Core Tables)
+## 📐 Design Resources
 
 - users
 - skills
@@ -181,17 +177,10 @@ Create a `.env` file in the root directory (or in specific app directories if ne
 
 ---
 
-## 📈 Future Expansion
+## 📝 License
 
-- ML-based compatibility scoring
-- Public student profiles
-- Hackathon performance tracking
-- Company access to top teams
-- Portfolio generation
+See LICENSE file for details.
 
 ---
 
-## 🎯 Vision
-
-Start narrow. Solve team formation.
-Expand into a structured hackathon ecosystem.
+**Ready to code?** → Switch to the `dev` branch to get started!
