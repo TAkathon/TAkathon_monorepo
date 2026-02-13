@@ -19,7 +19,8 @@
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx ts-node apps/core-gateway/src/index.ts"
+        "command": "npx ts-node -r tsconfig-paths/register src/index.ts",
+        "cwd": "apps/core-gateway"
       }
     },
     "lint": {
@@ -31,7 +32,7 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx ts-node apps/core-gateway/test/token.spec.ts && npx ts-node apps/core-gateway/test/auth.spec.ts"
+        "command": "npx ts-node -r tsconfig-paths/register apps/core-gateway/test/token.spec.ts && npx ts-node -r tsconfig-paths/register apps/core-gateway/test/auth.spec.ts"
       }
     }
   },

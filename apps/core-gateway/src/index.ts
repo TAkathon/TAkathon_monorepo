@@ -33,6 +33,14 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(requestLogger);
 
+app.get("/", (_req, res) => {
+  ResponseHandler.success(res, {
+    message: "Welcome to TAkathon Core Gateway API",
+    version: "1.0.0",
+    health: "/api/v1/health"
+  });
+});
+
 app.get("/api/v1/health", (_req, res) => {
   ResponseHandler.success(res, { ok: true, service: "core-gateway" });
 });

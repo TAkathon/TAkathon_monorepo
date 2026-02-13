@@ -38,6 +38,7 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "ts-jest": "^29.4.6",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.0"
   },
   "dependencies": {

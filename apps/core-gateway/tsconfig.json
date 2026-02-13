@@ -7,7 +7,12 @@
     "strict": true,
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@takathon/shared/types": ["../../libs/shared/types/src/index.ts"],
+      "@takathon/shared/types/*": ["../../libs/shared/types/src/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["test", "**/*.spec.ts"]
