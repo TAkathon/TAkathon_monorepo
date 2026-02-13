@@ -33,6 +33,14 @@ function SignUpContent() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Force logout on component mount to ensure clean state
+    if (useAuthStore.getState().isAuthenticated) {
+       console.log("Forcing logout on Signup page load");
+       useAuthStore.getState().logout();
+    }
+  }, []);
+
+  useEffect(() => {
     // Prevent hydration mismatch by checking for window existence
     if (typeof window === "undefined" || !_hasHydrated) return;
 
