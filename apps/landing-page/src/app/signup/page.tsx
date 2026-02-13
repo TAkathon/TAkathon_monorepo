@@ -55,13 +55,17 @@ export default function SignUpPage() {
         role: selectedRole,
       });
 
-      const mockUser = {
-        id: result.user?.id ?? Math.random().toString(36).slice(2),
-        email: formData.email,
-        fullName: formData.fullName,
-        role: selectedRole,
-      };
-      login(mockUser);
+      const { data } = result || {};
+      if (!data?.user || !data?.accessToken) {
+        throw new Error("Invalid response");
+      }
+      login({
+        id: data.user.id,
+        email: data.user.email,
+        fullName: data.user.fullName,
+        role: data.user.role as any,
+      });
+      useAuthStore.getState().setAccessToken(data.accessToken);
 
       const url = getRedirectUrl(selectedRole);
       if (url.startsWith("http")) {

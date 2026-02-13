@@ -1,21 +1,8 @@
-import axios from "axios";
+import { apiClient } from "@shared/api";
 
-const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    timeout: 10000,
-});
+const api = apiClient;
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        console.error("API Error:", error.response?.data || error.message);
-        return Promise.reject(error);
-    }
-);
+// shared client already has interceptors
 
 export interface ContactFormData {
     firstName: string;
@@ -56,21 +43,11 @@ export interface RegisterPayload {
 }
 
 export async function loginUser(payload: LoginPayload) {
-    try {
-        const response = await api.post("/api/v1/auth/login", payload);
-        return response.data;
-    } catch {
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        return { success: true, user: { id: "1", fullName: "User" } };
-    }
+    const response = await api.post("/api/v1/auth/login", payload);
+    return response.data;
 }
 
 export async function registerUser(payload: RegisterPayload) {
-    try {
-        const response = await api.post("/api/v1/auth/register", payload);
-        return response.data;
-    } catch {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        return { success: true, user: { id: "1" } };
-    }
+    const response = await api.post("/api/v1/auth/register", payload);
+    return response.data;
 }
