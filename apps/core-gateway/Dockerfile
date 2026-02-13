@@ -21,4 +21,4 @@ RUN npx nx build core-gateway
 EXPOSE 8000
 
 # Start the application
-CMD ["node", "dist/apps/core-gateway/main.js"]
+CMD ["node", "apps/core-gateway/dist/index.js"]
