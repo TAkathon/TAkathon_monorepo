@@ -22,6 +22,7 @@ services:
     build:
       context: .
       dockerfile: apps/core-gateway/Dockerfile
+    platform: linux/amd64
     container_name: takathon-gateway
     environment:
       DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/takathon?schema=public
@@ -53,6 +54,7 @@ services:
     build:
       context: .
       dockerfile: apps/landing-page/Dockerfile
+    platform: linux/amd64
     container_name: takathon-landing
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
@@ -65,6 +67,7 @@ services:
     build:
       context: .
       dockerfile: apps/student-portal/Dockerfile
+    platform: linux/amd64
     container_name: takathon-student
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
@@ -77,6 +80,7 @@ services:
     build:
       context: .
       dockerfile: apps/organizer-dashboard/Dockerfile
+    platform: linux/amd64
     container_name: takathon-organizer
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
@@ -89,6 +93,7 @@ services:
     build:
       context: .
       dockerfile: apps/sponsor-panel/Dockerfile
+    platform: linux/amd64
     container_name: takathon-sponsor
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
