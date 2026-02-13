@@ -8,8 +8,9 @@ RUN npx nx build organizer-dashboard
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
-COPY --from=builder /app/dist/apps/organizer-dashboard/public ./public
-COPY --from=builder /app/dist/apps/organizer-dashboard/.next/standalone ./
-COPY --from=builder /app/dist/apps/organizer-dashboard/.next/static ./.next/static
+COPY --from=builder /app/apps/organizer-dashboard/public ./apps/organizer-dashboard/public
+COPY --from=builder /app/apps/organizer-dashboard/.next/standalone ./
+COPY --from=builder /app/apps/organizer-dashboard/.next/static ./apps/organizer-dashboard/.next/static
 EXPOSE 3002
-CMD ["node", "server.js"]
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "apps/organizer-dashboard/server.js"]

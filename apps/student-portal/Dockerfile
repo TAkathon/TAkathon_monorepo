@@ -8,8 +8,9 @@ RUN npx nx build student-portal
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
-COPY --from=builder /app/dist/apps/student-portal/public ./public
-COPY --from=builder /app/dist/apps/student-portal/.next/standalone ./
-COPY --from=builder /app/dist/apps/student-portal/.next/static ./.next/static
+COPY --from=builder /app/apps/student-portal/public ./apps/student-portal/public
+COPY --from=builder /app/apps/student-portal/.next/standalone ./
+COPY --from=builder /app/apps/student-portal/.next/static ./apps/student-portal/.next/static
 EXPOSE 3001
-CMD ["node", "server.js"]
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "apps/student-portal/server.js"]
