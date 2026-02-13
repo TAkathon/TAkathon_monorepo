@@ -6,8 +6,17 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, User as UserIcon, ShieldCheck, Building2 } from "lucide-react";
 import { useAuthStore, UserRole, getRedirectUrl } from "@shared/utils";
 import { loginUser } from "../../lib/api";
+import ClientOnly from "../../lib/ClientOnly";
 
 export default function LoginPage() {
+  return (
+    <ClientOnly>
+      <LoginContent />
+    </ClientOnly>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const { login, isAuthenticated, user, _hasHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
@@ -80,96 +89,96 @@ export default function LoginPage() {
             <p className="text-white/60 mt-2 text-sm">Welcome back! Sign in to continue</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <button
-              type="button"
-              onClick={() => setSelectedRole("student")}
-              className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                selectedRole === "student" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
-              }`}
-            >
-              <UserIcon className="w-5 h-5" />
-              <span className="text-xs font-medium">Student</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedRole("organizer")}
-              className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                selectedRole === "organizer" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
-              }`}
-            >
-              <ShieldCheck className="w-5 h-5" />
-              <span className="text-xs font-medium">Organizer</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedRole("sponsor")}
-              className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                selectedRole === "sponsor" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
-              }`}
-            >
-              <Building2 className="w-5 h-5" />
-              <span className="text-xs font-medium">Sponsor</span>
-            </button>
-          </div>
-
-          {error && <div className="mb-4 text-sm text-red-400">{error}</div>}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 z-10 pointer-events-none" />
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="input-field !pl-10"
-                  placeholder="name@university.edu"
-                />
-              </div>
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <button
+                type="button"
+                onClick={() => setSelectedRole("student")}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
+                  selectedRole === "student" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                }`}
+              >
+                <UserIcon className="w-5 h-5" />
+                <span className="text-xs font-medium">Student</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("organizer")}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
+                  selectedRole === "organizer" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                }`}
+              >
+                <ShieldCheck className="w-5 h-5" />
+                <span className="text-xs font-medium">Organizer</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("sponsor")}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
+                  selectedRole === "sponsor" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                }`}
+              >
+                <Building2 className="w-5 h-5" />
+                <span className="text-xs font-medium">Sponsor</span>
+              </button>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 z-10 pointer-events-none" />
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="input-field !pl-10"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+            {error && <div className="mb-4 text-sm text-red-400">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 z-10 pointer-events-none" />
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="input-field !pl-10"
+                    placeholder="name@university.edu"
+                  />
+                </div>
               </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 z-10 pointer-events-none" />
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="input-field !pl-10"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" disabled={loading} className="w-full btn-primary flex items-center justify-center gap-2 group">
+                <span>{loading ? "Signing In..." : `Sign In as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`}</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
+              <div className="relative flex justify-center text-sm"><span className="px-4 bg-dark text-white/40">OR</span></div>
             </div>
 
-            <button type="submit" disabled={loading} className="w-full btn-primary flex items-center justify-center gap-2 group">
-              <span>{loading ? "Signing In..." : `Sign In as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`}</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
-            <div className="relative flex justify-center text-sm"><span className="px-4 bg-dark text-white/40">OR</span></div>
-          </div>
-
-          <p className="text-center text-sm text-white/60">
-            Don't have an account?{" "}
-            <Link href="/signup" className="text-primary hover:text-primary-light font-semibold transition-colors">Create one now</Link>
-          </p>
+            <p className="text-center text-sm text-white/60">
+              Don't have an account?{" "}
+              <Link href="/signup" className="text-primary hover:text-primary-light font-semibold transition-colors">Create one now</Link>
+            </p>
         </div>
         <div className="text-center mt-6">
           <Link href="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">← Back to Home</Link>

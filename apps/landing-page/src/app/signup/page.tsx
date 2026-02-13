@@ -6,8 +6,17 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User as UserIcon, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
 import { useAuthStore, UserRole, getRedirectUrl } from "@shared/utils";
 import { registerUser } from "../../lib/api";
+import ClientOnly from "../../lib/ClientOnly";
 
 export default function SignUpPage() {
+  return (
+    <ClientOnly>
+      <SignUpContent />
+    </ClientOnly>
+  );
+}
+
+function SignUpContent() {
   const router = useRouter();
   const { login, isAuthenticated, user, _hasHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);

@@ -5,10 +5,10 @@
   "sourceRoot": "apps/landing-page/src",
   "targets": {
     "build": {
-      "executor": "@nx/next:build",
+      "executor": "nx:run-commands",
       "options": {
-        "root": "apps/landing-page",
-        "outputPath": "dist/apps/landing-page"
+        "command": "npx next build",
+        "cwd": "apps/landing-page"
       }
     },
     "dev": {
