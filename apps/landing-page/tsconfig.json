@@ -25,6 +25,9 @@
         "paths": {
             "@/*": [
                 "./src/*"
+            ],
+            "@takathon/shared/ui": [
+                "../../libs/shared/ui/src/index.ts"
             ]
         }
     },
