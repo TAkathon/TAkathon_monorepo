@@ -83,3 +83,5 @@ cleanup-*.sh
 *~
 .vercel
 .turbo
+
+/generated/prisma

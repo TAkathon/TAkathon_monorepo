@@ -77,6 +77,9 @@ Nx monorepo with workspace management, build caching, and dependency graph:
 /database
   schema.sql              # PostgreSQL schema
   /migrations             # Database migrations
+/prisma                   # Prisma ORM
+  schema.prisma           # Prisma schema
+  seed.ts                 # Database seeding
 /docs
   architecture.md
   api-specification.md
@@ -88,8 +91,9 @@ Nx monorepo with workspace management, build caching, and dependency graph:
 ## Core Domain Models
 
 ### Database Tables
-Located in `database/schema.sql`:
+Located in `database/schema.sql` and `prisma/schema.prisma`:
 - `users` - Student/organizer/sponsor accounts
+- `student_profiles`, `organizer_profiles`, `sponsor_profiles` - Role details
 - `skills` - Skill taxonomy
 - `user_skills` - Many-to-many with proficiency levels
 - `hackathons` - Event metadata
@@ -97,6 +101,8 @@ Located in `database/schema.sql`:
 - `teams` - Student-created teams (with creator/captain)
 - `team_members` - Team membership
 - `team_invitations` - Pending invites and join requests
+- `applications` - Team applications
+- `sponsorships` - Sponsor contributions
 
 ### User Roles
 - **Student**: Profile creation, skill setting, hackathon joining, team creation, inviting friends, requesting AI teammate matches
@@ -109,7 +115,7 @@ Located in `database/schema.sql`:
 Located at `apps/ai-engine/app/matching/` (FastAPI service). Used for **AI teammate recommendations** when students need to fill open team spots.
 
 **Architecture**:
-- Client → Core Gateway (NestJS) → AI Engine (FastAPI)
+- Client → Core Gateway (Express) → AI Engine (FastAPI)
 - Core Gateway handles auth, validation, and data fetching
 - AI Engine focuses solely on scoring and recommendation logic
 
@@ -125,7 +131,7 @@ Scoring criteria for candidate matches:
 ### Service Communication
 - **Frontend → Core Gateway**: REST API with JWT auth
 - **Core Gateway → AI Engine**: Internal HTTP calls (FastAPI endpoints)
-- **Core Gateway → Database**: Direct PostgreSQL access via ORM
+- **Core Gateway → Database**: Direct PostgreSQL access via Prisma ORM
 - All business logic and validation in Core Gateway
 - AI Engine stateless (no database access, pure computation)
 
@@ -151,7 +157,14 @@ RESTful conventions (Core Gateway serves all):
 
 ## Development Workflows
 
-### Nx Commands
+### Docker (Preferred)
+Use Docker Compose for a consistent dev environment:
+```bash
+docker compose up --build
+```
+This starts: Postgres, Core Gateway, AI Engine, and all Frontends.
+
+### Local (Nx)
 Use Nx for all build, test, and dev operations:
 ```bash
 # Serve apps in dev mode
@@ -189,7 +202,8 @@ nx affected:test
 - **Auth**: JWT with `jsonwebtoken`, password hashing with `bcryptjs`
 - **Validation**: `zod` for request payload validation
 - **Architecture**: Route-Middleware-Service pattern
-- **Database**: PostgreSQL (planned integration via standardized repository pattern)
+- **Database**: PostgreSQL accessed via **Prisma ORM**
+- **ORM**: Prisma for schema management, migrations, and type-safe queries
 
 ### AI Engine (FastAPI)
 - **Framework**: FastAPI with Python 3.11+
@@ -233,7 +247,7 @@ Use Docker Compose for local development with:
 1. **Nx Monorepo**: Use Nx commands exclusively for build/test/serve operations
 2. **Shared Libraries**: Maximize code reuse through `libs/shared/*` - avoid duplication across apps
 3. **Service boundaries**: AI Engine has clean input/output schemas (JSON) - no database access
-4. **Database migrations**: Core Gateway owns database schema - use ORM migrations
+4. **Database migrations**: Core Gateway owns database schema - use ORM migrations (Prisma)
 5. **JWT handling**: Store in httpOnly cookies (frontend) and validate on every protected route (backend)
 6. **Error responses**: Standardize API error format (status code, message, details)
 7. **State management**: Use Zustand minimally - fetch from API, don't over-cache

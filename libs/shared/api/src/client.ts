@@ -11,8 +11,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState() as any;
   if (accessToken) {
-    config.headers = config.headers || {};
-    (config.headers as any).Authorization = `Bearer ${accessToken}`;
+    config.headers.set("Authorization", `Bearer ${accessToken}`);
   }
   return config;
 });
@@ -38,8 +37,7 @@ api.interceptors.response.use(
         return new Promise((resolve) => {
           subscribeTokenRefresh((token) => {
             if (token) {
-              originalRequest.headers = originalRequest.headers || {};
-              originalRequest.headers.Authorization = `Bearer ${token}`;
+              originalRequest.headers.set("Authorization", `Bearer ${token}`);
             }
             resolve(api(originalRequest));
           });
@@ -53,8 +51,7 @@ api.interceptors.response.use(
         if (newToken) {
           useAuthStore.getState().setAccessToken(newToken);
           onRefreshed(newToken);
-          originalRequest.headers = originalRequest.headers || {};
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          originalRequest.headers.set("Authorization", `Bearer ${newToken}`);
           return api(originalRequest);
         }
       } catch {
