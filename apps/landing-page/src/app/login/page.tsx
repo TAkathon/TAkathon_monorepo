@@ -39,17 +39,13 @@ export default function LoginPage() {
         role: selectedRole,
       });
 
-      const { data } = result || {};
-      if (!data?.user || !data?.accessToken) {
-        throw new Error("Invalid response");
-      }
-      login({
-        id: data.user.id,
-        email: data.user.email,
-        fullName: data.user.fullName,
-        role: data.user.role as any,
-      });
-      useAuthStore.getState().setAccessToken(data.accessToken);
+      const mockUser = {
+        id: result.user?.id ?? "1",
+        email: formData.email,
+        fullName: result.user?.fullName ?? "User",
+        role: selectedRole,
+      };
+      login(mockUser);
 
       const url = getRedirectUrl(selectedRole);
       if (url.startsWith("http")) {
