@@ -33,13 +33,20 @@ function SignUpContent() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!_hasHydrated) return;
+    // Prevent hydration mismatch by checking for window existence
+    if (typeof window === "undefined" || !_hasHydrated) return;
+
     if (isAuthenticated && user?.role) {
-      const url = getRedirectUrl(user.role);
-      if (url.startsWith("http")) {
-        window.location.href = url;
-      } else {
-        router.replace(url);
+      // Avoid redirect loops if we are already on the correct page or logic is flawed
+      const targetUrl = getRedirectUrl(user.role);
+      
+      // Basic check to ensure we aren't redirecting to the current page (though ports differ)
+      if (window.location.href !== targetUrl) {
+         if (targetUrl.startsWith("http")) {
+           window.location.href = targetUrl;
+         } else {
+           router.replace(targetUrl);
+         }
       }
     }
   }, [isAuthenticated, user, router, _hasHydrated]);
