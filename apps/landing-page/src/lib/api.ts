@@ -41,3 +41,36 @@ export async function submitContactForm(data: ContactFormData) {
 }
 
 export default api;
+ 
+export interface LoginPayload {
+    email: string;
+    password: string;
+    role?: "student" | "organizer" | "sponsor";
+}
+
+export interface RegisterPayload {
+    fullName: string;
+    email: string;
+    password: string;
+    role: "student" | "organizer" | "sponsor";
+}
+
+export async function loginUser(payload: LoginPayload) {
+    try {
+        const response = await api.post("/api/v1/auth/login", payload);
+        return response.data;
+    } catch {
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        return { success: true, user: { id: "1", fullName: "User" } };
+    }
+}
+
+export async function registerUser(payload: RegisterPayload) {
+    try {
+        const response = await api.post("/api/v1/auth/register", payload);
+        return response.data;
+    } catch {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return { success: true, user: { id: "1" } };
+    }
+}

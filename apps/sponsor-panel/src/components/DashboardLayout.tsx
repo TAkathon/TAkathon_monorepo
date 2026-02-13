@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuthStore } from "@shared/utils";
+import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
 import {
     Home,
     Search,
@@ -38,19 +38,16 @@ export default function DashboardLayout({
         if (!_hasHydrated) return;
 
         if (!isAuthenticated) {
-            window.location.href = "http://localhost:3001/login";
-        } else if (user?.role !== "sponsor") {
-            if (user?.role === "student") {
-                window.location.href = "http://localhost:3001/";
-            } else if (user?.role === "organizer") {
-                window.location.href = "http://localhost:3002/";
-            }
+            window.location.href = `${getLandingUrl()}/login`;
+        } else if (user?.role && user.role !== "sponsor") {
+            const url = getRedirectUrl(user.role);
+            window.location.href = url;
         }
     }, [isAuthenticated, user, router, _hasHydrated]);
 
     const handleLogout = () => {
         logout();
-        window.location.href = "http://localhost:3001/login";
+        window.location.href = `${getLandingUrl()}/login`;
     };
 
     if (!_hasHydrated || !isAuthenticated || user?.role !== "sponsor") {

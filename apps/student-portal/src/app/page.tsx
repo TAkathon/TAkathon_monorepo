@@ -2,23 +2,24 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@shared/utils";
+import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
 
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
+    if (!_hasHydrated) return;
     if (isAuthenticated) {
       if (user?.role === "student") {
         router.replace("/dashboard");
-      } else {
-        window.location.href = "http://localhost:3002/";
+      } else if (user?.role) {
+        window.location.href = getRedirectUrl(user.role);
       }
     } else {
-      router.replace("/login");
+      window.location.href = `${getLandingUrl()}/login`;
     }
-  }, [router, isAuthenticated, user]);
+  }, [router, isAuthenticated, user, _hasHydrated]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark">

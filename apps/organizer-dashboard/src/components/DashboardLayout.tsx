@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuthStore, getLandingUrl, getRedirectUrl } from "@shared/utils";
 import {
     Home,
     Calendar,
@@ -36,6 +37,28 @@ export default function DashboardLayout({
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
+    const { user, isAuthenticated, logout, _hasHydrated } = useAuthStore();
+    useEffect(() => {
+        if (!_hasHydrated) return;
+        if (!isAuthenticated) {
+            window.location.href = `${getLandingUrl()}/login`;
+        } else if (user?.role && user.role !== "organizer") {
+            const url = getRedirectUrl(user.role);
+            window.location.href = url;
+        }
+    }, [isAuthenticated, user, _hasHydrated]);
+    const handleLogout = () => {
+        logout();
+        window.location.href = `${getLandingUrl()}/login`;
+    };
+
+    if (!_hasHydrated || !isAuthenticated || user?.role !== "organizer") {
+        return (
+            <div className="min-h-screen bg-dark flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-dark">
@@ -81,7 +104,7 @@ export default function DashboardLayout({
 
                     {/* User section */}
                     <div className="p-4 border-t border-white/10">
-                        <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all duration-200 w-full">
+                        <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all duration-200 w-full">
                             <LogOut className="w-5 h-5" />
                             <span className="font-medium">Log Out</span>
                         </button>
@@ -140,7 +163,7 @@ export default function DashboardLayout({
 
                             {/* User section */}
                             <div className="p-4 border-t border-white/10">
-                                <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all duration-200 w-full">
+                                <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-all duration-200 w-full">
                                     <LogOut className="w-5 h-5" />
                                     <span className="font-medium">Log Out</span>
                                 </button>

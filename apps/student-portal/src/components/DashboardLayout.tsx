@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuthStore } from "@shared/utils";
+import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
 import {
     Home,
     Calendar,
@@ -40,20 +40,16 @@ export default function DashboardLayout({
 
         // Simple protected route logic
         if (!isAuthenticated) {
-            router.replace("/login");
-        } else if (user?.role !== "student") {
-            // If an organizer somehow gets here, redirect them
-            if (user?.role === "organizer") {
-                window.location.href = "http://localhost:3002/";
-            } else if (user?.role === "sponsor") {
-                window.location.href = "http://localhost:3003/";
-            }
+            window.location.href = `${getLandingUrl()}/login`;
+        } else if (user?.role && user.role !== "student") {
+            const url = getRedirectUrl(user.role);
+            window.location.href = url;
         }
     }, [isAuthenticated, user, router, _hasHydrated]);
 
     const handleLogout = () => {
         logout();
-        router.push("/login");
+        window.location.href = `${getLandingUrl()}/login`;
     };
 
     if (!_hasHydrated || !isAuthenticated || user?.role !== "student") {

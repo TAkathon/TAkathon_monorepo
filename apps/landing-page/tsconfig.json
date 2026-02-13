@@ -8,11 +8,12 @@
         ],
         "allowJs": true,
         "skipLibCheck": true,
-        "strict": true,
+    "strict": true,
         "noEmit": true,
         "esModuleInterop": true,
         "module": "esnext",
         "moduleResolution": "bundler",
+    "baseUrl": ".",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "jsx": "preserve",
@@ -23,9 +24,9 @@
             }
         ],
         "paths": {
-            "@/*": [
-                "./src/*"
-            ]
+            "@/*": ["./src/*"],
+            "@shared/utils": ["../../libs/shared/utils/src/index.ts"],
+            "@shared/utils/*": ["../../libs/shared/utils/src/*"]
         }
     },
     "include": [

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@shared/utils";
+import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
 
 export default function HomePage() {
   const router = useRouter();
@@ -14,13 +14,11 @@ export default function HomePage() {
     if (isAuthenticated) {
       if (user?.role === "sponsor") {
         router.replace("/dashboard");
-      } else if (user?.role === "student") {
-        window.location.href = "http://localhost:3001/";
-      } else if (user?.role === "organizer") {
-        window.location.href = "http://localhost:3002/";
+      } else if (user?.role) {
+        window.location.href = getRedirectUrl(user.role);
       }
     } else {
-      window.location.href = "http://localhost:3001/login";
+      window.location.href = `${getLandingUrl()}/login`;
     }
   }, [router, isAuthenticated, user, _hasHydrated]);
 
