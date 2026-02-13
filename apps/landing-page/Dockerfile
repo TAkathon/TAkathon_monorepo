@@ -1,0 +1,15 @@
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npx nx build landing-page
+
+FROM node:18-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV production
+COPY --from=builder /app/dist/apps/landing-page/public ./public
+COPY --from=builder /app/dist/apps/landing-page/.next/standalone ./
+COPY --from=builder /app/dist/apps/landing-page/.next/static ./.next/static
+EXPOSE 3000
+CMD ["node", "server.js"]
