@@ -1,0 +1,37 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "landing-page",
+  "projectType": "application",
+  "sourceRoot": "apps/landing-page/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "options": {
+        "root": "apps/landing-page",
+        "outputPath": "dist/apps/landing-page"
+      }
+    },
+    "dev": {
+      "executor": "@nx/next:server",
+      "options": {
+        "buildTarget": "landing-page:build",
+        "dev": true,
+        "port": 3000
+      }
+    },
+    "start": {
+      "executor": "@nx/next:start",
+      "options": {
+        "root": "apps/landing-page",
+        "port": 3000
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/landing-page/**/*.{ts,tsx}"]
+      }
+    }
+  },
+  "tags": []
+}

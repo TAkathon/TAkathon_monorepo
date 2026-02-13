@@ -1,0 +1,37 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "student-portal",
+  "projectType": "application",
+  "sourceRoot": "apps/student-portal/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "options": {
+        "root": "apps/student-portal",
+        "outputPath": "dist/apps/student-portal"
+      }
+    },
+    "dev": {
+      "executor": "@nx/next:server",
+      "options": {
+        "buildTarget": "student-portal:build",
+        "dev": true,
+        "port": 3001
+      }
+    },
+    "start": {
+      "executor": "@nx/next:start",
+      "options": {
+        "root": "apps/student-portal",
+        "port": 3001
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/student-portal/**/*.{ts,tsx}"]
+      }
+    }
+  },
+  "tags": []
+}

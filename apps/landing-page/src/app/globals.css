@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ─── Base ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #1A0A00;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ─── Scroll Progress Bar ─── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #D94C1A, #F4845F, #D94C1A);
+  z-index: 9999;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(217, 76, 26, 0.7), 0 0 5px rgba(217, 76, 26, 0.5);
+}
+
+.scroll-progress::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #F4845F;
+  box-shadow: 0 0 8px #D94C1A, 0 0 16px rgba(217, 76, 26, 0.5);
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+/* ─── Title Glow Effect ─── */
+.text-glow {
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 30px rgba(217, 76, 26, 0.5),
+    0 0 60px rgba(217, 76, 26, 0.3);
+}
+
+.text-glow-sm {
+  text-shadow:
+    0 0 5px rgba(255, 255, 255, 0.3),
+    0 0 15px rgba(217, 76, 26, 0.3);
+}
+
+/* ─── Sparkle Particles ─── */
+.sparkle-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: sparkle-float linear infinite;
+}
+
+@keyframes sparkle-float {
+  0% {
+    transform: translateY(0) translateX(0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(50px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* ─── Glassmorphism ─── */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background: rgba(26, 10, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1A0A00;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #AF3D15;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D94C1A;
+}
+
+/* ─── Form Animation Utilities ─── */
+.input-focus-glow:focus {
+  box-shadow: 0 0 0 2px rgba(217, 76, 26, 0.3), 0 0 20px rgba(217, 76, 26, 0.15);
+  border-color: #D94C1A;
+}
+
+/* ─── Magnetic Button ─── */
+.btn-magnetic {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+}
+
+.btn-magnetic:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(217, 76, 26, 0.4);
+}
+
+/* ─── Tilt Card Hover ─── */
+.tilt-card {
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+/* ─── Selection Color ─── */
+::selection {
+  background: rgba(217, 76, 26, 0.4);
+  color: #fff;
+}
+
+/* ─── Divider ─── */
+.divider-glow {
+  background: linear-gradient(90deg, transparent, rgba(217, 76, 26, 0.5), transparent);
+  height: 1px;
+}
+
+/* ─── Form Controls (shared with auth pages) ─── */
+.btn-primary {
+  @apply px-6 py-3 bg-primary text-white font-semibold rounded-lg transition-all duration-300;
+  @apply hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-transparent text-white/90 font-semibold rounded-lg border border-white/20;
+  @apply hover:border-primary/50 hover:text-white transition-all duration-300;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10;
+  @apply text-white placeholder:text-white/40;
+  @apply focus:outline-none focus:border-primary/50 focus:bg-white/10;
+  @apply transition-all duration-300;
+}
