@@ -138,7 +138,7 @@ export default function SignUpPage() {
                   required
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="input-field pl-12"
+                  className="input-field !pl-10"
                   placeholder="First Last"
                 />
               </div>
@@ -154,7 +154,7 @@ export default function SignUpPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="input-field pl-12"
+                  className="input-field !pl-10"
                   placeholder="name@university.edu"
                 />
               </div>
@@ -171,7 +171,7 @@ export default function SignUpPage() {
                   minLength={8}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="input-field pl-12 pr-12"
+                  className="input-field !pl-10 pr-12"
                   placeholder="At least 8 characters"
                 />
                 <button
@@ -194,7 +194,7 @@ export default function SignUpPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="input-field pl-12 pr-12"
+                  className="input-field !pl-10 pr-12"
                   placeholder="Re-enter your password"
                 />
                 <button
