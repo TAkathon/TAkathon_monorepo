@@ -1,18 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../services/token";
+import { ResponseHandler } from "../utils/response";
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers["authorization"];
   if (!header || typeof header !== "string") {
-    return res.status(401).json({ success: false, error: { code: "NO_AUTH", message: "Missing Authorization header" } });
+    return ResponseHandler.error(res, "NO_AUTH", "Missing Authorization header", 401);
   }
   const parts = header.split(" ");
   if (parts.length !== 2 || parts[0] !== "Bearer") {
-    return res.status(401).json({ success: false, error: { code: "BAD_AUTH", message: "Invalid Authorization format" } });
+    return ResponseHandler.error(res, "BAD_AUTH", "Invalid Authorization format", 401);
   }
   const payload = verifyAccessToken(parts[1]);
   if (!payload) {
-    return res.status(401).json({ success: false, error: { code: "INVALID_TOKEN", message: "Invalid or expired token" } });
+    return ResponseHandler.error(res, "INVALID_TOKEN", "Invalid or expired token", 401);
   }
   (req as any).user = payload;
   next();

@@ -2,8 +2,10 @@ import { Router } from "express";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../services/token";
-import { createUser, findUserByEmail, toPublicUser, validatePassword } from "../services/user";
+import { UserService } from "../services/user";
 import { requireAuth } from "../middleware/auth";
+import { ResponseHandler } from "../utils/response";
+import { UserRole, AuthResponse } from "@takathon/shared/types";
 
 const router = Router();
 
@@ -11,7 +13,7 @@ const registerSchema = z.object({
   fullName: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(8),
-  role: z.enum(["student", "organizer", "sponsor"]),
+  role: z.nativeEnum(UserRole),
 });
 
 const loginSchema = z.object({
@@ -22,17 +24,17 @@ const loginSchema = z.object({
 router.post("/register", async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid payload" } });
+    return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
   const { email, password, fullName, role } = parsed.data;
 
-  const existing = findUserByEmail(email);
+  const existing = await UserService.findByEmail(email);
   if (existing) {
-    return res.status(409).json({ success: false, error: { code: "USER_EXISTS", message: "Email already registered" } });
+    return ResponseHandler.error(res, "USER_EXISTS", "Email already registered", 409);
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = createUser({ email, fullName, role, passwordHash });
+  const user = await UserService.createUser({ email, fullName, role, passwordHash });
 
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
@@ -45,31 +47,28 @@ router.post("/register", async (req, res) => {
     path: "/",
   });
 
-  return res.json({
-    success: true,
-    data: {
-      user: toPublicUser(user),
-      accessToken,
-      refreshToken,
-    },
-  });
+  return ResponseHandler.success<AuthResponse>(res, {
+    user: UserService.toPublicUser(user),
+    accessToken,
+    refreshToken,
+  }, 201);
 });
 
 router.post("/login", async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid payload" } });
+    return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
   const { email, password } = parsed.data;
 
-  const user = findUserByEmail(email);
+  const user = await UserService.findByEmail(email);
   if (!user) {
-    return res.status(401).json({ success: false, error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password" } });
+    return ResponseHandler.error(res, "INVALID_CREDENTIALS", "Invalid email or password", 401);
   }
 
-  const ok = await validatePassword(user, password);
+  const ok = await UserService.validatePassword(user, password);
   if (!ok) {
-    return res.status(401).json({ success: false, error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password" } });
+    return ResponseHandler.error(res, "INVALID_CREDENTIALS", "Invalid email or password", 401);
   }
 
   const accessToken = signAccessToken(user);
@@ -83,45 +82,47 @@ router.post("/login", async (req, res) => {
     path: "/",
   });
 
-  return res.json({
-    success: true,
-    data: {
-      user: toPublicUser(user),
-      accessToken,
-      refreshToken,
-    },
+  return ResponseHandler.success<AuthResponse>(res, {
+    user: UserService.toPublicUser(user),
+    accessToken,
+    refreshToken,
   });
 });
 
-router.post("/refresh", (req, res) => {
+router.post("/refresh", async (req, res) => {
   const token = req.cookies?.refreshToken;
   if (!token) {
-    return res.status(401).json({ success: false, error: { code: "NO_REFRESH", message: "Missing refresh token" } });
+    return ResponseHandler.error(res, "NO_REFRESH", "Missing refresh token", 401);
   }
-  const payload = verifyRefreshToken(token);
-  if (!payload) {
-    return res.status(401).json({ success: false, error: { code: "INVALID_REFRESH", message: "Invalid refresh token" } });
+
+  try {
+    const payload = verifyRefreshToken(token);
+    if (!payload) {
+      return ResponseHandler.error(res, "INVALID_REFRESH", "Invalid refresh token", 401);
+    }
+    const user = await UserService.findByEmail(payload.email);
+    if (!user) {
+      return ResponseHandler.error(res, "USER_NOT_FOUND", "User not found", 401);
+    }
+
+    const accessToken = signAccessToken(user);
+    return ResponseHandler.success(res, { accessToken });
+  } catch (err) {
+    return ResponseHandler.error(res, "INVALID_REFRESH", "Invalid or expired refresh token", 401);
   }
-  const user = findUserByEmail(payload.email);
-  if (!user) {
-    return res.status(401).json({ success: false, error: { code: "USER_NOT_FOUND", message: "User not found" } });
-  }
-  const accessToken = signAccessToken(user);
-  return res.json({ success: true, data: { accessToken } });
 });
 
 router.post("/logout", (_req, res) => {
   res.clearCookie("refreshToken", { path: "/" });
-  return res.json({ success: true });
+  return ResponseHandler.success(res, { message: "Logged out" });
 });
 
-router.get("/me", requireAuth, (req, res) => {
-  const payload = (req as any).user as { email: string };
-  const user = findUserByEmail(payload.email);
+router.get("/me", requireAuth, async (req: any, res) => {
+  const user = await UserService.findByEmail(req.user.email);
   if (!user) {
-    return res.status(404).json({ success: false, error: { code: "USER_NOT_FOUND", message: "User not found" } });
+    return ResponseHandler.error(res, "USER_NOT_FOUND", "User not found", 404);
   }
-  return res.json({ success: true, data: { user: toPublicUser(user) } });
+  return ResponseHandler.success(res, UserService.toPublicUser(user));
 });
 
 function parseDurationToMs(value: string): number {

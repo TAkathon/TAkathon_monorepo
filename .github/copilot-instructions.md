@@ -4,12 +4,12 @@
 
 This is a **modular monolith Nx monorepo** for hackathon team formation with:
 - **Frontend Apps**: Three Next.js apps (student-portal, organizer-dashboard, sponsor-panel)
-- **Core Gateway**: NestJS/Node.js backend (Auth, Database, API routing)
+- **Core Gateway**: Express/Node.js backend (Auth, Database, API routing)
 - **AI Engine**: FastAPI/Python service (Matching algorithms, AI coaching)
-- **Shared Libraries**: TypeScript types, UI components, utilities, Python AI logic
+- **Shared Libraries**: TypeScript types, UI components, utilities, shared API client
 - **Database**: PostgreSQL with centralized schema and migrations
 
-Data flow: `Next.js Apps → Core Gateway (NestJS) → [AI Engine (FastAPI) | PostgreSQL]`
+Data flow: `Next.js Apps → Core Gateway (Express) → [AI Engine (FastAPI) | PostgreSQL]`
 
 ## Frontend Development Guidelines
 
@@ -48,11 +48,10 @@ Nx monorepo with workspace management, build caching, and dependency graph:
     /src/lib
   /organizer-dashboard     # Next.js app for organizers  
   /sponsor-panel           # Next.js app for sponsors
-  /core-gateway            # NestJS backend
-    /src/api              # Route handlers
-    /src/auth             # JWT authentication
-    /src/database         # DB schemas & ORM
-    /src/chat             # Real-time features
+  /core-gateway            # Express backend
+    /src/routes           # Route handlers (auth, users, etc.)
+    /src/middleware       # Auth and logging middleware
+    /src/services         # Business logic (token, user services)
   /ai-engine               # FastAPI Python service
     /app
       /matching           # Team matching algorithms
@@ -131,11 +130,14 @@ Scoring criteria for candidate matches:
 - AI Engine stateless (no database access, pure computation)
 
 ### Authentication
-JWT-based system via Core Gateway. All API routes require role-based access control:
-- Public routes: registration, login
-- Student routes: profile, join hackathon, create team, invite members, request AI matches
-- Organizer routes: create hackathon, view participants, view teams, export data
-- Sponsor routes: browse hackathons, view teams, discover talent
+JWT-based system via Core Gateway (Express). 
+- **Access Tokens**: Short-lived, passed via `Authorization: Bearer <token>` header.
+- **Refresh Tokens**: Long-lived, stored in `httpOnly` cookies for security.
+- **Auto-Refresh**: Shared Axios client (`libs/shared/api`) handles 401 errors by attempting a token refresh.
+
+All API routes require role-based access control:
+- Public routes: `/api/v1/auth/register`, `/api/v1/auth/login`, `/api/v1/auth/refresh`
+- Protected routes: `/api/v1/me`, `/api/v1/students/*`, etc.
 
 ### API Design
 RESTful conventions (Core Gateway serves all):
@@ -182,12 +184,12 @@ nx affected:test
 - **Pull Requests**: Every merge into the `dev` or `main` branch **must** be performed via a Pull Request (PR). Direct merges or pushes to these branches are prohibited.
 - **Commit Messages**: Follow conventional commits (see `COMMIT_CONVENTIONS.md`).
 
-### Backend (Core Gateway - NestJS)
-- **Framework**: NestJS with TypeScript
-- **ORM**: TypeORM or Prisma for PostgreSQL
-- **Validation**: class-validator decorators
-- **Architecture**: Module-based (auth, teams, hackathons, users)
-- **Database**: PostgreSQL (migrations via ORM)
+### Backend (Core Gateway - Express)
+- **Framework**: Express with TypeScript
+- **Auth**: JWT with `jsonwebtoken`, password hashing with `bcryptjs`
+- **Validation**: `zod` for request payload validation
+- **Architecture**: Route-Middleware-Service pattern
+- **Database**: PostgreSQL (planned integration via standardized repository pattern)
 
 ### AI Engine (FastAPI)
 - **Framework**: FastAPI with Python 3.11+
@@ -196,13 +198,13 @@ nx affected:test
 - **No database access**: Receives data from core-gateway
 - **Testing**: pytest for matching logic
 
-### Frontend (Next.js 14+ App Router)
+### Frontend (Next.js 15+ App Router)
 - **Routing**: App Router (`app/` directory) - use layouts, server components
 - **Styling**: TailwindCSS (utility-first approach)
 - **Shared components**: Import from `@takathon/shared/ui`
 - **Shared types**: Import from `@takathon/shared/types`
-- **API calls**: Axios with centralized configuration in `lib/`
-- **State**: Zustand for auth state, user profile, current hackathon - fetch everything else from API (avoid over-caching)
+- **API calls**: Shared Axios client in `@takathon/shared/api` with withCredentials and auto-refresh interceptors
+- **State**: Zustand for auth state (`useAuthStore`) - handles token persistence and user info
 
 ### Shared Libraries
 - **libs/shared/types**: TypeScript type definitions (user, team, hackathon models)

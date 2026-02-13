@@ -1,40 +1,47 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-
-export type Role = "student" | "organizer" | "sponsor";
+import { UserRole } from "@takathon/shared/types";
 
 export interface StoredUser {
   id: string;
   email: string;
   fullName: string;
-  role: Role;
+  role: UserRole;
   passwordHash: string;
 }
 
+// In-memory user store (to be replaced with DB)
 const usersByEmail = new Map<string, StoredUser>();
 
-export function createUser(input: { email: string; fullName: string; role: Role; passwordHash: string }): StoredUser {
-  const id = crypto.randomUUID();
-  const user: StoredUser = { id, ...input };
-  usersByEmail.set(user.email, user);
-  return user;
-}
+export class UserService {
+  static async createUser(input: { 
+    email: string; 
+    fullName: string; 
+    role: UserRole; 
+    passwordHash: string 
+  }): Promise<StoredUser> {
+    const id = crypto.randomUUID();
+    const user: StoredUser = { id, ...input };
+    usersByEmail.set(user.email, user);
+    return user;
+  }
 
-export function findUserByEmail(email: string): StoredUser | undefined {
-  return usersByEmail.get(email);
-}
+  static async findByEmail(email: string): Promise<StoredUser | undefined> {
+    return usersByEmail.get(email);
+  }
 
-export function validatePassword(user: StoredUser, password: string): Promise<boolean> {
-  return bcrypt.compare(password, user.passwordHash);
-}
+  static async validatePassword(user: StoredUser, password: string): Promise<boolean> {
+    return bcrypt.compare(password, user.passwordHash);
+  }
 
-export function toPublicUser(user: StoredUser) {
-  return {
-    id: user.id,
-    email: user.email,
-    username: user.email.split("@")[0],
-    role: user.role,
-    fullName: user.fullName,
-  };
+  static toPublicUser(user: StoredUser) {
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.email.split("@")[0],
+      role: user.role,
+      fullName: user.fullName,
+    };
+  }
 }
 

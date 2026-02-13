@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import authRouter from "./routes/auth";
 import { requestLogger, logStartup } from "./middleware/logger";
+import { ResponseHandler } from "./utils/response";
 
 dotenv.config({ path: path.resolve(process.cwd(), "apps/core-gateway/.env") });
 
@@ -33,7 +34,7 @@ app.use(express.json());
 app.use(requestLogger);
 
 app.get("/api/v1/health", (_req, res) => {
-  res.json({ ok: true, service: "core-gateway" });
+  ResponseHandler.success(res, { ok: true, service: "core-gateway" });
 });
 
 app.use("/api/v1/auth", authRouter);
