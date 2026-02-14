@@ -1,1 +1,5 @@
-// Export all type definitions\nexport * from './lib/user.types';\nexport * from './lib/hackathon.types';\nexport * from './lib/team.types';\nexport * from './lib/api.types';\n
+// Export all type definitions
+export * from './lib/user.types';
+export * from './lib/hackathon.types';
+export * from './lib/team.types';
+export * from './lib/api.types';

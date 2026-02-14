@@ -6,8 +6,17 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User as UserIcon, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
 import { useAuthStore, UserRole, getRedirectUrl } from "@shared/utils";
 import { registerUser } from "../../lib/api";
+import ClientOnly from "../../lib/ClientOnly";
 
 export default function SignUpPage() {
+  return (
+    <ClientOnly>
+      <SignUpContent />
+    </ClientOnly>
+  );
+}
+
+function SignUpContent() {
   const router = useRouter();
   const { login, isAuthenticated, user, _hasHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
@@ -24,13 +33,28 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!_hasHydrated) return;
+    // Force logout on component mount to ensure clean state
+    if (useAuthStore.getState().isAuthenticated) {
+       console.log("Forcing logout on Signup page load");
+       useAuthStore.getState().logout();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Prevent hydration mismatch by checking for window existence
+    if (typeof window === "undefined" || !_hasHydrated) return;
+
     if (isAuthenticated && user?.role) {
-      const url = getRedirectUrl(user.role);
-      if (url.startsWith("http")) {
-        window.location.href = url;
-      } else {
-        router.replace(url);
+      // Avoid redirect loops if we are already on the correct page or logic is flawed
+      const targetUrl = getRedirectUrl(user.role);
+      
+      // Basic check to ensure we aren't redirecting to the current page (though ports differ)
+      if (window.location.href !== targetUrl) {
+         if (targetUrl.startsWith("http")) {
+           window.location.href = targetUrl;
+         } else {
+           router.replace(targetUrl);
+         }
       }
     }
   }, [isAuthenticated, user, router, _hasHydrated]);

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Calendar, Users, Trophy, TrendingUp } from "lucide-react";
 
@@ -90,9 +91,9 @@ export default function DashboardPage() {
                     <div className="glass rounded-xl p-6">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-bold text-white">Upcoming Hackathons</h2>
-                            <a href="/dashboard/hackathons" className="text-sm text-primary hover:text-primary-light">
+                            <Link href="/dashboard/hackathons" className="text-sm text-primary hover:text-primary-light">
                                 View All
-                            </a>
+                            </Link>
                         </div>
                         <div className="space-y-4">
                             {upcomingHackathons.map((hackathon) => (
@@ -127,9 +128,9 @@ export default function DashboardPage() {
                     <div className="glass rounded-xl p-6">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-bold text-white">My Teams</h2>
-                            <a href="/dashboard/teams" className="text-sm text-primary hover:text-primary-light">
+                            <Link href="/dashboard/teams" className="text-sm text-primary hover:text-primary-light">
                                 View All
-                            </a>
+                            </Link>
                         </div>
                         <div className="space-y-4">
                             {myTeams.map((team) => (

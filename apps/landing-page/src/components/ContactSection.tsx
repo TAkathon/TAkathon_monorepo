@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, FormEvent } from "react";
+import NextImage from "next/image";
 import { motion, useInView } from "framer-motion";
 import { Send, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { submitContactForm } from "@/lib/api";
@@ -9,7 +10,7 @@ type FormStatus = "idle" | "loading" | "success" | "error";
 
 export default function ContactSection() {
     const sectionRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+    const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
     const [status, setStatus] = useState<FormStatus>("idle");
     const [formData, setFormData] = useState({
@@ -133,10 +134,10 @@ export default function ContactSection() {
                                     whileHover={status === "idle" ? { scale: 1.02 } : {}}
                                     whileTap={status === "idle" ? { scale: 0.98 } : {}}
                                     className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-white transition-all duration-300 ${status === "success"
-                                            ? "bg-emerald-500"
-                                            : status === "error"
-                                                ? "bg-red-500"
-                                                : "bg-primary hover:bg-primary-dark"
+                                        ? "bg-emerald-500"
+                                        : status === "error"
+                                            ? "bg-red-500"
+                                            : "bg-primary hover:bg-primary-dark"
                                         }`}
                                 >
                                     {status === "idle" && (
@@ -186,15 +187,20 @@ export default function ContactSection() {
                                 style={{ animationDelay: "1s" }}
                             />
 
-                            {/* Central phoenix icon */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center">
-                                    <div className="text-8xl mb-4 animate-float">🔥</div>
-                                    <p className="text-white/60 text-sm font-medium tracking-wider uppercase">
-                                        Rise with TAKATHON
-                                    </p>
-                                </div>
-                            </div>
+                            {/* Mascot Image with floating animation */}
+                            <motion.div
+                                animate={{ y: [0, -8, 0] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute inset-0 flex items-center justify-center p-8"
+                            >
+                                <NextImage
+                                    src="/mascot.png"
+                                    alt="TAKATHON Falcon Mascot"
+                                    fill
+                                    className="object-contain drop-shadow-2xl brightness-110"
+                                    sizes="(max-width: 768px) 100vw, 384px"
+                                />
+                            </motion.div>
                         </div>
                     </motion.div>
                 </div>

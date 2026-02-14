@@ -1,53 +1,161 @@
-version: '3.8'
-
 services:
+  # =========================================================
+  # PostgreSQL Database
+  # =========================================================
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine
+    container_name: takathon-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: takathon
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - takathon-net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
 
-  backend:
+  # =========================================================
+  # Core Gateway (Express + Prisma)
+  # =========================================================
+  core-gateway:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/core-gateway/Dockerfile
+    container_name: takathon-gateway
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/takathon?schema=public
+      PORT: "8000"
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003
+      JWT_ACCESS_SECRET: dev_access_secret_123456789
+      JWT_REFRESH_SECRET: dev_refresh_secret_123456789
+      ACCESS_TTL: 15m
+      REFRESH_TTL: 7d
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/takathon
-      - ENVIRONMENT=development
-    volumes:
-      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - takathon-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+  
 
-  frontend:
+  # =========================================================
+  # AI Engine (FastAPI) — optional, use: docker-compose --profile ai up
+  # =========================================================
+  ai-engine:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
+      context: apps/ai-engine
+      dockerfile: Dockerfile
+    container_name: takathon-ai
+    ports:
+      - "8001:8001"
+    networks:
+      - takathon-net
+    profiles:
+      - ai
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # =========================================================
+  # Landing Page (Next.js)
+  # =========================================================
+  landing-page:
+    build:
+      context: .
+      dockerfile: apps/landing-page/Dockerfile
+    container_name: takathon-landing
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      PORT: "3000"
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
+    networks:
+      - takathon-net
     depends_on:
-      - backend
-    command: npm run dev
+      core-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # =========================================================
+  # Student Portal (Next.js)
+  # =========================================================
+  student-portal:
+    build:
+      context: .
+      dockerfile: apps/student-portal/Dockerfile
+    container_name: takathon-student
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      PORT: "3001"
+    ports:
+      - "3001:3001"
+    networks:
+      - takathon-net
+    depends_on:
+      core-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # =========================================================
+  # Organizer Dashboard (Next.js)
+  # =========================================================
+  organizer-dashboard:
+    build:
+      context: .
+      dockerfile: apps/organizer-dashboard/Dockerfile
+    container_name: takathon-organizer
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      PORT: "3002"
+    ports:
+      - "3002:3002"
+    networks:
+      - takathon-net
+    depends_on:
+      core-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # =========================================================
+  # Sponsor Panel (Next.js)
+  # =========================================================
+  sponsor-panel:
+    build:
+      context: .
+      dockerfile: apps/sponsor-panel/Dockerfile
+    container_name: takathon-sponsor
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      PORT: "3003"
+    ports:
+      - "3003:3003"
+    networks:
+      - takathon-net
+    depends_on:
+      core-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  takathon-net:
+    driver: bridge
 
 volumes:
   postgres_data:

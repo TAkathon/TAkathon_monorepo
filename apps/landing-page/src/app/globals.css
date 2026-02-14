@@ -16,6 +16,15 @@ body {
   overflow-x: hidden;
 }
 
+/* ─── Hide Scrollbar Utility ─── */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;            /* Chrome, Safari */
+}
+
 /* ─── Scroll Progress Bar ─── */
 .scroll-progress {
   position: fixed;
