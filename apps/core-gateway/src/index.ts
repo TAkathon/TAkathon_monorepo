@@ -11,6 +11,7 @@ import studentMatchingRouter from "./routes/students/matching";
 import organizerProfileRouter from "./routes/organizers/profile";
 import organizerHackathonsRouter from "./routes/organizers/hackathons";
 import organizerParticipantsRouter from "./routes/organizers/participants";
+import organizerAnalyticsRouter from "./routes/organizers/analytics";
 import { requestLogger, logStartup } from "./middleware/logger";
 import { ResponseHandler } from "./utils/response";
 
@@ -63,6 +64,7 @@ app.use("/api/v1/students/teams", studentMatchingRouter);
 app.use("/api/v1/organizers", organizerProfileRouter);
 app.use("/api/v1/organizers/hackathons", organizerHackathonsRouter);
 app.use("/api/v1/organizers/hackathons", organizerParticipantsRouter);
+app.use("/api/v1/organizers/hackathons", organizerAnalyticsRouter);
 
 app.listen(PORT);
 logStartup(PORT, CORS_ORIGINS);
