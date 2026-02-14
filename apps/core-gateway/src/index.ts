@@ -8,6 +8,7 @@ import studentProfileRouter from "./routes/students/profile";
 import studentHackathonsRouter from "./routes/students/hackathons";
 import studentTeamsRouter from "./routes/students/teams";
 import studentMatchingRouter from "./routes/students/matching";
+import organizerProfileRouter from "./routes/organizers/profile";
 import { requestLogger, logStartup } from "./middleware/logger";
 import { ResponseHandler } from "./utils/response";
 
@@ -57,6 +58,7 @@ app.use("/api/v1/students", studentProfileRouter);
 app.use("/api/v1/students/hackathons", studentHackathonsRouter);
 app.use("/api/v1/students/teams", studentTeamsRouter);
 app.use("/api/v1/students/teams", studentMatchingRouter);
+app.use("/api/v1/organizers", organizerProfileRouter);
 
 app.listen(PORT);
 logStartup(PORT, CORS_ORIGINS);
