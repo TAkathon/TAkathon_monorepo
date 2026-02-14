@@ -14,6 +14,7 @@ import organizerParticipantsRouter from "./routes/organizers/participants";
 import organizerAnalyticsRouter from "./routes/organizers/analytics";
 import sponsorProfileRouter from "./routes/sponsors/profile";
 import sponsorHackathonsRouter from "./routes/sponsors/hackathons";
+import sponsorTeamsRouter from "./routes/sponsors/teams";
 import { requestLogger, logStartup } from "./middleware/logger";
 import { ResponseHandler } from "./utils/response";
 
@@ -69,6 +70,7 @@ app.use("/api/v1/organizers/hackathons", organizerParticipantsRouter);
 app.use("/api/v1/organizers/hackathons", organizerAnalyticsRouter);
 app.use("/api/v1/sponsors", sponsorProfileRouter);
 app.use("/api/v1/sponsors/hackathons", sponsorHackathonsRouter);
+app.use("/api/v1/sponsors/teams", sponsorTeamsRouter);
 
 app.listen(PORT);
 logStartup(PORT, CORS_ORIGINS);
