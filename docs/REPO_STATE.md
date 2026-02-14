@@ -49,34 +49,35 @@ TAkathon_monorepo/
 
 ## 🔧 Technology Stack
 
-| Layer | Technology | Version | Status |
-|-------|-----------|---------|--------|
-| **Frontend** | Next.js | 15.5.12 | ✅ Running |
-| **Backend** | Express | 4.x | ✅ Running |
-| **ORM** | Prisma | 7.4.0 | ✅ Configured |
-| **Database** | PostgreSQL | 16 | ✅ Running |
-| **AI Service** | FastAPI | 0.109.2 | ✅ Stub |
-| **Build Tool** | esbuild | 0.27.3 | ✅ Configured |
-| **Monorepo** | Nx | 20.4.4 | ✅ Configured |
-| **Runtime** | Node.js | 22 | ✅ Alpine |
-| **Container** | Docker | Latest | ✅ All services |
-| **Styling** | Tailwind CSS | 3.x | ✅ Configured |
+| Layer          | Technology   | Version | Status          |
+| -------------- | ------------ | ------- | --------------- |
+| **Frontend**   | Next.js      | 15.5.12 | ✅ Running      |
+| **Backend**    | Express      | 4.x     | ✅ Running      |
+| **ORM**        | Prisma       | 7.4.0   | ✅ Configured   |
+| **Database**   | PostgreSQL   | 16      | ✅ Running      |
+| **AI Service** | FastAPI      | 0.109.2 | ✅ Stub         |
+| **Build Tool** | esbuild      | 0.27.3  | ✅ Configured   |
+| **Monorepo**   | Nx           | 20.4.4  | ✅ Configured   |
+| **Runtime**    | Node.js      | 22      | ✅ Alpine       |
+| **Container**  | Docker       | Latest  | ✅ All services |
+| **Styling**    | Tailwind CSS | 3.x     | ✅ Configured   |
 
 ---
 
 ## 🌐 Service Ports
 
-| Service | Port | Status | URL |
-|---------|------|--------|-----|
-| Landing Page | 3000 | ✅ Running | http://localhost:3000 |
-| Student Portal | 3001 | ✅ Running | http://localhost:3001 |
-| Organizer Dashboard | 3002 | ✅ Running | http://localhost:3002 |
-| Sponsor Panel | 3003 | ✅ Running | http://localhost:3003 |
-| Core Gateway (API) | 8000 | ✅ Running | http://localhost:8000 |
-| AI Engine | 8001 | ✅ Running (profile) | http://localhost:8001 |
-| PostgreSQL | 5432 | ✅ Running | localhost:5432 |
+| Service             | Port | Status               | URL                   |
+| ------------------- | ---- | -------------------- | --------------------- |
+| Landing Page        | 3000 | ✅ Running           | http://localhost:3000 |
+| Student Portal      | 3001 | ✅ Running           | http://localhost:3001 |
+| Organizer Dashboard | 3002 | ✅ Running           | http://localhost:3002 |
+| Sponsor Panel       | 3003 | ✅ Running           | http://localhost:3003 |
+| Core Gateway (API)  | 8000 | ✅ Running           | http://localhost:8000 |
+| AI Engine           | 8001 | ✅ Running (profile) | http://localhost:8001 |
+| PostgreSQL          | 5432 | ✅ Running           | localhost:5432        |
 
 **Database Credentials**:
+
 - Host: `localhost`
 - Port: `5432`
 - Database: `takathon`
@@ -88,6 +89,7 @@ TAkathon_monorepo/
 ## 📊 Database Schema
 
 ### Tables (Prisma Schema)
+
 ```
 users                    ✅ Defined
 ├── student_profiles     ✅ Defined
@@ -109,6 +111,7 @@ sponsorships             ✅ Defined
 ```
 
 ### Enums
+
 - `UserRole`: student, organizer, sponsor
 - `SkillCategory`: frontend, backend, design, data_science, mobile, devops, product_management, other
 - `ProficiencyLevel`: beginner, intermediate, advanced, expert
@@ -123,12 +126,14 @@ sponsorships             ✅ Defined
 **Type**: JWT-based with refresh tokens
 
 ### Implemented Endpoints
+
 - ✅ `POST /api/v1/auth/register` - User registration
 - ✅ `POST /api/v1/auth/login` - Login (returns access + refresh tokens)
 - ✅ `POST /api/v1/auth/refresh` - Refresh access token
 - ✅ `POST /api/v1/auth/logout` - Logout
 
 ### Token Strategy
+
 - **Access Token**: 15min expiry, in response body
 - **Refresh Token**: 7 day expiry, httpOnly cookie
 - **Validation**: JWT middleware on protected routes
@@ -138,6 +143,7 @@ sponsorships             ✅ Defined
 ## 🚧 API Endpoints Status
 
 ### Implemented ✅
+
 ```
 GET  /                      - Welcome message
 GET  /api/v1/health         - Health check
@@ -150,23 +156,27 @@ POST /api/v1/auth/logout    - Logout
 ### To Implement ⬜
 
 **Student Routes** (`/api/v1/students/*`):
+
 - Profile: GET, PUT
 - Hackathons: GET (browse), GET /:id, POST /:id/register, DELETE /:id/withdraw
 - Teams: GET (my teams), POST (create), PUT /:id, DELETE /:id, POST /:id/invite
 - Matching: GET /teams/:id/matches
 
 **Organizer Routes** (`/api/v1/organizers/*`):
+
 - Profile: GET, PUT
 - Hackathons: POST (create), GET (my events), PUT /:id, DELETE /:id
 - Participants: GET /hackathons/:id/participants, GET /hackathons/:id/teams
 - Analytics: GET /hackathons/:id/analytics, GET /hackathons/:id/export
 
 **Sponsor Routes** (`/api/v1/sponsors/*`):
+
 - Profile: GET, PUT
 - Hackathons: GET (browse), POST /:id/sponsor
 - Teams: GET /hackathons/:id/teams, GET /teams/:id, POST /teams/:id/favorite
 
 **Shared Routes** (`/api/v1/*`):
+
 - Hackathons: GET /hackathons (public listings)
 - Skills: GET /skills, GET /skills/categories
 
@@ -175,6 +185,7 @@ POST /api/v1/auth/logout    - Logout
 ## 🐳 Docker Status
 
 ### Services Running
+
 ```bash
 $ docker-compose ps
 
@@ -189,6 +200,7 @@ takathon-ai          Up (profile: ai)        8001:8001
 ```
 
 ### Docker Commands
+
 ```bash
 # Start all services
 docker-compose up -d
@@ -214,6 +226,7 @@ docker-compose down -v
 ## 📦 Dependencies
 
 ### Core Gateway (Node.js)
+
 ```json
 {
   "express": "^4.18.2",
@@ -231,6 +244,7 @@ docker-compose down -v
 ```
 
 ### Frontend (Next.js)
+
 ```json
 {
   "next": "15.5.12",
@@ -244,6 +258,7 @@ docker-compose down -v
 ```
 
 ### AI Engine (Python)
+
 ```txt
 fastapi==0.109.2
 uvicorn==0.27.1
@@ -255,6 +270,7 @@ pydantic==2.5.3
 ## 🏗️ Build Configuration
 
 ### TypeScript Path Aliases
+
 ```json
 // tsconfig.base.json
 {
@@ -268,12 +284,14 @@ pydantic==2.5.3
 ```
 
 ### Core Gateway Build
+
 - **Type Check**: `tsc --noEmit`
 - **Bundler**: `esbuild` (bundles to single file)
 - **Output**: `dist/index.js` (2.0 MB)
 - **Externals**: `@prisma/client`, `@prisma/adapter-pg`, `pg`
 
 ### Frontend Build
+
 - **Mode**: `standalone` (Next.js)
 - **Output**: `.next/standalone` + `.next/static`
 - **Server**: `apps/{app}/server.js`
@@ -283,18 +301,21 @@ pydantic==2.5.3
 ## 🔍 Current Gaps
 
 ### High Priority ⚠️
+
 1. **No role-specific API routes** - Only auth exists
 2. **No RBAC middleware** - No role validation
 3. **No seed data** - Empty database
 4. **No frontend-backend integration** - Frontends are static
 
 ### Medium Priority
+
 1. AI matching engine incomplete - Stub only
 2. No shared API client library
 3. No state management in frontends
 4. No test coverage
 
 ### Low Priority
+
 1. No CI/CD pipeline
 2. No production deployment
 3. No monitoring/logging
@@ -305,6 +326,7 @@ pydantic==2.5.3
 ## 📝 Environment Variables
 
 ### Core Gateway (.env)
+
 ```bash
 DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/takathon?schema=public
 PORT=8000
@@ -316,6 +338,7 @@ REFRESH_TTL=7d
 ```
 
 ### Frontends (.env.local)
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 ```
@@ -351,17 +374,17 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 
 ## 📚 Key Files Reference
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `.github/copilot-instructions.md` | Development guidelines | ✅ Updated |
-| `docs/DEVELOPMENT_ROADMAP.md` | Detailed roadmap | ✅ Just created |
-| `docs/REPO_STATE.md` | This file | ✅ Current |
-| `prisma/schema.prisma` | Database schema | ✅ Complete |
-| `docker-compose.yml` | Service orchestration | ✅ Complete |
-| `tsconfig.base.json` | TypeScript config | ✅ Complete |
-| `apps/core-gateway/src/index.ts` | API server entry | ✅ Basic setup |
-| `apps/core-gateway/src/routes/auth.ts` | Auth routes | ✅ Complete |
-| `prisma/seed.ts` | Database seeding | ⬜ Empty |
+| File                                   | Purpose                | Status          |
+| -------------------------------------- | ---------------------- | --------------- |
+| `.github/copilot-instructions.md`      | Development guidelines | ✅ Updated      |
+| `docs/DEVELOPMENT_ROADMAP.md`          | Detailed roadmap       | ✅ Just created |
+| `docs/REPO_STATE.md`                   | This file              | ✅ Current      |
+| `prisma/schema.prisma`                 | Database schema        | ✅ Complete     |
+| `docker-compose.yml`                   | Service orchestration  | ✅ Complete     |
+| `tsconfig.base.json`                   | TypeScript config      | ✅ Complete     |
+| `apps/core-gateway/src/index.ts`       | API server entry       | ✅ Basic setup  |
+| `apps/core-gateway/src/routes/auth.ts` | Auth routes            | ✅ Complete     |
+| `prisma/seed.ts`                       | Database seeding       | ⬜ Empty        |
 
 ---
 

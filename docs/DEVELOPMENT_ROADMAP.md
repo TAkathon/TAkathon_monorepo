@@ -3,6 +3,7 @@
 ## 📍 Current State (February 2026)
 
 ### Infrastructure ✅
+
 - [x] Docker containerization complete
 - [x] PostgreSQL 16 running with healthchecks
 - [x] Core Gateway containerized (Express + Prisma 7)
@@ -11,6 +12,7 @@
 - [x] `docker-compose up -d` fully functional
 
 ### Backend Status 🟡
+
 - [x] Express server running on port 8000
 - [x] Prisma 7 with adapter pattern configured
 - [x] Database schema complete (users, profiles, hackathons, teams, skills)
@@ -26,6 +28,7 @@
 - [ ] RBAC middleware - **NOT STARTED**
 
 ### Frontend Status 🟡
+
 - [x] Landing page running on port 3000
 - [x] Student portal running on port 3001
 - [x] Organizer dashboard running on port 3002
@@ -36,6 +39,7 @@
 - [ ] State management (Zustand) - **NOT STARTED**
 
 ### Database Status 🟡
+
 - [x] Prisma schema complete
 - [x] Database running in Docker
 - [x] Schema synced via `prisma db push`
@@ -47,40 +51,45 @@
 ## 🎯 Phase 1: Backend API Development (Current Focus)
 
 ### 1.1 Create RBAC Middleware
+
 **Priority**: HIGH  
 **Estimated Time**: 2-3 hours
 
 **Tasks**:
+
 - [ ] Create `apps/core-gateway/src/middleware/rbac.ts`
 - [ ] Implement role extraction from JWT
 - [ ] Create role guards: `requireStudent()`, `requireOrganizer()`, `requireSponsor()`
 - [ ] Add role validation middleware
 
 **File**: `apps/core-gateway/src/middleware/rbac.ts`
+
 ```typescript
 // Extract role from JWT and validate
 export const requireRole = (allowedRoles: UserRole[]) => {
   return (req, res, next) => {
     const userRole = req.user?.role; // From JWT
     if (!allowedRoles.includes(userRole)) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json({ error: "Forbidden" });
     }
     next();
   };
 };
 
-export const requireStudent = requireRole(['student']);
-export const requireOrganizer = requireRole(['organizer']);
-export const requireSponsor = requireRole(['sponsor']);
+export const requireStudent = requireRole(["student"]);
+export const requireOrganizer = requireRole(["organizer"]);
+export const requireSponsor = requireRole(["sponsor"]);
 ```
 
 ---
 
 ### 1.2 Student Routes Implementation
+
 **Priority**: HIGH  
 **Estimated Time**: 6-8 hours
 
 **Directory Structure**:
+
 ```
 apps/core-gateway/src/
   /routes/students/
@@ -99,12 +108,14 @@ apps/core-gateway/src/
 **Endpoints to Implement**:
 
 #### Profile Management
+
 - [ ] `GET /api/v1/students/profile` - Get student profile
 - [ ] `PUT /api/v1/students/profile` - Update profile
 - [ ] `POST /api/v1/students/skills` - Add skills
 - [ ] `DELETE /api/v1/students/skills/:id` - Remove skill
 
 #### Hackathon Operations
+
 - [ ] `GET /api/v1/students/hackathons` - Browse hackathons
 - [ ] `GET /api/v1/students/hackathons/:id` - Get hackathon details
 - [ ] `POST /api/v1/students/hackathons/:id/register` - Register for hackathon
@@ -112,6 +123,7 @@ apps/core-gateway/src/
 - [ ] `GET /api/v1/students/hackathons/:id/participants` - View participants
 
 #### Team Management
+
 - [ ] `GET /api/v1/students/teams` - Get my teams
 - [ ] `POST /api/v1/students/teams` - Create team
 - [ ] `PUT /api/v1/students/teams/:id` - Update team
@@ -121,16 +133,19 @@ apps/core-gateway/src/
 - [ ] `DELETE /api/v1/students/teams/:id/leave` - Leave team
 
 #### AI Matching
+
 - [ ] `GET /api/v1/students/teams/:id/matches` - Get AI teammate recommendations
 - [ ] `POST /api/v1/students/teams/:id/matches/:userId` - Request match
 
 ---
 
 ### 1.3 Organizer Routes Implementation
+
 **Priority**: HIGH  
 **Estimated Time**: 6-8 hours
 
 **Directory Structure**:
+
 ```
 apps/core-gateway/src/
   /routes/organizers/
@@ -147,10 +162,12 @@ apps/core-gateway/src/
 **Endpoints to Implement**:
 
 #### Profile Management
+
 - [ ] `GET /api/v1/organizers/profile` - Get organizer profile
 - [ ] `PUT /api/v1/organizers/profile` - Update profile
 
 #### Hackathon Management
+
 - [ ] `POST /api/v1/organizers/hackathons` - Create hackathon
 - [ ] `GET /api/v1/organizers/hackathons` - Get my hackathons
 - [ ] `GET /api/v1/organizers/hackathons/:id` - Get hackathon details
@@ -159,11 +176,13 @@ apps/core-gateway/src/
 - [ ] `POST /api/v1/organizers/hackathons/:id/publish` - Publish hackathon
 
 #### Participant Management
+
 - [ ] `GET /api/v1/organizers/hackathons/:id/participants` - View all participants
 - [ ] `GET /api/v1/organizers/hackathons/:id/teams` - View all teams
 - [ ] `GET /api/v1/organizers/hackathons/:id/teams/:teamId` - Team details
 
 #### Analytics & Export
+
 - [ ] `GET /api/v1/organizers/hackathons/:id/analytics` - Event analytics
   - Total participants
   - Team formation rate
@@ -174,10 +193,12 @@ apps/core-gateway/src/
 ---
 
 ### 1.4 Sponsor Routes Implementation
+
 **Priority**: MEDIUM  
 **Estimated Time**: 4-6 hours
 
 **Directory Structure**:
+
 ```
 apps/core-gateway/src/
   /routes/sponsors/
@@ -194,16 +215,19 @@ apps/core-gateway/src/
 **Endpoints to Implement**:
 
 #### Profile Management
+
 - [ ] `GET /api/v1/sponsors/profile` - Get sponsor profile
 - [ ] `PUT /api/v1/sponsors/profile` - Update profile
 
 #### Hackathon Operations
+
 - [ ] `GET /api/v1/sponsors/hackathons` - Browse hackathons
 - [ ] `GET /api/v1/sponsors/hackathons/:id` - Get hackathon details
 - [ ] `POST /api/v1/sponsors/hackathons/:id/sponsor` - Sponsor event
 - [ ] `DELETE /api/v1/sponsors/hackathons/:id/unsponsor` - Remove sponsorship
 
 #### Team Discovery
+
 - [ ] `GET /api/v1/sponsors/hackathons/:id/teams` - Browse teams
 - [ ] `GET /api/v1/sponsors/teams/:id` - Team project details
 - [ ] `POST /api/v1/sponsors/teams/:id/favorite` - Bookmark team
@@ -213,10 +237,12 @@ apps/core-gateway/src/
 ---
 
 ### 1.5 Shared Routes Implementation
+
 **Priority**: HIGH  
 **Estimated Time**: 3-4 hours
 
 **Directory Structure**:
+
 ```
 apps/core-gateway/src/
   /routes/shared/
@@ -226,6 +252,7 @@ apps/core-gateway/src/
 ```
 
 **Endpoints to Implement**:
+
 - [ ] `GET /api/v1/hackathons` - Public hackathon listings (paginated)
 - [ ] `GET /api/v1/hackathons/:id` - Public hackathon details
 - [ ] `GET /api/v1/skills` - Get all skills
@@ -237,10 +264,12 @@ apps/core-gateway/src/
 ## 🎯 Phase 2: Database Seeding
 
 ### 2.1 Create Seed Data
+
 **Priority**: HIGH  
 **Estimated Time**: 3-4 hours
 
 **Tasks**:
+
 - [ ] Update `prisma/seed.ts` with realistic test data
   - [ ] 50 student profiles with skills
   - [ ] 5 organizer profiles
@@ -253,6 +282,7 @@ apps/core-gateway/src/
 - [ ] Verify seed data in DBeaver
 
 **File**: `prisma/seed.ts`
+
 ```typescript
 import { PrismaClient, UserRole, SkillCategory, ProficiencyLevel } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -262,7 +292,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Create skills
   const skills = await prisma.skill.createMany({ data: [...] });
-  
+
   // Create test students
   for (let i = 1; i <= 50; i++) {
     await prisma.user.create({
@@ -274,7 +304,7 @@ async function main() {
       },
     });
   }
-  
+
   // Create organizers, sponsors, hackathons, teams...
 }
 ```
@@ -284,21 +314,24 @@ async function main() {
 ## 🎯 Phase 3: Frontend Integration
 
 ### 3.1 Shared API Client
+
 **Priority**: HIGH  
 **Estimated Time**: 2-3 hours
 
 **Tasks**:
+
 - [ ] Create `libs/shared/api/src/client.ts` - Axios client with interceptors
 - [ ] Implement auto-refresh on 401
 - [ ] Add request/response logging
 - [ ] Create type-safe API methods
 
 **File**: `libs/shared/api/src/client.ts`
+
 ```typescript
-import axios from 'axios';
+import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1",
   withCredentials: true,
 });
 
@@ -307,21 +340,23 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      await apiClient.post('/auth/refresh');
+      await apiClient.post("/auth/refresh");
       return apiClient.request(error.config);
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
 ---
 
 ### 3.2 Auth Store (Zustand)
+
 **Priority**: HIGH  
 **Estimated Time**: 2 hours
 
 **Tasks**:
+
 - [ ] Create `libs/shared/stores/src/auth.store.ts`
 - [ ] Implement login/logout/register actions
 - [ ] Persist user state
@@ -330,10 +365,12 @@ apiClient.interceptors.response.use(
 ---
 
 ### 3.3 Student Portal Integration
+
 **Priority**: HIGH  
 **Estimated Time**: 8-12 hours
 
 **Tasks**:
+
 - [ ] Login/Register pages
 - [ ] Profile management UI
 - [ ] Hackathon browsing
@@ -343,10 +380,12 @@ apiClient.interceptors.response.use(
 ---
 
 ### 3.4 Organizer Dashboard Integration
+
 **Priority**: HIGH  
 **Estimated Time**: 8-12 hours
 
 **Tasks**:
+
 - [ ] Login/Register pages
 - [ ] Hackathon creation UI
 - [ ] Participant management
@@ -356,10 +395,12 @@ apiClient.interceptors.response.use(
 ---
 
 ### 3.5 Sponsor Panel Integration
+
 **Priority**: MEDIUM  
 **Estimated Time**: 6-8 hours
 
 **Tasks**:
+
 - [ ] Login/Register pages
 - [ ] Hackathon browsing
 - [ ] Team discovery UI
@@ -370,10 +411,12 @@ apiClient.interceptors.response.use(
 ## 🎯 Phase 4: AI Matching Engine
 
 ### 4.1 Complete FastAPI Implementation
+
 **Priority**: MEDIUM  
 **Estimated Time**: 6-8 hours
 
 **Tasks**:
+
 - [ ] Implement scoring algorithms in `apps/ai-engine/app/matching/scoring.py`
 - [ ] Create recommendation endpoint
 - [ ] Add validators
@@ -384,11 +427,13 @@ apiClient.interceptors.response.use(
 ## 🎯 Phase 5: Testing
 
 ### 5.1 Backend Testing
+
 - [ ] Unit tests for services (Jest)
 - [ ] Integration tests for API endpoints
 - [ ] E2E auth flow tests
 
 ### 5.2 Frontend Testing
+
 - [ ] Component tests (React Testing Library)
 - [ ] User flow tests (Playwright)
 
@@ -397,11 +442,13 @@ apiClient.interceptors.response.use(
 ## 🎯 Phase 6: Deployment
 
 ### 6.1 CI/CD Pipeline
+
 - [ ] GitHub Actions workflow
 - [ ] Automated testing on PR
 - [ ] Docker image builds
 
 ### 6.2 Production Deployment
+
 - [ ] Environment configuration
 - [ ] Database migrations
 - [ ] Deploy to Render/DigitalOcean
@@ -411,6 +458,7 @@ apiClient.interceptors.response.use(
 ## 📝 Development Guidelines
 
 ### Code Organization
+
 ```
 apps/core-gateway/src/
   /routes/{role}/
@@ -423,13 +471,15 @@ apps/core-gateway/src/
 ```
 
 ### Naming Conventions
+
 - **Routes**: Plural, kebab-case (`/students/hackathons`)
 - **Services**: PascalCase, suffix with `Service` (`HackathonService`)
 - **Validators**: PascalCase, suffix with `Schema` (`CreateTeamSchema`)
 
 ### Error Handling
+
 ```typescript
-import { ResponseHandler } from '@/utils/response';
+import { ResponseHandler } from "@/utils/response";
 
 try {
   const result = await service.doSomething();
@@ -440,8 +490,9 @@ try {
 ```
 
 ### Validation Pattern
+
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 const CreateTeamSchema = z.object({
   name: z.string().min(3).max(50),
@@ -489,21 +540,22 @@ nx serve student-portal   # Frontend dev server
 
 **Overall Progress**: ~25% Complete
 
-| Component | Status | Progress |
-|-----------|--------|----------|
-| Infrastructure | ✅ Complete | 100% |
-| Database Schema | ✅ Complete | 100% |
-| Auth System | ✅ Complete | 100% |
-| Student API | ⬜ Not Started | 0% |
-| Organizer API | ⬜ Not Started | 0% |
-| Sponsor API | ⬜ Not Started | 0% |
-| Frontend Auth | ⬜ Not Started | 0% |
-| Frontend Integration | ⬜ Not Started | 0% |
-| AI Matching | 🟡 Partial | 30% |
-| Testing | ⬜ Not Started | 0% |
-| Deployment | ⬜ Not Started | 0% |
+| Component            | Status         | Progress |
+| -------------------- | -------------- | -------- |
+| Infrastructure       | ✅ Complete    | 100%     |
+| Database Schema      | ✅ Complete    | 100%     |
+| Auth System          | ✅ Complete    | 100%     |
+| Student API          | ⬜ Not Started | 0%       |
+| Organizer API        | ⬜ Not Started | 0%       |
+| Sponsor API          | ⬜ Not Started | 0%       |
+| Frontend Auth        | ⬜ Not Started | 0%       |
+| Frontend Integration | ⬜ Not Started | 0%       |
+| AI Matching          | 🟡 Partial     | 30%      |
+| Testing              | ⬜ Not Started | 0%       |
+| Deployment           | ⬜ Not Started | 0%       |
 
 **Next Immediate Tasks** (in order):
+
 1. ✅ Update copilot instructions with current status
 2. Create RBAC middleware (`rbac.ts`)
 3. Implement student routes (start with profile)
