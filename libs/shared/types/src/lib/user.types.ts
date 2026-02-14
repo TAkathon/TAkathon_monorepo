@@ -1,16 +1,16 @@
 // User domain types
 
 export enum UserRole {
-  STUDENT = 'student',
-  ORGANIZER = 'organizer',
-  SPONSOR = 'sponsor',
+  STUDENT = "student",
+  ORGANIZER = "organizer",
+  SPONSOR = "sponsor",
 }
 
 export enum ProficiencyLevel {
-  BEGINNER = 'beginner',
-  INTERMEDIATE = 'intermediate',
-  ADVANCED = 'advanced',
-  EXPERT = 'expert',
+  BEGINNER = "beginner",
+  INTERMEDIATE = "intermediate",
+  ADVANCED = "advanced",
+  EXPERT = "expert",
 }
 
 export interface User {
@@ -36,14 +36,14 @@ export interface Skill {
 }
 
 export enum SkillCategory {
-  FRONTEND = 'frontend',
-  BACKEND = 'backend',
-  DESIGN = 'design',
-  DATA_SCIENCE = 'data_science',
-  MOBILE = 'mobile',
-  DEVOPS = 'devops',
-  PM = 'product_management',
-  OTHER = 'other',
+  FRONTEND = "frontend",
+  BACKEND = "backend",
+  DESIGN = "design",
+  DATA_SCIENCE = "data_science",
+  MOBILE = "mobile",
+  DEVOPS = "devops",
+  PM = "product_management",
+  OTHER = "other",
 }
 
 export interface UserSkill {
@@ -67,4 +67,13 @@ export interface OrganizerProfile extends User {
   role: UserRole.ORGANIZER;
   organization?: string;
   organizationWebsite?: string;
+}
+
+export interface SponsorProfile extends User {
+  role: UserRole.SPONSOR;
+  companyName?: string;
+  industry?: string;
+  websiteUrl?: string;
+  logoUrl?: string;
+  organization?: string;
 }
