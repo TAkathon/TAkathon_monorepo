@@ -51,7 +51,7 @@ services:
       retries: 5
       start_period: 15s
     restart: unless-stopped
-    entrypoint: ["/bin/sh", "-c", "sed -i 's/\\r$//' ./entrypoint.sh && ./entrypoint.sh"]
+  
 
   # =========================================================
   # AI Engine (FastAPI) — optional, use: docker-compose --profile ai up
