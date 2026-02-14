@@ -1,35 +1,35 @@
 {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "landing-page",
   "projectType": "application",
-  "root": "apps/landing-page",
   "sourceRoot": "apps/landing-page/src",
   "targets": {
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "apps/landing-page",
-        "command": "next dev"
-      }
-    },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "cwd": "apps/landing-page",
-        "command": "next build"
+        "command": "npx next build",
+        "cwd": "apps/landing-page"
+      }
+    },
+    "dev": {
+      "executor": "@nx/next:server",
+      "options": {
+        "buildTarget": "landing-page:build",
+        "dev": true,
+        "port": 3000
       }
     },
     "start": {
-      "executor": "nx:run-commands",
+      "executor": "@nx/next:start",
       "options": {
-        "cwd": "apps/landing-page",
-        "command": "next start"
+        "root": "apps/landing-page",
+        "port": 3000
       }
     },
     "lint": {
-      "executor": "nx:run-commands",
+      "executor": "@nx/eslint:lint",
       "options": {
-        "cwd": "apps/landing-page",
-        "command": "next lint"
+        "lintFilePatterns": ["apps/landing-page/**/*.{ts,tsx}"]
       }
     }
   },

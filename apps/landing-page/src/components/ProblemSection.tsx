@@ -5,77 +5,77 @@ import { motion, useInView } from "framer-motion";
 import { Shuffle, FileSpreadsheet, Table2, UserX, ChevronLeft, ChevronRight } from "lucide-react";
 
 const painPoints = [
-    {
-        icon: Shuffle,
-        title: "Random Team Formation",
-        description:
-            "Students pick teammates randomly, leading to unbalanced teams, skill gaps, and frustrating experiences.",
-    },
-    {
-        icon: FileSpreadsheet,
-        title: "Manual Google Forms",
-        description:
-            "Organizers still rely on Google Forms for registration — tedious to manage, parse, and act upon.",
-    },
-    {
-        icon: Table2,
-        title: "Excel Scoring Nightmares",
-        description:
-            "Judges score on spreadsheets with no validation, leading to errors, conflicts, and manual aggregation.",
-    },
-    {
-        icon: UserX,
-        title: "Fragmented Talent Data",
-        description:
-            "Student skills and availability are scattered across platforms, making matching impossible.",
-    },
+  {
+    icon: Shuffle,
+    title: "Random Team Formation",
+    description:
+      "Students pick teammates randomly, leading to unbalanced teams, skill gaps, and frustrating experiences.",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "Manual Google Forms",
+    description:
+      "Organizers still rely on Google Forms for registration — tedious to manage, parse, and act upon.",
+  },
+  {
+    icon: Table2,
+    title: "Excel Scoring Nightmares",
+    description:
+      "Judges score on spreadsheets with no validation, leading to errors, conflicts, and manual aggregation.",
+  },
+  {
+    icon: UserX,
+    title: "Fragmented Talent Data",
+    description:
+      "Student skills and availability are scattered across platforms, making matching impossible.",
+  },
 ];
 
 const containerVariants = {
-    hidden: {},
-    visible: {
-        transition: { staggerChildren: 0.12 },
-    },
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12 },
+  },
 };
 
 const cardVariants = {
-    hidden: { opacity: 0, y: 40, scale: 0.95 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
-    },
+  hidden: { opacity: 0, y: 40, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
 };
 
 function TiltCard({
-    children,
-    className,
+  children,
+  className,
 }: {
-    children: React.ReactNode;
-    className?: string;
+  children: React.ReactNode;
+  className?: string;
 }) {
-    const cardRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-    const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-        const card = cardRef.current;
-        if (!card) return;
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -8;
-        const rotateY = ((x - centerX) / centerX) * 8;
-        card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-    }, []);
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+  }, []);
 
-    const handleMouseLeave = useCallback(() => {
-        const card = cardRef.current;
-        if (!card) return;
-        card.style.transform =
-            "perspective(800px) rotateX(0) rotateY(0) scale3d(1, 1, 1)";
-    }, []);
+  const handleMouseLeave = useCallback(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.transform =
+      "perspective(800px) rotateX(0) rotateY(0) scale3d(1, 1, 1)";
+  }, []);
 
     return (
         <div
@@ -213,7 +213,12 @@ export default function ProblemSection() {
                         The current state of hackathon management is broken. Here&apos;s what
                         organizers and participants face every single time.
                     </p>
-                </motion.div>
+                  </div>
+                </div>
+              </TiltCard>
+            </motion.div>
+          ))}
+        </motion.div>
 
                 <motion.div variants={containerVariants} initial="hidden" animate={isInView ? "visible" : "hidden"}>
                     <div className="relative overflow-visible">

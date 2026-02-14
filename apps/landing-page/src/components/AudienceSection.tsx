@@ -38,19 +38,19 @@ const audiences = [
 ];
 
 const containerVariants = {
-    hidden: {},
-    visible: {
-        transition: { staggerChildren: 0.15 },
-    },
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.15 },
+  },
 };
 
 const cardVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
-    },
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
 };
 
 export default function AudienceSection() {
@@ -58,14 +58,14 @@ export default function AudienceSection() {
     const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
     const [selectedAudience, setSelectedAudience] = useState<(typeof audiences)[0] | null>(null);
 
-    return (
-        <section
-            id="audience"
-            ref={sectionRef}
-            className="relative py-24 sm:py-32 overflow-hidden"
-        >
-            {/* Background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-dark-100 via-dark to-dark" />
+  return (
+    <section
+      id="audience"
+      ref={sectionRef}
+      className="relative py-24 sm:py-32 overflow-hidden"
+    >
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-dark-100 via-dark to-dark" />
 
             <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
                 {/* Title */}
@@ -108,10 +108,10 @@ export default function AudienceSection() {
                                     <item.icon className="w-7 h-7 text-primary" />
                                 </div>
 
-                                {/* Title */}
-                                <h3 className="text-xl font-bold text-white mb-3">
-                                    {item.title}
-                                </h3>
+                {/* Title */}
+                <h3 className="text-xl font-bold text-white mb-3">
+                  {item.title}
+                </h3>
 
                                 {/* Description */}
                                 <p className="text-white/50 text-sm leading-relaxed mb-5 flex-grow">

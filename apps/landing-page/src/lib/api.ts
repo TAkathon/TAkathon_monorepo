@@ -1,21 +1,8 @@
-import axios from "axios";
+import { apiClient } from "@shared/api";
 
-const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    timeout: 10000,
-});
+const api = apiClient;
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        console.error("API Error:", error.response?.data || error.message);
-        return Promise.reject(error);
-    }
-);
+// shared client already has interceptors
 
 export interface ContactFormData {
     firstName: string;
@@ -41,3 +28,26 @@ export async function submitContactForm(data: ContactFormData) {
 }
 
 export default api;
+ 
+export interface LoginPayload {
+    email: string;
+    password: string;
+    role?: "student" | "organizer" | "sponsor";
+}
+
+export interface RegisterPayload {
+    fullName: string;
+    email: string;
+    password: string;
+    role: "student" | "organizer" | "sponsor";
+}
+
+export async function loginUser(payload: LoginPayload) {
+    const response = await api.post("/api/v1/auth/login", payload);
+    return response.data;
+}
+
+export async function registerUser(payload: RegisterPayload) {
+    const response = await api.post("/api/v1/auth/register", payload);
+    return response.data;
+}

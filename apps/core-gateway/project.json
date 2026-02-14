@@ -1,0 +1,48 @@
+{
+  "name": "core-gateway",
+  "projectType": "application",
+  "sourceRoot": "apps/core-gateway/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx tsc -p apps/core-gateway/tsconfig.json --noEmit",
+          "npx esbuild apps/core-gateway/src/index.ts --bundle --platform=node --target=node22 --outfile=apps/core-gateway/dist/index.js --external:@prisma/client --external:@prisma/adapter-pg --external:pg"
+        ],
+        "parallel": false
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "build"
+      ],
+      "options": {
+        "command": "node apps/core-gateway/dist/index.js"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx ts-node -r tsconfig-paths/register src/index.ts",
+        "cwd": "apps/core-gateway"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/core-gateway/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx ts-node -r tsconfig-paths/register apps/core-gateway/test/token.spec.ts && npx ts-node -r tsconfig-paths/register apps/core-gateway/test/auth.spec.ts"
+      }
+    }
+  },
+  "tags": []
+}

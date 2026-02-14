@@ -1,20 +1,69 @@
 # TAkathon
 
-TAkathon is a Hackathon Team Builder, a SaaS platform that helps students form balanced hackathon teams based on skills and availability while giving organizers a structured overview of participants and teams.
+> Hackathon Team Builder - AI-powered platform for forming balanced hackathon teams
 
-The platform transforms chaotic team formation into a structured, efficient process.
+TAkathon helps students create teams, invite friends, and find compatible teammates using AI matching. Organizers can create hackathons and manage participants efficiently.
 
 ---
 
-## 🚀 Core Features (MVP)
+## 🚀 Quick Start (Docker)
 
-- Student authentication (JWT-based)
-- Skill-based student profiles
-- Student-led team creation
-- Invite friends to team
-- AI-powered teammate matching (fill open spots)
-- Hackathon creation (organizer role)
-- Organizer dashboard with participant/team overview
+The easiest way to run the entire stack (Frontend, Backend, Database, AI Engine) is using Docker.
+
+### Prerequisites
+- Docker & Docker Compose installed
+
+### Run the App
+```bash
+docker compose up --build
+```
+
+This will start:
+- **Core Gateway API**: http://localhost:8000
+- **AI Engine**: http://localhost:8001
+- **Landing Page**: http://localhost:3000
+- **Student Portal**: http://localhost:3001
+- **Organizer Dashboard**: http://localhost:3002
+- **Sponsor Panel**: http://localhost:3003
+- **PostgreSQL Database**: localhost:5432 (internal)
+
+---
+
+## 🛠 Local Development
+
+### Prerequisites
+- Node.js v18+
+- Python 3.11+
+- PostgreSQL 14+
+- Nx CLI (`npm install -g nx`)
+
+### 1. Database Setup
+Ensure PostgreSQL is running locally.
+
+```bash
+# Update .env in apps/core-gateway with your credentials
+DATABASE_URL="postgresql://user:password@localhost:5432/takathon?schema=public"
+
+# Run migrations & seed data
+npx prisma migrate dev
+npx prisma db seed
+```
+
+### 2. Start Services (Nx)
+
+```bash
+# Start Core Gateway (Express + Prisma)
+npx nx dev core-gateway
+
+# Start AI Engine (FastAPI)
+# (Navigate to apps/ai-engine and run with uvicorn)
+
+# Start Frontends
+npx nx dev landing-page
+npx nx dev student-portal
+npx nx dev organizer-dashboard
+npx nx dev sponsor-panel
+```
 
 ---
 
@@ -22,131 +71,14 @@ The platform transforms chaotic team formation into a structured, efficient proc
 
 The system follows a modular monolith architecture with clear separation of concerns.
 
-**Team Formation Flow**: Students create teams → Invite friends → Request AI teammate suggestions for open spots
+**Flow**: Next.js Apps → Core Gateway (Express) → Postgres DB & AI Engine
 
-Frontend (Next.js)
-        ↓
-REST API (FastAPI)
-        ↓
-Service Layer
-        ↓
-Matching Engine (AI-powered teammate suggestions)
-        ↓
-PostgreSQL Database
-
-### 📐 Design & User Flows
-
-Interactive FigJam diagrams documenting system flows:
-
-- **[App Navigation Flow](https://www.figma.com/online-whiteboard/create-diagram/f254f5a6-4574-49aa-a39c-cfbcf96e11e3?utm_source=other&utm_content=edit_in_figjam)** - Complete navigation structure for student and organizer roles
-- **[Authentication & Onboarding Flow](https://www.figma.com/online-whiteboard/create-diagram/5c7fe26b-5ed0-4b77-8f78-4da95c10d8f0?utm_source=other&utm_content=edit_in_figjam)** - Registration and login flows for both user types
-- **[Team Generation Workflow](https://www.figma.com/online-whiteboard/create-diagram/59e0efc1-fad3-4661-b02f-a5d7d7842330?utm_source=other&utm_content=edit_in_figjam)** - Detailed matching engine process from participant review to team export
-- **[Student Journey: Profile to Team](https://www.figma.com/online-whiteboard/create-diagram/685cee4a-2e87-4d3a-807b-ba85a7900bf1?utm_source=other&utm_content=edit_in_figjam)** - Complete student experience from profile setup to team collaboration
+- **Core Gateway**: Central API for auth, users, teams, and hackathons.
+- **AI Engine**: Python service for skill matching and team recommendations.
+- **Shared Libs**: UI components, types, and API clients shared across apps.
 
 ---
 
-## 🧠 Matching Engine (V1)
+## 📝 License
 
-The AI-powered teammate matching system helps students find compatible team members using:
-
-- Skill compatibility scoring
-- Experience level balance
-- Team role fit analysis
-- Availability matching
-
-**How it works**: Students create teams and invite friends. For open spots, they can request AI-matched suggestions of compatible participants.
-
-This module is designed to be replaceable with an ML-based system in future versions.
-
----
-
-## 🛠 Tech Stack
-
-### Backend
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Alembic
-- JWT Authentication
-
-### Frontend
-- Next.js
-- TailwindCSS
-- Axios
-
-### DevOps
-- Docker
-- Docker Compose
-- GitHub Actions (CI)
-- Cloud deployment (Render / DigitalOcean)
-
----
-
-## 📦 Database Design (Core Tables)
-
-- users
-- skills
-- user_skills
-- hackathons
-- hackathon_participants
-- teams (student-created, has captain/creator)
-- team_members
-- team_invitations (pending invites and join requests)
-
----
-
-## 📁 Project Structure
-
-```
-/backend
-  /app
-    /api          # Route handlers
-    /models       # SQLAlchemy models
-    /services     # Business logic
-    /matching     # AI teammate recommendation engine
-  /alembic        # Database migrations
-  /tests
-  requirements.txt
-
-/frontend
-  /app            # Next.js 14 App Router
-  /components     # React components
-  /lib            # Utilities, API client
-  package.json
-
-/docker-compose.yml
-```
-
----
-
-## 🔐 Roles
-
-### Student
-- Create profile with skills and experience levels
-- Join hackathons
-- Create teams and invite friends
-- Request AI teammate suggestions for open spots
-- Manage team composition
-
-### Organizer
-- Create and manage hackathons
-- View registered participants
-- View all teams and participant distribution
-- Export team data
-
----
-
-## 📈 Future Expansion
-
-- ML-based compatibility scoring
-- Public student profiles
-- Hackathon performance tracking
-- Company access to top teams
-- Portfolio generation
-
----
-
-## 🎯 Vision
-
-Start narrow. Solve team formation.
-Expand into a structured hackathon ecosystem.
+See LICENSE file for details.
