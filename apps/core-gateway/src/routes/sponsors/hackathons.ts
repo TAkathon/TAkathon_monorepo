@@ -49,7 +49,12 @@ router.get("/sponsorships/:sponsorshipId", async (req: any, res) => {
     req.params.sponsorshipId,
   );
   if (!sponsorship) {
-    return ResponseHandler.error(res, "NOT_FOUND", "Sponsorship not found", 404);
+    return ResponseHandler.error(
+      res,
+      "NOT_FOUND",
+      "Sponsorship not found",
+      404,
+    );
   }
   return ResponseHandler.success(res, sponsorship);
 });
@@ -59,7 +64,9 @@ router.get("/sponsorships/:sponsorshipId", async (req: any, res) => {
  * View hackathon detail
  */
 router.get("/:id", async (req: any, res) => {
-  const hackathon = await SponsorHackathonService.getHackathonDetail(req.params.id);
+  const hackathon = await SponsorHackathonService.getHackathonDetail(
+    req.params.id,
+  );
   if (!hackathon) {
     return ResponseHandler.error(res, "NOT_FOUND", "Hackathon not found", 404);
   }
@@ -78,7 +85,13 @@ const sponsorSchema = z.object({
 router.post("/:id/sponsor", async (req: any, res) => {
   const parsed = sponsorSchema.safeParse(req.body);
   if (!parsed.success) {
-    return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
+    return ResponseHandler.error(
+      res,
+      "VALIDATION_ERROR",
+      "Invalid payload",
+      400,
+      parsed.error.format(),
+    );
   }
 
   const result = await SponsorHackathonService.createSponsorship(
