@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAuth } from "../../middleware/auth";
 import { requireSponsor } from "../../middleware/rbac";
 import { SponsorHackathonService } from "../../services/sponsors/hackathon.service";
+import { SponsorTeamService } from "../../services/sponsors/team.service";
 import { ResponseHandler } from "../../utils/response";
 
 const router = Router();
@@ -110,6 +111,25 @@ router.post("/sponsorships/:sponsorshipId/cancel", async (req: any, res) => {
   }
 
   return ResponseHandler.success(res, result.sponsorship);
+});
+
+/**
+ * GET /api/v1/sponsors/hackathons/:id/teams
+ * View teams for a specific hackathon
+ */
+router.get("/:id/teams", async (req: any, res) => {
+  const { page, limit, status } = req.query;
+  const result = await SponsorTeamService.listTeams(req.params.id, {
+    page: page ? Number(page) : undefined,
+    limit: limit ? Number(limit) : undefined,
+    status: status as string,
+  });
+
+  if ("error" in result) {
+    return ResponseHandler.error(res, result.error, result.message, 404);
+  }
+
+  return ResponseHandler.success(res, result);
 });
 
 export default router;
