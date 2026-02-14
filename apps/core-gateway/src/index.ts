@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
 import authRouter from "./routes/auth";
+import studentProfileRouter from "./routes/students/profile";
 import { requestLogger, logStartup } from "./middleware/logger";
 import { ResponseHandler } from "./utils/response";
 
@@ -46,6 +47,7 @@ app.get("/api/v1/health", (_req, res) => {
 });
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/students", studentProfileRouter);
 
 app.listen(PORT);
 logStartup(PORT, CORS_ORIGINS);
