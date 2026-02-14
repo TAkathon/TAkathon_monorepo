@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
 import { useScrollProgress, useMagnetic } from "@/lib/hooks";
 
@@ -26,12 +27,14 @@ export default function Navbar() {
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
                         <a href="#" className="flex items-center gap-2 group">
-                            <span className="text-2xl font-bold text-primary transition-all duration-300 group-hover:text-glow-sm">
-                                T
-                            </span>
-                            <span className="text-lg font-semibold text-white/90 tracking-wide">
-                                AKATHON
-                            </span>
+                            <Image
+                                src="/logotakathon.png"
+                                alt="TAKATHON Logo"
+                                width={80}
+                                height={22}
+                                className="object-contain"
+                                priority
+                            />
                         </a>
 
                         {/* Navigation Buttons */}
