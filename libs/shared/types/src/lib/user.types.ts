@@ -3,7 +3,6 @@
 export enum UserRole {
   STUDENT = 'student',
   ORGANIZER = 'organizer',
-  SPONSOR = 'sponsor',
 }
 
 export enum ProficiencyLevel {

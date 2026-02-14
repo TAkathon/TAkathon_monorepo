@@ -19,8 +19,6 @@ interface AuthState {
   setHasHydrated: (state: boolean) => void;
   login: (user: User) => void;
   logout: () => void;
-  accessToken: string | null;
-  setAccessToken: (token: string | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,16 +27,14 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       _hasHydrated: false,
-      accessToken: null,
       setHasHydrated: (state) => set({ _hasHydrated: state }),
       login: (user) => set({ user, isAuthenticated: true }),
       logout: () => {
         if (typeof document !== "undefined") {
           document.cookie = "auth-storage=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
         }
-        set({ user: null, isAuthenticated: false, accessToken: null });
+        set({ user: null, isAuthenticated: false });
       },
-      setAccessToken: (token) => set({ accessToken: token }),
     }),
     {
       name: "auth-storage",
