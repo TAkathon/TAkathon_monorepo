@@ -1,5 +1,47 @@
 # TAkathon Copilot Instructions
 
+## 📊 Current Project Status (Feb 2026)
+
+### ✅ Completed
+- **Docker Infrastructure**: Full containerization with multi-stage builds
+  - PostgreSQL 16 container with healthchecks
+  - Core Gateway (Express + Prisma 7 with adapter pattern)
+  - All 4 Next.js frontends (landing-page, student-portal, organizer-dashboard, sponsor-panel)
+  - AI Engine (FastAPI stub with profiles)
+  - All services orchestrated via `docker-compose up -d`
+- **Build Pipeline**: esbuild bundling for core-gateway, Next.js standalone mode for frontends
+- **Database**: Prisma schema defined with all tables (users, profiles, hackathons, teams, skills)
+- **TypeScript Configuration**: Workspace-wide path aliases in `tsconfig.base.json`
+- **Authentication Foundation**: JWT-based auth routes (`/api/v1/auth/*`) with access/refresh tokens
+
+### 🚧 In Progress
+- **Backend API Implementation**: Only auth routes exist; need role-specific endpoints
+- **Frontend-Backend Integration**: Frontends not yet connected to APIs
+- **Database Seeding**: No seed data for development/testing
+
+### 📋 Next Steps (Priority Order)
+1. **Backend API Development** (Current Focus)
+   - Implement student-specific routes (`/api/v1/students/*`)
+   - Implement organizer-specific routes (`/api/v1/organizers/*`)
+   - Implement sponsor-specific routes (`/api/v1/sponsors/*`)
+   - Shared routes for hackathons, teams, skills
+2. **Frontend Integration**
+   - Connect student-portal to student API endpoints
+   - Connect organizer-dashboard to organizer endpoints
+   - Connect sponsor-panel to sponsor endpoints
+   - Implement auth flows in all frontends
+3. **AI Matching Engine**
+   - Complete FastAPI matching implementation
+   - Integrate with core-gateway via HTTP proxy
+4. **Testing & Validation**
+   - Seed database with realistic test data
+   - E2E tests for critical user flows
+5. **Deployment**
+   - CI/CD pipeline setup
+   - Production environment configuration
+
+---
+
 ## ⚠️ Git Workflow (Gitflow) - CRITICAL
 
 This is a **modular monolith Nx monorepo** for hackathon team formation with:
@@ -38,6 +80,69 @@ Data flow: `Next.js Apps → Core Gateway (Express) → [AI Engine (FastAPI) | P
 3. **Create feature branches**: `git checkout -b feature/feature-name dev`
 4. **Merge features to `dev`**: Create PR from `feature/*` → `dev`
 5. **Releases**: Create `release/*` from `dev`, test, then merge to `main` and `dev`
+
+## 🏗️ Backend Architecture Strategy
+
+### Role-Based API Organization
+While we maintain a **single Core Gateway** service, the API is organized by user role with clear separation of concerns:
+
+**Structure**:
+```
+apps/core-gateway/src/
+  /routes
+    /students       # Student-specific endpoints
+    /organizers     # Organizer-specific endpoints  
+    /sponsors       # Sponsor-specific endpoints
+    /shared         # Common endpoints (hackathons, skills)
+    auth.ts         # Authentication
+  /services
+    /students       # Student business logic
+    /organizers     # Organizer business logic
+    /sponsors       # Sponsor business logic
+    /shared         # Shared services (teams, hackathons)
+  /middleware
+    auth.ts         # JWT validation
+    rbac.ts         # Role-based access control
+```
+
+**API Endpoints by Role**:
+- **Students** (`/api/v1/students/*`):
+  - `GET /profile` - Get student profile
+  - `PUT /profile` - Update profile
+  - `GET /hackathons` - Browse hackathons
+  - `POST /hackathons/:id/register` - Register for hackathon
+  - `GET /teams` - My teams
+  - `POST /teams` - Create team
+  - `POST /teams/:id/invite` - Invite teammates
+  - `GET /teams/:id/matches` - AI teammate recommendations
+  
+- **Organizers** (`/api/v1/organizers/*`):
+  - `GET /profile` - Get organizer profile
+  - `POST /hackathons` - Create hackathon
+  - `GET /hackathons/:id/participants` - View participants
+  - `GET /hackathons/:id/teams` - View teams
+  - `GET /hackathons/:id/analytics` - Event analytics
+  - `GET /hackathons/:id/export` - Export data
+  
+- **Sponsors** (`/api/v1/sponsors/*`):
+  - `GET /profile` - Get sponsor profile
+  - `GET /hackathons` - Browse hackathons
+  - `POST /hackathons/:id/sponsor` - Sponsor event
+  - `GET /hackathons/:id/teams` - View teams
+  - `GET /teams/:id/details` - Team project details
+  - `POST /teams/:id/favorite` - Bookmark team
+
+- **Shared** (`/api/v1/*`):
+  - `/auth/*` - Authentication (all roles)
+  - `/skills` - Skill taxonomy (all roles)
+  - `/hackathons` - Public hackathon listings
+
+**Why Single Gateway?**:
+- Simplified deployment and authentication
+- Shared Prisma client connection pool
+- Easier cross-role operations (e.g., team formation)
+- Reduced infrastructure complexity
+- Role separation achieved via route organization and RBAC middleware
 
 Nx monorepo with workspace management, build caching, and dependency graph:
 ```
