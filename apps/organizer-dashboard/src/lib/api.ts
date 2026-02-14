@@ -1,2 +1,6 @@
-export { apiClient as api } from "@shared/api";
-
+export {
+  apiClient as api,
+  organizerService,
+  authService,
+  publicService,
+} from "@shared/api";
