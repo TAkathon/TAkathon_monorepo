@@ -25,7 +25,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "@shared/utils": ["../../libs/shared/utils/src/index.ts"],
-      "@shared/api": ["../../libs/shared/api/src/index.ts"]
+      "@shared/utils/*": ["../../libs/shared/utils/src/*"],
+      "@shared/api": ["../../libs/shared/api/src/index.ts"],
+      "@shared/api/*": ["../../libs/shared/api/src/*"]
     }
   },
   "include": [
