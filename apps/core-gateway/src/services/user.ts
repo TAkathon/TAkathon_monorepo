@@ -1,9 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
 import { UserRole } from "@takathon/shared/types";
-
-// Initialize Prisma Client
-const prisma = new PrismaClient();
 
 // Keep StoredUser interface for compatibility or refactor to use Prisma's User type
 export interface StoredUser {
@@ -15,11 +12,11 @@ export interface StoredUser {
 }
 
 export class UserService {
-  static async createUser(input: { 
-    email: string; 
-    fullName: string; 
-    role: UserRole; 
-    passwordHash: string 
+  static async createUser(input: {
+    email: string;
+    fullName: string;
+    role: UserRole;
+    passwordHash: string;
   }): Promise<StoredUser> {
     const user = await prisma.user.create({
       data: {
@@ -27,7 +24,8 @@ export class UserService {
         fullName: input.fullName,
         role: input.role as any, // Cast to match Prisma enum if needed
         passwordHash: input.passwordHash,
-        username: input.email.split("@")[0] + "_" + Math.floor(Math.random() * 10000), // Generate unique username
+        username:
+          input.email.split("@")[0] + "_" + Math.floor(Math.random() * 10000), // Generate unique username
       },
     });
 
@@ -56,7 +54,10 @@ export class UserService {
     };
   }
 
-  static async validatePassword(user: StoredUser, password: string): Promise<boolean> {
+  static async validatePassword(
+    user: StoredUser,
+    password: string,
+  ): Promise<boolean> {
     return bcrypt.compare(password, user.passwordHash);
   }
 

@@ -6,12 +6,18 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx tsc -p apps/core-gateway/tsconfig.json"
+        "commands": [
+          "npx tsc -p apps/core-gateway/tsconfig.json --noEmit",
+          "npx esbuild apps/core-gateway/src/index.ts --bundle --platform=node --target=node22 --outfile=apps/core-gateway/dist/index.js --external:@prisma/client --external:@prisma/adapter-pg --external:pg"
+        ],
+        "parallel": false
       }
     },
     "serve": {
       "executor": "nx:run-commands",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "options": {
         "command": "node apps/core-gateway/dist/index.js"
       }
@@ -26,7 +32,9 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["apps/core-gateway/**/*.ts"]
+        "lintFilePatterns": [
+          "apps/core-gateway/**/*.ts"
+        ]
       }
     },
     "test": {

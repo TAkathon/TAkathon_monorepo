@@ -15,11 +15,11 @@ coverage
 .DS_Store
 Thumbs.db
 .env
-.env.*
+.env.local
+.env.*.local
 .git
 **/*.tsbuildinfo
 **/*.log
 apps/*/tsconfig.tsbuildinfo
 apps/*/.next/cache
 libs/*/tsconfig.tsbuildinfo
-prisma/generated
