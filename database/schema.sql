@@ -14,7 +14,7 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('student', 'organizer')),
+    role VARCHAR(20) NOT NULL CHECK (role IN ('student', 'organizer', 'sponsor')),
     avatar_url TEXT,
     bio TEXT,
     github_url TEXT,
@@ -29,6 +29,38 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_role ON users(role);
+
+-- ============================================================================
+-- PROFILES (Role specific details)
+-- ============================================================================
+
+CREATE TABLE student_profiles (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    university VARCHAR(255),
+    degree VARCHAR(255),
+    graduation_year INTEGER,
+    resume_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE organizer_profiles (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    organization_name VARCHAR(255) NOT NULL,
+    position VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE sponsor_profiles (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    company_name VARCHAR(255) NOT NULL,
+    industry VARCHAR(100),
+    website_url TEXT,
+    logo_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
 -- ============================================================================
 -- SKILLS
@@ -174,6 +206,47 @@ CREATE INDEX idx_team_invitations_invitee_id ON team_invitations(invitee_id);
 CREATE INDEX idx_team_invitations_status ON team_invitations(status);
 
 -- ============================================================================
+-- APPLICATIONS & SPONSORSHIPS
+-- ============================================================================
+
+CREATE TABLE applications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    hackathon_id UUID NOT NULL REFERENCES hackathons(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN (
+        'pending', 'accepted', 'rejected', 'waitlisted'
+    )),
+    resume_url TEXT,
+    motivation TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(hackathon_id, user_id)
+);
+
+CREATE INDEX idx_applications_hackathon_id ON applications(hackathon_id);
+CREATE INDEX idx_applications_user_id ON applications(user_id);
+CREATE INDEX idx_applications_status ON applications(status);
+
+CREATE TABLE sponsorships (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    sponsor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    hackathon_id UUID NOT NULL REFERENCES hackathons(id) ON DELETE CASCADE,
+    tier VARCHAR(50) NOT NULL CHECK (tier IN (
+        'platinum', 'gold', 'silver', 'bronze', 'other'
+    )),
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN (
+        'pending', 'approved', 'rejected', 'paid'
+    )),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_sponsorships_sponsor_id ON sponsorships(sponsor_id);
+CREATE INDEX idx_sponsorships_hackathon_id ON sponsorships(hackathon_id);
+CREATE INDEX idx_sponsorships_status ON sponsorships(status);
+
+-- ============================================================================
 -- TRIGGERS & FUNCTIONS
 -- ============================================================================
 
@@ -189,10 +262,25 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_student_profiles_updated_at BEFORE UPDATE ON student_profiles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_organizer_profiles_updated_at BEFORE UPDATE ON organizer_profiles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_sponsor_profiles_updated_at BEFORE UPDATE ON sponsor_profiles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_hackathons_updated_at BEFORE UPDATE ON hackathons
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_teams_updated_at BEFORE UPDATE ON teams
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_applications_updated_at BEFORE UPDATE ON applications
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_sponsorships_updated_at BEFORE UPDATE ON sponsorships
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Update team current_size when members join/leave

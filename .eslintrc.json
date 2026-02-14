@@ -1,14 +1,13 @@
 {
   "root": true,
-  "env": {
-    "browser": true,
-    "node": true,
-    "es2022": true
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": ["node_modules/", "dist/", ".next/"],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
   },
-  "extends": [],
-  "ignorePatterns": [
-    "node_modules/",
-    "dist/",
-    ".next/"
-  ]
+  "rules": {
+    "react/no-unescaped-entities": "off",
+    "next/no-html-link-for-pages": "off"
+  }
 }

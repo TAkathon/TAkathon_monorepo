@@ -164,3 +164,21 @@ body {
   background: linear-gradient(90deg, transparent, rgba(217, 76, 26, 0.5), transparent);
   height: 1px;
 }
+
+/* ─── Form Controls (shared with auth pages) ─── */
+.btn-primary {
+  @apply px-6 py-3 bg-primary text-white font-semibold rounded-lg transition-all duration-300;
+  @apply hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-transparent text-white/90 font-semibold rounded-lg border border-white/20;
+  @apply hover:border-primary/50 hover:text-white transition-all duration-300;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10;
+  @apply text-white placeholder:text-white/40;
+  @apply focus:outline-none focus:border-primary/50 focus:bg-white/10;
+  @apply transition-all duration-300;
+}

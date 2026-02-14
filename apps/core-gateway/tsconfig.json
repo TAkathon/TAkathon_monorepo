@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "outDir": "dist",
+    "types": ["node"],
+    "baseUrl": "../..",
+    "paths": {
+      "@takathon/shared/types": ["libs/shared/types/src/index.ts"],
+      "@takathon/shared/types/*": ["libs/shared/types/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["test", "**/*.spec.ts"]
+}

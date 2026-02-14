@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@takathon/shared/types": ["libs/shared/types/src/index.ts"],
+      "@takathon/shared/types/*": ["libs/shared/types/src/*"],
+      "@takathon/shared/utils": ["libs/shared/utils/src/index.ts"],
+      "@takathon/shared/utils/*": ["libs/shared/utils/src/*"],
+      "@takathon/shared/ui": ["libs/shared/ui/src/index.ts"],
+      "@takathon/shared/ui/*": ["libs/shared/ui/src/*"],
+      "@takathon/shared/api": ["libs/shared/api/src/index.ts"],
+      "@takathon/shared/api/*": ["libs/shared/api/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".next", "tmp"]
+}

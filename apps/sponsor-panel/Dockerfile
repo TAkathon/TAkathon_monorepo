@@ -1,0 +1,39 @@
+# ===========================================================
+# Stage 1: Install dependencies
+# ===========================================================
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# ===========================================================
+# Stage 2: Build
+# ===========================================================
+FROM node:22-alpine AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json ./
+COPY tsconfig.base.json ./
+COPY nx.json ./
+COPY libs ./libs
+COPY apps/sponsor-panel ./apps/sponsor-panel
+
+# Build the Next.js app via Nx (produces .next/standalone)
+RUN npx nx build sponsor-panel
+
+# ===========================================================
+# Stage 3: Production
+# ===========================================================
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV HOSTNAME="0.0.0.0"
+
+# Copy public assets and standalone server + static assets
+COPY --from=builder /app/apps/sponsor-panel/public ./apps/sponsor-panel/public
+COPY --from=builder /app/apps/sponsor-panel/.next/standalone ./
+COPY --from=builder /app/apps/sponsor-panel/.next/static ./apps/sponsor-panel/.next/static
+
+EXPOSE 3003
+CMD ["node", "apps/sponsor-panel/server.js"]

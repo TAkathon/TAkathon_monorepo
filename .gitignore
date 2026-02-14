@@ -69,7 +69,6 @@ Thumbs.db
 *.spec.ts.snap
 
 # Docker
-.dockerignore
 
 # Setup and cleanup scripts
 setup-*.ps1
@@ -83,3 +82,5 @@ cleanup-*.sh
 *~
 .vercel
 .turbo
+
+/generated/prisma
