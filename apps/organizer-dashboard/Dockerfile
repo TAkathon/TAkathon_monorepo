@@ -2,6 +2,7 @@
 # Stage 1: Install dependencies
 # ===========================================================
 FROM node:22-alpine AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -10,7 +11,10 @@ RUN npm ci
 # Stage 2: Build
 # ===========================================================
 FROM node:22-alpine AS builder
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
+ENV NX_DAEMON=false
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
