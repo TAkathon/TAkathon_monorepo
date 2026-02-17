@@ -1,6 +1,7 @@
 {
   "name": "takathon_monorepo",
   "version": "1.0.0",
+  "packageManager": "npm@10.9.2",
   "description": "TAkathon is a Hackathon Team Builder, a SaaS platform that helps students form balanced hackathon teams based on skills and availability while giving organizers a structured overview of participants and teams.",
   "private": true,
   "scripts": {
@@ -41,7 +42,7 @@
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "axios": "^1.7.9",
-    "framer-motion": "^12.34.0",
+    "framer-motion": "^11.18.2",
     "lucide-react": "^0.468.0",
     "next": "^15.1.0",
     "pg": "^8.18.0",
