@@ -21,6 +21,14 @@
 - **Frontend-Backend Integration**: Frontends not yet connected to APIs
 - **Database Seeding**: No seed data for development/testing
 
+### ✅ Recent Operational Notes
+
+- **Nx graph timeouts**: Use `NX_PLUGIN_NO_TIMEOUTS=true` and `NX_DAEMON=false` for stable graph generation on Windows.
+- **Nx JS plugin config**: `nx.json` disables lockfile and source file analysis for stability.
+- **Core Gateway dev**: Requires Prisma client generated (`npx prisma generate`) and JWT secrets available.
+- **Docker rebuilds**: Frontend changes require `docker compose up --build` (cached `up` can show old assets).
+- **Docker Hub access**: If builds fail on `node:22-alpine`, check Docker Desktop proxy/DNS or network.
+
 ### 📋 Next Steps (Priority Order)
 
 1. **Backend API Development** (Current Focus)
