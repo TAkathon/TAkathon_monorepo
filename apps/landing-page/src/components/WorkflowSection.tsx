@@ -1,221 +1,64 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import {
-  UserPlus,
-  ClipboardCheck,
-  Users,
-  Zap,
-  Settings,
-  BarChart3,
-  Trophy,
-  Share2,
-} from "lucide-react";
-
-const userSteps = [
-  {
-    icon: UserPlus,
-    title: "Create Your Profile",
-    description:
-      "Sign up and fill in your skills, experience level, and availability.",
-  },
-  {
-    icon: ClipboardCheck,
-    title: "Join a Hackathon",
-    description:
-      "Browse upcoming hackathons and register for the ones that interest you.",
-  },
-  {
-    icon: Users,
-    title: "Build Your Team",
-    description:
-      "Invite friends or get AI-powered teammate suggestions to fill open spots.",
-  },
-  {
-    icon: Zap,
-    title: "Compete & Win",
-    description:
-      "Collaborate with your balanced team and bring your best ideas to life.",
-  },
+const steps = [
+  { number: "01", title: "Create your\nprofile", subtitle: "Start your journey", rotate: "md:-rotate-6" },
+  { number: "02", title: "Join a\nhackathon", subtitle: "Browse active events", rotate: "md:rotate-3 md:mt-24" },
+  { number: "03", title: "Build your\nteam", subtitle: "Find perfect allies", rotate: "md:-rotate-3 md:mb-16" },
+  { number: "04", title: "Win great\nprizes", subtitle: "Level up your career", rotate: "md:rotate-6 md:mt-8" },
 ];
-
-const organizerSteps = [
-  {
-    icon: Settings,
-    title: "Create a Hackathon",
-    description:
-      "Set up your hackathon with details, rules, dates, and team requirements.",
-  },
-  {
-    icon: BarChart3,
-    title: "Track Registrations",
-    description:
-      "View participants, skill distributions, and team formation progress in real-time.",
-  },
-  {
-    icon: Trophy,
-    title: "Manage Judging",
-    description:
-      "Structured scoring system replaces the chaos of spreadsheets and manual tallying.",
-  },
-  {
-    icon: Share2,
-    title: "Export & Analyze",
-    description:
-      "Export team data, results, and analytics for sponsors and post-event reports.",
-  },
-];
-
-const stepVariants = {
-  hidden: { opacity: 0, x: -30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.5,
-      delay: i * 0.15,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
-  }),
-};
-
-function StepPath({ inView }: { inView: boolean }) {
-  return (
-    <svg
-      className="absolute left-7 top-20 w-px hidden sm:block"
-      style={{ height: "calc(100% - 80px)" }}
-      viewBox="0 0 2 300"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <line
-        x1="1"
-        y1="0"
-        x2="1"
-        y2="300"
-        stroke="#D94C1A"
-        strokeWidth="2"
-        strokeDasharray="6 4"
-        strokeDashoffset={inView ? 0 : 300}
-        style={{
-          transition: "stroke-dashoffset 1.5s ease-out",
-        }}
-      />
-    </svg>
-  );
-}
-
-function StepsColumn({
-  title,
-  steps,
-  inView,
-}: {
-  title: string;
-  steps: typeof userSteps;
-  inView: boolean;
-}) {
-  return (
-    <div className="relative">
-      <h3 className="text-lg sm:text-xl font-bold text-dark-100 mb-8 text-center">
-        {title}
-      </h3>
-
-      <div className="relative space-y-8 pl-0 sm:pl-16">
-        <StepPath inView={inView} />
-
-        {steps.map((step, i) => (
-          <motion.div
-            key={i}
-            custom={i}
-            variants={stepVariants}
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            className="relative flex items-start gap-4"
-          >
-            {/* Number circle */}
-            <div className="hidden sm:flex absolute left-[-64px] w-14 h-14 rounded-full bg-primary text-white font-bold text-lg items-center justify-center shadow-lg flex-shrink-0 z-10">
-              {i + 1}
-            </div>
-
-            {/* Card */}
-            <div className="flex-1 p-5 rounded-xl bg-white shadow-sm border border-gray-100 hover:shadow-md hover:border-primary/20 transition-all duration-300 group">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors sm:hidden">
-                  <span className="text-primary font-bold text-sm">
-                    {i + 1}
-                  </span>
-                </div>
-                <step.icon className="w-5 h-5 text-primary" />
-                <h4 className="font-semibold text-gray-900">{step.title}</h4>
-              </div>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                {step.description}
-              </p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function WorkflowSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-
   return (
-    <section
-      id="workflow"
-      ref={sectionRef}
-      className="relative py-24 sm:py-32 overflow-hidden bg-cream"
-    >
-      {/* Subtle pattern */}
-      <motion.div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #D94C1A 1px, transparent 0)`,
-          backgroundSize: "32px 32px",
-          y: backgroundY,
-        }}
-      />
+    <section id="workflow" className="bg-[#080808] py-32 relative overflow-hidden border-t border-white/5">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50"></div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            How <span className="text-primary">TAKATHON</span> Works
+      <div className="max-w-7xl mx-auto px-8 relative z-10">
+        {/* Header */}
+        <div className="text-center mb-24">
+          <div className="flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.3em] text-primary mb-6">
+            <span className="w-2 h-2 bg-primary"></span> ROADMAP
+          </div>
+          <h2 className="huge-title text-4xl md:text-6xl text-white leading-[0.9]">
+            HOW IT WORKS?
           </h2>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Whether you&apos;re a participant or an organizer, the experience is
-            streamlined from start to finish.
-          </p>
-        </motion.div>
+        </div>
 
-        {/* Two-column workflow */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          <StepsColumn
-            title="🎓 Normal User"
-            steps={userSteps}
-            inView={isInView}
-          />
-          <StepsColumn
-            title="🏢 Hackathon Organizer"
-            steps={organizerSteps}
-            inView={isInView}
-          />
+        {/* Cards + SVG Path */}
+        <div className="relative flex flex-col md:flex-row justify-between items-center gap-12 md:gap-4 md:h-[400px]">
+          {/* SVG Scribble Path (desktop only) */}
+          <svg
+            className="absolute top-[20%] left-0 w-full h-full z-0 hidden md:block pointer-events-none overflow-visible"
+            width="100%"
+            height="100%"
+          >
+            <path
+              className="scribble-path"
+              d="M 100,80 Q 250,20 350,100 T 600,80 T 850,120 T 1100,50"
+              fill="none"
+              stroke="#FF5C00"
+              strokeLinecap="round"
+              strokeWidth="4"
+            />
+          </svg>
+
+          {steps.map((step) => (
+            <div
+              key={step.number}
+              className={`relative z-10 group w-full max-w-[240px] ${step.rotate} hover:rotate-0 transition-transform duration-300`}
+            >
+              <div className="roadmap-card p-6 flex flex-col items-center text-center rounded-sm">
+                <div className="w-16 h-16 mb-4 bg-black rounded-full flex items-center justify-center border-2 border-primary shadow-[4px_4px_0_#FF5C00]">
+                  <span className="huge-title text-2xl text-white">{step.number}</span>
+                </div>
+                <h3 className="font-archivo text-xl text-white mb-4 uppercase leading-tight bg-black inline-block px-2 -skew-x-6 whitespace-pre-line">
+                  {step.title}
+                </h3>
+                <p className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">
+                  {step.subtitle}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

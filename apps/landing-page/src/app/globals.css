@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 
 /* ─── Base ─── */
 html {
@@ -11,18 +12,171 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: #1A0A00;
+  background: #050505;
   color: #fff;
   overflow-x: hidden;
 }
 
+/* ─── Archivo Black Display Titles ─── */
+.huge-title {
+  font-family: 'Archivo Black', sans-serif;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-family: 'Archivo Black', sans-serif;
+  text-transform: uppercase;
+}
+
+.tight-kern {
+  letter-spacing: -0.06em;
+}
+
+/* ─── Digital Dust Background ─── */
+.digital-dust {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.05) 100%, transparent 0),
+    radial-gradient(1px 1px at 30% 50%, rgba(255, 92, 0, 0.03) 100%, transparent 0),
+    radial-gradient(1px 1px at 60% 80%, rgba(255, 255, 255, 0.05) 100%, transparent 0),
+    radial-gradient(1px 1px at 80% 10%, rgba(255, 92, 0, 0.03) 100%, transparent 0),
+    radial-gradient(1px 1px at 90% 40%, rgba(255, 255, 255, 0.05) 100%, transparent 0);
+  background-size: 200px 200px;
+  animation: dust-move 30s linear infinite;
+}
+
+@keyframes dust-move {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-200px); }
+}
+
+/* ─── Floating Animations ─── */
+.floating {
+  animation: float-anim 6s ease-in-out infinite;
+}
+.floating-delayed {
+  animation: float-anim 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+.floating-fast {
+  animation: float-anim 4s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+@keyframes float-anim {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* ─── Gradient Blur ─── */
+.gradient-blur {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 92, 0, 0.15) 0%, rgba(10, 10, 10, 0) 70%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ─── Persona Card Overlay ─── */
+.persona-card-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+}
+
+/* ─── Cartoon Card ─── */
+.cartoon-card {
+  border: 6px solid #1a1a1a;
+  box-shadow: 8px 8px 0px #1a1a1a;
+  transition: all 0.2s ease;
+}
+.cartoon-card:hover {
+  transform: translate(-4px, -4px) scale(1.02);
+  box-shadow: 12px 12px 0px #1a1a1a;
+  z-index: 20;
+}
+
+/* ─── Card Inner Border ─── */
+.card-inner-border {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ─── Roadmap Card ─── */
+.roadmap-card {
+  background: #121212;
+  border: 4px solid #fff;
+  box-shadow: 6px 6px 0px #FF5C00;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.roadmap-card:hover {
+  transform: translateY(-5px) rotate(0deg) !important;
+  box-shadow: 10px 10px 0px #FF5C00;
+}
+
+/* ─── SVG Scribble Path ─── */
+.scribble-path {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: draw 5s ease-out forwards infinite;
+  filter: drop-shadow(0 0 5px #FF5C00);
+}
+
+@keyframes draw {
+  0% { stroke-dashoffset: 2000; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* ─── Terminal Box ─── */
+.terminal-box {
+  background-color: #000;
+  border: 3px solid #FF5C00;
+  box-shadow: 0 0 30px rgba(255, 92, 0, 0.15);
+  position: relative;
+}
+.terminal-box::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border: 1px solid rgba(255, 92, 0, 0.5);
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* ─── SVG Arrow Animation ─── */
+.arrow-draw {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawArrow 2s ease-out forwards infinite;
+}
+@keyframes drawArrow {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ─── Glitch Placeholder ─── */
+.glitch-placeholder::placeholder {
+  color: #444;
+  font-family: 'Courier New', monospace;
+}
+
 /* ─── Hide Scrollbar Utility ─── */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none;    /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .no-scrollbar::-webkit-scrollbar {
-  display: none;            /* Chrome, Safari */
+  display: none;
 }
 
 /* ─── Scroll Progress Bar ─── */
@@ -31,10 +185,10 @@ body {
   top: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(90deg, #D94C1A, #F4845F, #D94C1A);
+  background: linear-gradient(90deg, #FF5C00, #FF8A3D, #FF5C00);
   z-index: 9999;
   transition: width 0.1s linear;
-  box-shadow: 0 0 10px rgba(217, 76, 26, 0.7), 0 0 5px rgba(217, 76, 26, 0.5);
+  box-shadow: 0 0 10px rgba(255, 92, 0, 0.7), 0 0 5px rgba(255, 92, 0, 0.5);
 }
 
 .scroll-progress::after {
@@ -45,23 +199,28 @@ body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #F4845F;
-  box-shadow: 0 0 8px #D94C1A, 0 0 16px rgba(217, 76, 26, 0.5);
+  background: #FF8A3D;
+  box-shadow: 0 0 8px #FF5C00, 0 0 16px rgba(255, 92, 0, 0.5);
   animation: glow 1.5s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 /* ─── Title Glow Effect ─── */
 .text-glow {
   text-shadow:
     0 0 10px rgba(255, 255, 255, 0.5),
-    0 0 30px rgba(217, 76, 26, 0.5),
-    0 0 60px rgba(217, 76, 26, 0.3);
+    0 0 30px rgba(255, 92, 0, 0.5),
+    0 0 60px rgba(255, 92, 0, 0.3);
 }
 
 .text-glow-sm {
   text-shadow:
     0 0 5px rgba(255, 255, 255, 0.3),
-    0 0 15px rgba(217, 76, 26, 0.3);
+    0 0 15px rgba(255, 92, 0, 0.3);
 }
 
 /* ─── Sparkle Particles ─── */
@@ -82,21 +241,10 @@ body {
 }
 
 @keyframes sparkle-float {
-  0% {
-    transform: translateY(0) translateX(0) scale(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  90% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-100vh) translateX(50px) scale(0.5);
-    opacity: 0;
-  }
+  0% { transform: translateY(0) translateX(0) scale(0); opacity: 0; }
+  10% { opacity: 1; transform: scale(1); }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(-100vh) translateX(50px) scale(0.5); opacity: 0; }
 }
 
 /* ─── Glassmorphism ─── */
@@ -108,7 +256,7 @@ body {
 }
 
 .glass-dark {
-  background: rgba(26, 10, 0, 0.6);
+  background: rgba(5, 5, 5, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -120,22 +268,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1A0A00;
+  background: #050505;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #AF3D15;
+  background: #CC4A00;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #D94C1A;
+  background: #FF5C00;
 }
 
 /* ─── Form Animation Utilities ─── */
 .input-focus-glow:focus {
-  box-shadow: 0 0 0 2px rgba(217, 76, 26, 0.3), 0 0 20px rgba(217, 76, 26, 0.15);
-  border-color: #D94C1A;
+  box-shadow: 0 0 0 2px rgba(255, 92, 0, 0.3), 0 0 20px rgba(255, 92, 0, 0.15);
+  border-color: #FF5C00;
 }
 
 /* ─── Magnetic Button ─── */
@@ -144,7 +292,7 @@ body {
 }
 
 .btn-magnetic:hover {
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(217, 76, 26, 0.4);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 92, 0, 0.4);
 }
 
 /* ─── Tilt Card Hover ─── */
@@ -155,29 +303,29 @@ body {
 
 /* ─── Selection Color ─── */
 ::selection {
-  background: rgba(217, 76, 26, 0.4);
+  background: rgba(255, 92, 0, 0.4);
   color: #fff;
 }
 
 /* ─── Divider ─── */
 .divider-glow {
-  background: linear-gradient(90deg, transparent, rgba(217, 76, 26, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 92, 0, 0.5), transparent);
   height: 1px;
 }
 
 /* ─── Form Controls (shared with auth pages) ─── */
 .btn-primary {
-  @apply px-6 py-3 bg-primary text-white font-semibold rounded-lg transition-all duration-300;
+  @apply px-6 py-3 bg-primary text-white font-semibold rounded-sm transition-all duration-300;
   @apply hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30;
 }
 
 .btn-secondary {
-  @apply px-6 py-3 bg-transparent text-white/90 font-semibold rounded-lg border border-white/20;
+  @apply px-6 py-3 bg-transparent text-white/90 font-semibold rounded-sm border border-white/20;
   @apply hover:border-primary/50 hover:text-white transition-all duration-300;
 }
 
 .input-field {
-  @apply w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10;
+  @apply w-full px-4 py-3 rounded-sm bg-white/5 border border-white/10;
   @apply text-white placeholder:text-white/40;
   @apply focus:outline-none focus:border-primary/50 focus:bg-white/10;
   @apply transition-all duration-300;

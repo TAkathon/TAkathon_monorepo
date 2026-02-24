@@ -71,17 +71,22 @@ export default function TeamsPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">My Teams</h1>
-                        <p className="text-white/60">Manage your hackathon teams and collaborate</p>
+                        <h1 className="text-3xl font-bold text-white mb-2 uppercase tracking-tight">Active Squads</h1>
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full" />
+                            <span className="text-xs text-white/40 uppercase tracking-[0.2em] font-bold">
+                                Manage your hackathon teams and converge with allies
+                            </span>
+                        </div>
                     </div>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2"
+                        className="px-6 py-2.5 bg-primary/20 hover:bg-primary border border-primary/40 hover:border-primary text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 shadow-glow-primary/10 hover:shadow-glow-primary/20 flex items-center gap-2"
                     >
-                        <Plus className="w-5 h-5" />
-                        Create Team
+                        <Plus className="w-4 h-4" />
+                        Form Squad
                     </button>
                 </div>
 
@@ -92,28 +97,27 @@ export default function TeamsPage() {
                             {/* Team Header */}
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
                                 <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <h2 className="text-2xl font-bold text-white">{team.name}</h2>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h2 className="text-2xl font-bold text-white uppercase tracking-tight">{team.name}</h2>
                                         {team.role === "Captain" && (
-                                            <Crown className="w-5 h-5 text-yellow-500" />
+                                            <Crown className="w-5 h-5 text-yellow-500 drop-shadow-glow-sm" />
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-2 text-white/60 text-sm mb-2">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>{team.hackathon}</span>
-                                        <span>•</span>
+                                    <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold mb-3">
+                                        <Calendar className="w-3.5 h-3.5 text-primary" />
+                                        <span className="text-primary-light">{team.hackathon}</span>
+                                        <span className="opacity-20">•</span>
                                         <span>{team.hackathonDate}</span>
                                     </div>
-                                    <p className="text-white/70 text-sm">{team.description}</p>
+                                    <p className="text-white/60 text-sm leading-relaxed">{team.description}</p>
                                 </div>
                                 <span
-                                    className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                                        team.status === "Complete"
-                                            ? "bg-green-500/20 text-green-400"
-                                            : team.status === "Looking for members"
-                                            ? "bg-primary/20 text-primary"
-                                            : "bg-blue-500/20 text-blue-400"
-                                    }`}
+                                    className={`px-3 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full border ${team.status === "Complete"
+                                        ? "bg-green-500/10 text-green-400 border-green-500/20"
+                                        : team.status === "Looking for members"
+                                            ? "bg-primary/10 text-primary border-primary/20"
+                                            : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                        }`}
                                 >
                                     {team.status}
                                 </span>
@@ -122,14 +126,14 @@ export default function TeamsPage() {
                             {/* Members Grid */}
                             <div>
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                                        <Users className="w-5 h-5 text-primary" />
-                                        Team Members ({team.members.length}/{team.maxMembers})
+                                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                        <Users className="w-4 h-4 text-primary" />
+                                        Squad Cadre ({team.members.length}/{team.maxMembers})
                                     </h3>
                                     {team.role === "Captain" && team.members.length < team.maxMembers && (
-                                        <button className="text-sm text-primary hover:text-primary-light flex items-center gap-1">
-                                            <UserPlus className="w-4 h-4" />
-                                            Invite
+                                        <button className="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-primary-light flex items-center gap-1 transition-colors">
+                                            <UserPlus className="w-3.5 h-3.5" />
+                                            Recruit
                                         </button>
                                     )}
                                 </div>
@@ -138,7 +142,7 @@ export default function TeamsPage() {
                                     {team.members.map((member, idx) => (
                                         <div
                                             key={idx}
-                                            className="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
+                                            className="flex items-center gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/5 hover:border-primary/20 transition-all duration-300"
                                         >
                                             <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary font-semibold">
                                                 {member.name
@@ -184,14 +188,14 @@ export default function TeamsPage() {
                             </div>
 
                             {/* Team Actions */}
-                            <div className="flex items-center gap-3 mt-6 pt-6 border-t border-white/10">
-                                <button className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
-                                    <MessageCircle className="w-4 h-4" />
-                                    Team Chat
+                            <div className="flex items-center gap-3 mt-8 pt-6 border-t border-white/5">
+                                <button className="flex-1 px-4 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] text-white text-[10px] uppercase font-bold tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 border border-white/5 hover:border-white/10">
+                                    <MessageCircle className="w-4 h-4 text-primary" />
+                                    Tactical Comms
                                 </button>
-                                <button className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
-                                    <Target className="w-4 h-4" />
-                                    Project Details
+                                <button className="flex-1 px-4 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] text-white text-[10px] uppercase font-bold tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-2 border border-white/5 hover:border-white/10">
+                                    <Target className="w-4 h-4 text-primary" />
+                                    Mission Brief
                                 </button>
                             </div>
                         </div>
@@ -208,64 +212,67 @@ export default function TeamsPage() {
                         />
 
                         {/* Modal */}
-                        <div className="relative glass rounded-2xl p-6 w-full max-w-md">
-                            <h2 className="text-2xl font-bold text-white mb-4">Create New Team</h2>
+                        <div className="relative glass rounded-2xl p-8 w-full max-w-md border border-white/10 shadow-glow-primary/20">
+                            <div className="flex items-center gap-3 mb-6">
+                                <Plus className="w-6 h-6 text-primary" />
+                                <h2 className="text-2xl font-bold text-white uppercase tracking-tight text-glow-sm">Initialize Squad</h2>
+                            </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Team Name
+                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
+                                        Squad Designation
                                     </label>
                                     <input
                                         type="text"
                                         value={newTeam.name}
                                         onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
-                                        placeholder="Enter team name..."
-                                        className="input-field"
+                                        placeholder="ENTER SQUAD NAME..."
+                                        className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Hackathon
+                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
+                                        Mission Area
                                     </label>
-                                    <div className="relative">
+                                    <div className="relative group">
                                         <select
                                             value={newTeam.hackathon}
                                             onChange={(e) =>
                                                 setNewTeam({ ...newTeam, hackathon: e.target.value })
                                             }
-                                            className="input-field appearance-none pr-10"
+                                            className="w-full pl-4 pr-10 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all appearance-none cursor-pointer text-sm uppercase tracking-widest font-medium"
                                         >
-                                            <option value="">Select a hackathon...</option>
-                                            <option value="ai-innovators">AI Innovators Challenge</option>
-                                            <option value="web3-summit">Web3 Summit Hackathon</option>
-                                            <option value="climate-tech">Climate Tech Solutions</option>
+                                            <option value="" className="bg-dark text-white text-xs">SELECT MISSION...</option>
+                                            <option value="ai-innovators" className="bg-dark text-white text-xs">AI Innovators Challenge</option>
+                                            <option value="web3-summit" className="bg-dark text-white text-xs">Web3 Summit Hackathon</option>
+                                            <option value="climate-tech" className="bg-dark text-white text-xs">Climate Tech Solutions</option>
                                         </select>
-                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40 group-focus-within:text-primary transition-colors">
                                             <ChevronDown className="w-4 h-4" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Description
+                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
+                                        Objective Brief
                                     </label>
                                     <textarea
                                         value={newTeam.description}
                                         onChange={(e) =>
                                             setNewTeam({ ...newTeam, description: e.target.value })
                                         }
-                                        placeholder="Describe your project idea..."
+                                        placeholder="OUTLINE YOUR MISSION OBJECTIVES..."
                                         rows={3}
-                                        className="input-field resize-none"
+                                        className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium resize-none"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Max Team Size
+                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
+                                        Operational Capacity
                                     </label>
                                     <input
                                         type="number"
@@ -275,23 +282,23 @@ export default function TeamsPage() {
                                         onChange={(e) =>
                                             setNewTeam({ ...newTeam, maxMembers: parseInt(e.target.value) })
                                         }
-                                        className="input-field"
+                                        className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 mt-6">
+                            <div className="flex gap-4 mt-8">
                                 <button
                                     onClick={() => setShowCreateModal(false)}
-                                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all"
+                                    className="flex-1 px-4 py-3 bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all border border-white/5"
                                 >
-                                    Cancel
+                                    Abort
                                 </button>
                                 <button
                                     onClick={handleCreateTeam}
-                                    className="flex-1 px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all"
+                                    className="flex-1 px-4 py-3 bg-primary/20 hover:bg-primary border border-primary/40 hover:border-primary text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-glow-primary/10 hover:shadow-glow-primary/20"
                                 >
-                                    Create Team
+                                    Launch Squad
                                 </button>
                             </div>
                         </div>

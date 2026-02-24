@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TAKATHON Student Hub Pro Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#EA580C", // Vibrant Orange
+              "primary-hover": "#FF6D1F",
+              "background-black": "#030303", // Even deeper black
+              "sidebar-black": "#000000",
+              "surface-dark": "#0A0A0A",
+              "surface-charcoal": "#111111",
+              "border-glass": "rgba(255, 255, 255, 0.08)",
+            },
+            fontFamily: {
+              display: ['"Chakra Petch"', 'sans-serif'], 
+              body: ['"Inter"', 'sans-serif'],
+            },
+            borderRadius: {
+              DEFAULT: "0px", // Strict sharp corners
+              'lg': '0px',
+              'xl': '0px',
+              'full': '9999px',
+            },
+            boxShadow: {
+              'glow-orange': '0 0 25px rgba(234, 88, 12, 0.35)',
+              'glow-border': 'inset 0 0 15px rgba(234, 88, 12, 0.1)',
+              'depth': '0 10px 30px rgba(0,0,0,0.8)',
+            },
+            backgroundImage: {
+              'dust-pattern': "url('data:image/svg+xml,%3Csvg width=\"200\" height=\"200\" viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.04\"%3E%3Ccircle cx=\"20\" cy=\"20\" r=\"1\"/%3E%3Ccircle cx=\"100\" cy=\"60\" r=\"1.5\"/%3E%3Ccircle cx=\"160\" cy=\"120\" r=\"1\"/%3E%3Ccircle cx=\"60\" cy=\"160\" r=\"0.5\"/%3E%3Ccircle cx=\"180\" cy=\"20\" r=\"1\"/%3E%3C/g%3E%3C/svg%3E')",
+              'gradient-card': "linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(5,5,5,1) 100%)",
+              'gradient-sidebar-active': "linear-gradient(90deg, rgba(234,88,12,0.2) 0%, rgba(0,0,0,0) 100%)"
+            }
+          },
+        },
+      };
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030303;
+        }
+        h1, h2, h3, h4, .font-gaming {
+            font-family: 'Chakra Petch', sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+            border-left: 1px solid #222;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border: 1px solid #000;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #EA580C; 
+        }.tactical-card {
+            background: #080808;
+            border: 1px solid rgba(234, 88, 12, 0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(0,0,0,1);
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tactical-card:hover {
+            border-color: #EA580C;
+            box-shadow: 0 0 30px rgba(234, 88, 12, 0.15), inset 0 0 20px rgba(234, 88, 12, 0.05);
+            transform: translateY(-2px);
+        }.hud-corner::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 12px; height: 12px;
+            border-top: 2px solid #EA580C;
+            border-left: 2px solid #EA580C;
+            z-index: 10;
+        }
+        .hud-corner::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 12px; height: 12px;
+            border-bottom: 2px solid #EA580C;
+            border-right: 2px solid #EA580C;
+            z-index: 10;
+        }
+        .text-glow-orange {
+            text-shadow: 0 0 15px #EA580C;
+        }.bg-diag-lines {
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 11px);
+        }
+        .clip-corner-button {
+             clip-path: polygon(
+                0 0,
+                100% 0,
+                100% calc(100% - 12px),
+                calc(100% - 12px) 100%,
+                0 100%
+            );
+        }.floating-obj {
+            animation: float-slow 8s ease-in-out infinite;
+        }
+        @keyframes float-slow {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(0, -15px) rotate(2deg); }
+        }
+    </style>
+</head>
+<body class="bg-background-black text-white min-h-screen overflow-hidden dark relative selection:bg-primary selection:text-white">
+<div class="fixed inset-0 bg-dust-pattern opacity-60 pointer-events-none z-0"></div>
+<div class="fixed top-[-20%] right-[-10%] w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
+<div class="fixed bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-900/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+<div class="floating-obj absolute top-32 right-12 z-0 opacity-20 pointer-events-none">
+<svg fill="none" height="120" stroke="#EA580C" stroke-width="0.5" viewBox="0 0 100 100" width="120">
+<path d="M50 0 L93.3 25 V75 L50 100 L6.7 75 V25 Z"></path>
+<path d="M50 15 L80 32 V68 L50 85 L20 68 V32 Z" opacity="0.5"></path>
+<circle cx="50" cy="50" fill="#EA580C" r="5"></circle>
+</svg>
+</div>
+<div class="floating-obj absolute bottom-48 left-80 z-0 opacity-10 pointer-events-none" style="animation-delay: -3s;">
+<div class="grid grid-cols-3 gap-2">
+<div class="w-2 h-2 bg-white rounded-full"></div><div class="w-2 h-2 bg-white rounded-full"></div><div class="w-2 h-2 bg-white rounded-full"></div>
+<div class="w-2 h-2 bg-white rounded-full"></div><div class="w-2 h-2 bg-transparent rounded-full"></div><div class="w-2 h-2 bg-white rounded-full"></div>
+<div class="w-2 h-2 bg-white rounded-full"></div><div class="w-2 h-2 bg-white rounded-full"></div><div class="w-2 h-2 bg-white rounded-full"></div>
+</div>
+</div>
+<div class="flex h-screen overflow-hidden relative z-10">
+<aside class="w-72 bg-sidebar-black border-r border-white/10 flex flex-col justify-between shrink-0 z-20 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+<div>
+<div class="h-24 flex items-center px-8 border-b border-white/10 relative overflow-hidden bg-white/[0.02]">
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-10 h-10 bg-primary flex items-center justify-center font-bold text-black text-2xl font-gaming shadow-glow-orange clip-corner-button">T</div>
+<span class="text-2xl font-bold tracking-widest font-gaming uppercase text-white drop-shadow-md">Takathon</span>
+</div>
+</div>
+<nav class="mt-8 px-0 space-y-2">
+<a class="flex items-center gap-4 px-8 py-4 text-white relative group border-l-4 border-primary bg-gradient-sidebar-active" href="#">
+<span class="material-symbols-outlined text-primary group-hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(234,88,12,0.8)]">dashboard</span>
+<span class="font-bold font-gaming tracking-wide uppercase text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-8 py-4 text-gray-500 hover:text-white hover:bg-white/5 transition-all group relative border-l-4 border-transparent hover:border-white/20" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">calendar_month</span>
+<span class="font-bold font-gaming tracking-wide uppercase text-sm">Hackathons</span>
+</a>
+<a class="flex items-center gap-4 px-8 py-4 text-gray-500 hover:text-white hover:bg-white/5 transition-all group relative border-l-4 border-transparent hover:border-white/20" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">groups</span>
+<span class="font-bold font-gaming tracking-wide uppercase text-sm">My Teams</span>
+</a>
+<a class="flex items-center gap-4 px-8 py-4 text-gray-500 hover:text-white hover:bg-white/5 transition-all group relative border-l-4 border-transparent hover:border-white/20" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">person</span>
+<span class="font-bold font-gaming tracking-wide uppercase text-sm">Profile</span>
+</a>
+<a class="flex items-center gap-4 px-8 py-4 text-gray-500 hover:text-white hover:bg-white/5 transition-all group relative border-l-4 border-transparent hover:border-white/20" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-bold font-gaming tracking-wide uppercase text-sm">Settings</span>
+</a>
+</nav>
+</div>
+<div class="p-0">
+<a class="flex items-center gap-4 px-8 py-6 text-gray-600 hover:text-red-500 hover:bg-red-500/5 transition-colors border-t border-white/10" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-bold font-gaming tracking-wide uppercase text-sm">Log Out</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden relative bg-gradient-to-br from-[#050505] to-[#000]">
+<header class="h-24 flex items-center justify-between px-10 border-b border-white/10 z-20 bg-black/90 backdrop-blur-md">
+<div class="w-96">
+<div class="relative group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 material-symbols-outlined group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-[#0A0A0A] border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-primary focus:ring-0 transition-all font-gaming text-sm tracking-wide" placeholder="SEARCH HACKATHONS..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<button class="relative text-gray-400 hover:text-white transition-colors group p-2">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary shadow-glow-orange rounded-full"></span>
+</button>
+<div class="flex items-center gap-4 pl-8 border-l border-white/10 h-12">
+<div class="text-right hidden md:block">
+<div class="text-sm font-black text-white font-body tracking-wider uppercase">John Doe</div>
+<div class="text-xs text-primary font-gaming tracking-widest uppercase">LVL 5 • Developer</div>
+</div>
+<div class="relative">
+<div class="w-12 h-12 bg-surface-charcoal border border-primary/50 shadow-glow-orange flex items-center justify-center text-primary font-bold font-gaming text-lg clip-corner-button">
+                                JD
+                            </div>
+<div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border border-black rotate-45 shadow-[0_0_8px_#22c55e]"></div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-10 relative z-10 scroll-smooth pb-32">
+<div class="mb-14 relative group">
+<h1 class="text-7xl font-black text-white mb-2 tracking-tighter font-body italic uppercase drop-shadow-xl">
+                        Welcome back, <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400 text-glow-orange">John!</span>
+</h1>
+<div class="flex items-center gap-3 ml-1">
+<div class="h-2 w-2 bg-green-500 shadow-[0_0_8px_#22c55e] animate-pulse"></div>
+<p class="text-gray-400 font-gaming uppercase tracking-widest text-sm">System Online • Ready to hack</p>
+</div>
+<div class="absolute right-0 top-0 w-64 h-full border-r border-white/5 opacity-50 skew-x-[-10deg]"></div>
+<div class="absolute right-12 top-4 flex gap-1">
+<div class="w-12 h-1 bg-primary/20"></div>
+<div class="w-4 h-1 bg-primary/40"></div>
+<div class="w-2 h-1 bg-primary"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-6 mb-16 max-w-5xl">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="tactical-card p-4 hud-corner group flex items-center justify-between gap-4 h-full">
+<div class="absolute inset-0 bg-diag-lines opacity-10 pointer-events-none"></div>
+<div class="flex-1">
+<div class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.1em] font-gaming mb-1">Hackathons Joined</div>
+<div class="text-4xl font-bold text-white font-gaming group-hover:text-primary transition-colors duration-300">3</div>
+</div>
+<div class="p-2 bg-surface-charcoal border border-white/10 group-hover:border-primary/50 transition-colors shrink-0">
+<span class="material-symbols-outlined text-2xl text-primary drop-shadow-[0_0_10px_rgba(234,88,12,0.6)]">event_available</span>
+</div>
+</div>
+<div class="tactical-card p-4 hud-corner group flex items-center justify-between gap-4 h-full">
+<div class="absolute inset-0 bg-diag-lines opacity-10 pointer-events-none"></div>
+<div class="flex-1">
+<div class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.1em] font-gaming mb-1">Active Teams</div>
+<div class="text-4xl font-bold text-white font-gaming group-hover:text-primary transition-colors duration-300">2</div>
+</div>
+<div class="p-2 bg-surface-charcoal border border-white/10 group-hover:border-primary/50 transition-colors shrink-0">
+<span class="material-symbols-outlined text-2xl text-primary drop-shadow-[0_0_10px_rgba(234,88,12,0.6)]">groups</span>
+</div>
+</div>
+<div class="tactical-card p-4 hud-corner group flex items-center justify-between gap-4 h-full">
+<div class="absolute inset-0 bg-diag-lines opacity-10 pointer-events-none"></div>
+<div class="flex-1">
+<div class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.1em] font-gaming mb-1">Completed Projects</div>
+<div class="text-4xl font-bold text-white font-gaming group-hover:text-primary transition-colors duration-300">5</div>
+</div>
+<div class="p-2 bg-surface-charcoal border border-white/10 group-hover:border-primary/50 transition-colors shrink-0">
+<span class="material-symbols-outlined text-2xl text-primary drop-shadow-[0_0_10px_rgba(234,88,12,0.6)]">emoji_events</span>
+</div>
+</div>
+</div>
+<div class="tactical-card p-6 hud-corner group relative overflow-hidden bg-surface-charcoal/50 border-primary/40 shadow-glow-orange w-full">
+<div class="absolute inset-0 bg-diag-lines opacity-20 pointer-events-none"></div>
+<div class="absolute top-0 right-0 p-4 opacity-20">
+<span class="material-symbols-outlined text-8xl text-primary">military_tech</span>
+</div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+<div class="flex items-center gap-6">
+<div class="flex flex-col">
+<div class="text-sm font-bold text-primary tracking-widest font-gaming uppercase mb-1">Current Rank</div>
+<div class="text-6xl font-black text-white font-gaming tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">LEVEL 5</div>
+</div>
+<div class="h-12 w-px bg-white/10 hidden md:block"></div>
+<div class="flex flex-col justify-center">
+<div class="text-white font-gaming text-lg font-bold uppercase tracking-wide">Elite Developer</div>
+<div class="text-gray-400 font-gaming text-xs uppercase tracking-wide">Next Rank: Code Master</div>
+</div>
+</div>
+<div class="flex-1 w-full md:max-w-xl">
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-bold text-white font-gaming tracking-wider">XP PROGRESS</span>
+<span class="text-lg font-black text-primary font-gaming tracking-wide">2450 <span class="text-gray-600 text-xs font-medium">/ 3000 XP</span></span>
+</div>
+<div class="w-full h-4 bg-black border border-white/10 p-0.5 skew-x-[-10deg]">
+<div class="h-full bg-gradient-to-r from-orange-900 to-primary w-[81%] shadow-[0_0_15px_rgba(234,88,12,0.8)] relative overflow-hidden">
+<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8cGF0aCBkPSJNLTFIMkw0IDRIMVoiIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iMC4yIi8+Cjwvc3ZnPg==')] opacity-30"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between border-b border-primary/30 pb-2">
+<h2 class="text-2xl font-bold font-gaming text-white uppercase tracking-wider flex items-center gap-2">
+<span class="w-3 h-3 bg-primary rotate-45 shadow-glow-orange"></span>
+                                Registered Hackathons
+                            </h2>
+<a class="text-xs font-bold font-gaming text-primary hover:text-white uppercase tracking-widest transition-colors flex items-center gap-1 group" href="#">
+                                View All <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<div class="bg-[#080808] border border-white/10 relative group hover:border-primary/60 transition-colors duration-300">
+<div class="absolute top-0 right-0 w-16 h-16 border-t border-r border-white/10 group-hover:border-primary/50 transition-colors"></div>
+<div class="absolute bottom-0 left-0 w-4 h-4 bg-white/5"></div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-xl font-bold font-gaming text-white group-hover:text-primary transition-colors uppercase tracking-wide">AI Innovators Challenge</h3>
+<p class="text-sm text-gray-500 mt-2 font-body max-w-xs">Build the future of generative AI.</p>
+</div>
+<span class="px-3 py-1 bg-primary/10 text-primary border border-primary/40 text-[10px] font-bold font-gaming uppercase tracking-widest shadow-[0_0_15px_rgba(234,88,12,0.15)]">Registered</span>
+</div>
+<div class="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-6"></div>
+<div class="flex items-center gap-8 text-sm text-gray-400">
+<div class="flex items-center gap-2 group/icon">
+<span class="material-symbols-outlined text-primary text-lg group-hover/icon:scale-110 transition-transform">calendar_today</span>
+<span class="font-gaming uppercase tracking-wide">Mar 15-17</span>
+</div>
+<div class="flex items-center gap-2 group/icon">
+<span class="material-symbols-outlined text-primary text-lg group-hover/icon:scale-110 transition-transform">group</span>
+<span class="font-gaming uppercase tracking-wide">120 Participants</span>
+</div>
+</div>
+<div class="mt-8 flex justify-end gap-4">
+<button class="px-5 py-3 border border-white/20 text-white hover:border-white font-bold font-gaming uppercase text-xs tracking-wider bg-transparent transition-colors clip-corner-button">
+        View Details
+    </button>
+<button class="px-6 py-3 bg-primary text-black font-black font-gaming uppercase text-xs tracking-wider hover:bg-white transition-colors shadow-glow-orange clip-corner-button">
+        Access Hub
+    </button>
+</div>
+</div>
+</div>
+<div class="bg-[#080808] border border-white/10 relative group hover:border-blue-500/60 transition-colors duration-300">
+<div class="absolute top-0 right-0 w-16 h-16 border-t border-r border-white/10 group-hover:border-blue-500/50 transition-colors"></div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-xl font-bold font-gaming text-white group-hover:text-blue-400 transition-colors uppercase tracking-wide">Web3 Summit Hackathon</h3>
+<p class="text-sm text-gray-500 mt-2 font-body max-w-xs">Decentralize the world one block at a time.</p>
+</div>
+<span class="px-3 py-1 bg-blue-900/20 text-blue-400 border border-blue-500/40 text-[10px] font-bold font-gaming uppercase tracking-widest shadow-[0_0_15px_rgba(59,130,246,0.15)]">Interested</span>
+</div>
+<div class="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-6"></div>
+<div class="flex items-center gap-8 text-sm text-gray-400">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-500 text-lg">calendar_today</span>
+<span class="font-gaming uppercase tracking-wide">Mar 22-24</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-500 text-lg">group</span>
+<span class="font-gaming uppercase tracking-wide">85 Interested</span>
+</div>
+</div>
+<div class="mt-8 flex justify-end gap-4">
+<button class="px-5 py-3 border border-white/20 text-white hover:border-white font-bold font-gaming uppercase text-xs tracking-wider bg-transparent transition-colors clip-corner-button">
+        View Details
+    </button>
+<button class="px-6 py-3 border border-blue-500 text-blue-400 font-black font-gaming uppercase text-xs tracking-wider hover:bg-blue-500 hover:text-white transition-colors clip-corner-button">
+        Register Now
+    </button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between border-b border-primary/30 pb-2">
+<h2 class="text-2xl font-bold font-gaming text-white uppercase tracking-wider flex items-center gap-2">
+<span class="w-3 h-3 bg-primary rotate-45 shadow-glow-orange"></span>
+                                My Teams
+                            </h2>
+<a class="text-xs font-bold font-gaming text-primary hover:text-white uppercase tracking-widest transition-colors flex items-center gap-1 group" href="#">
+                                View All <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+<div class="bg-[#080808] border border-white/10 p-8 relative hover:border-primary transition-all duration-300 group">
+<div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full pointer-events-none"></div>
+<div class="flex justify-between items-start">
+<div class="flex gap-6">
+<div class="w-16 h-16 bg-[#111] border border-white/10 flex items-center justify-center text-3xl shadow-lg relative clip-corner-button">
+                                        🧙‍♂️
+                                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-primary border border-black"></div>
+</div>
+<div>
+<h3 class="text-xl font-bold font-gaming text-white uppercase tracking-wide group-hover:text-primary transition-colors">Code Wizards</h3>
+<p class="text-xs text-primary mt-1 font-gaming uppercase tracking-wider">AI Innovators Challenge</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="text-[10px] font-bold font-gaming text-gray-500 tracking-widest">4/5 OPERATIVES</span>
+<div class="w-24 h-1.5 bg-gray-800 skew-x-[-20deg] overflow-hidden">
+<div class="h-full bg-primary w-4/5 shadow-[0_0_8px_#EA580C]"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-dashed border-white/10 flex justify-between items-center">
+<span class="text-xs font-bold font-gaming text-primary flex items-center gap-2 uppercase tracking-wider animate-pulse">
+<span class="material-symbols-outlined text-base">warning</span>
+                                    Looking for 1 more
+                                </span>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 bg-gray-700 border border-black skew-x-[-10deg]"></div>
+<div class="w-8 h-8 bg-gray-600 border border-black skew-x-[-10deg]"></div>
+<div class="w-8 h-8 bg-gray-500 border border-black skew-x-[-10deg]"></div>
+<div class="w-8 h-8 bg-gray-400 border border-black skew-x-[-10deg]"></div>
+</div>
+</div>
+</div>
+<div class="bg-[#080808] border border-white/10 p-8 relative hover:border-green-500 transition-all duration-300 opacity-90 hover:opacity-100 group">
+<div class="flex justify-between items-start">
+<div class="flex gap-6">
+<div class="w-16 h-16 bg-[#111] border border-white/10 flex items-center justify-center text-3xl shadow-lg relative clip-corner-button">
+                                        🤖
+                                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border border-black"></div>
+</div>
+<div>
+<h3 class="text-xl font-bold font-gaming text-white uppercase tracking-wide group-hover:text-green-500 transition-colors">Tech Titans</h3>
+<p class="text-xs text-gray-500 mt-1 font-gaming uppercase tracking-wider">Past Event</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="text-[10px] font-bold font-gaming text-gray-500 tracking-widest">5/5 OPERATIVES</span>
+<div class="w-24 h-1.5 bg-gray-800 skew-x-[-20deg] overflow-hidden">
+<div class="h-full bg-green-500 w-full shadow-[0_0_8px_#22c55e]"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-dashed border-white/10 flex justify-between items-center">
+<span class="text-xs font-bold font-gaming text-green-500 flex items-center gap-2 uppercase tracking-wider">
+<span class="material-symbols-outlined text-base">check_circle</span>
+                                    Squad Full
+                                </span>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 bg-gray-700 border border-black skew-x-[-10deg]"></div>
+<div class="w-8 h-8 bg-gray-600 border border-black skew-x-[-10deg]"></div>
+<div class="w-8 h-8 bg-[#222] border border-black skew-x-[-10deg] flex items-center justify-center">
+<span class="text-[10px] font-bold text-white skew-x-[10deg]">+3</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 mb-16">
+<h2 class="text-xl font-bold text-white mb-6 pl-2 border-l-4 border-primary tracking-wide">QUICK ACTIONS</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<a class="block group relative" href="#">
+<div class="absolute inset-0 bg-primary/20 blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+<div class="bg-[#111] border border-white/10 p-6 flex flex-col justify-between h-40 hover:border-primary hover:-translate-y-1 transition-all duration-300 shadow-depth relative z-10">
+<div>
+<span class="material-symbols-outlined text-primary text-3xl mb-4">calendar_month</span>
+<h3 class="text-lg font-bold text-white group-hover:text-primary transition-colors">Browse Hackathons</h3>
+<p class="text-sm text-gray-500 mt-1">Find your next challenge</p>
+</div>
+<div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+</a>
+<a class="block group relative" href="#">
+<div class="absolute inset-0 bg-primary/20 blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+<div class="bg-[#111] border border-white/10 p-6 flex flex-col justify-between h-40 hover:border-primary hover:-translate-y-1 transition-all duration-300 shadow-depth relative z-10">
+<div>
+<span class="material-symbols-outlined text-primary text-3xl mb-4">group_add</span>
+<h3 class="text-lg font-bold text-white group-hover:text-primary transition-colors">Find Teammates</h3>
+<p class="text-sm text-gray-500 mt-1">Build your dream team</p>
+</div>
+<div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+</a>
+<a class="block group relative" href="#">
+<div class="absolute inset-0 bg-primary/20 blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+<div class="bg-[#111] border border-white/10 p-6 flex flex-col justify-between h-40 hover:border-primary hover:-translate-y-1 transition-all duration-300 shadow-depth relative z-10">
+<div>
+<span class="material-symbols-outlined text-primary text-3xl mb-4">emoji_events</span>
+<h3 class="text-lg font-bold text-white group-hover:text-primary transition-colors">View Achievements</h3>
+<p class="text-sm text-gray-500 mt-1">Track your progress</p>
+</div>
+<div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+</a>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

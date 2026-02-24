@@ -78,39 +78,42 @@ export default function HackathonsPage() {
         <DashboardLayout>
             <div className="space-y-6">
                 {/* Header */}
-                <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Browse Hackathons</h1>
-                    <p className="text-white/60">
-                        Discover and join exciting hackathons across Tunisia
-                    </p>
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-white mb-2 uppercase tracking-tight">Active Missions</h1>
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full" />
+                        <span className="text-xs text-white/40 uppercase tracking-[0.2em] font-bold">
+                            Discover and join exciting hackathons across Tunisia
+                        </span>
+                    </div>
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4 mb-8">
                     {/* Search */}
-                    <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                    <div className="flex-1 relative group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search hackathons by name or tag..."
-                            className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-primary/50 transition-all"
+                            placeholder="SEARCH OPERATIONS..."
+                            className="w-full pl-11 pr-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
                         />
                     </div>
 
                     {/* Status Filter */}
-                    <div className="relative min-w-[200px]">
-                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                    <div className="relative min-w-[200px] group">
+                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-primary transition-colors" />
                         <select
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value)}
-                            className="w-full pl-11 pr-8 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer"
+                            className="w-full pl-11 pr-10 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all appearance-none cursor-pointer text-sm uppercase tracking-widest font-medium"
                         >
-                            <option value="All">All Status</option>
-                            <option value="Open">Open</option>
-                            <option value="Filling Fast">Filling Fast</option>
-                            <option value="Closed">Closed</option>
+                            <option value="All" className="bg-dark text-white">ALL STATUS</option>
+                            <option value="Open" className="bg-dark text-white">OPEN</option>
+                            <option value="Filling Fast" className="bg-dark text-white">FILLING FAST</option>
+                            <option value="Closed" className="bg-dark text-white">CLOSED</option>
                         </select>
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
                             <ChevronDown className="w-4 h-4" />
@@ -119,8 +122,8 @@ export default function HackathonsPage() {
                 </div>
 
                 {/* Results count */}
-                <p className="text-white/60 text-sm">
-                    Showing {filteredHackathons.length} of {hackathons.length} hackathons
+                <p className="text-white/20 text-[10px] uppercase font-bold tracking-[0.2em]">
+                    Displaying {filteredHackathons.length} of {hackathons.length} Active Operations
                 </p>
 
                 {/* Hackathons Grid */}
@@ -128,24 +131,23 @@ export default function HackathonsPage() {
                     {filteredHackathons.map((hackathon) => (
                         <div
                             key={hackathon.id}
-                            className="glass rounded-xl p-6 hover:bg-white/10 transition-all duration-300 cursor-pointer group"
+                            className="glass rounded-2xl p-8 border border-white/5 hover:border-primary/20 hover:bg-white/5 transition-all duration-500 cursor-pointer group"
                         >
                             {/* Header */}
-                            <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-start justify-between mb-6">
                                 <div>
-                                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
+                                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-primary-light transition-all tracking-tight">
                                         {hackathon.name}
                                     </h3>
-                                    <p className="text-sm text-white/60">{hackathon.organizer}</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">{hackathon.organizer}</p>
                                 </div>
                                 <span
-                                    className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                                        hackathon.status === "Open"
-                                            ? "bg-green-500/20 text-green-400"
+                                    className={`px-3 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full border ${hackathon.status === "Open"
+                                            ? "bg-green-500/10 text-green-400 border-green-500/20"
                                             : hackathon.status === "Filling Fast"
-                                            ? "bg-primary/20 text-primary"
-                                            : "bg-white/10 text-white/60"
-                                    }`}
+                                                ? "bg-primary/10 text-primary border-primary/20"
+                                                : "bg-white/5 text-white/40 border-white/10"
+                                        }`}
                                 >
                                     {hackathon.status}
                                 </span>
@@ -155,11 +157,11 @@ export default function HackathonsPage() {
                             <p className="text-white/70 text-sm mb-4">{hackathon.description}</p>
 
                             {/* Tags */}
-                            <div className="flex flex-wrap gap-2 mb-4">
+                            <div className="flex flex-wrap gap-2 mb-6">
                                 {hackathon.tags.map((tag) => (
                                     <span
                                         key={tag}
-                                        className="px-2 py-1 bg-white/5 text-white/60 text-xs rounded-full"
+                                        className="px-2 py-1 bg-primary/5 border border-primary/10 text-primary-light text-[9px] font-bold uppercase tracking-widest rounded-md"
                                     >
                                         {tag}
                                     </span>
@@ -167,21 +169,21 @@ export default function HackathonsPage() {
                             </div>
 
                             {/* Info Grid */}
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                                <div className="flex items-center gap-2 text-sm text-white/60">
-                                    <Calendar className="w-4 h-4 text-primary" />
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                                    <Calendar className="w-3.5 h-3.5 text-primary" />
                                     <span>{hackathon.date}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-white/60">
-                                    <MapPin className="w-4 h-4 text-primary" />
+                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                                    <MapPin className="w-3.5 h-3.5 text-primary" />
                                     <span>{hackathon.location}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-white/60">
-                                    <Clock className="w-4 h-4 text-primary" />
+                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                                    <Clock className="w-3.5 h-3.5 text-primary" />
                                     <span>{hackathon.duration}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-white/60">
-                                    <Users className="w-4 h-4 text-primary" />
+                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                                    <Users className="w-3.5 h-3.5 text-primary" />
                                     <span>
                                         {hackathon.participants}/{hackathon.maxParticipants}
                                     </span>
@@ -189,13 +191,13 @@ export default function HackathonsPage() {
                             </div>
 
                             {/* Footer */}
-                            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                            <div className="flex items-center justify-between pt-6 border-t border-white/5">
                                 <div>
-                                    <span className="text-primary font-bold text-lg">{hackathon.prize}</span>
-                                    <span className="text-white/40 text-sm ml-1">Prize Pool</span>
+                                    <p className="text-[10px] text-white/20 uppercase tracking-[0.2em] font-bold mb-1">Prize Pool</p>
+                                    <span className="text-primary-light font-bold text-2xl tracking-tight">{hackathon.prize}</span>
                                 </div>
-                                <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200">
-                                    Join Now
+                                <button className="px-6 py-2.5 bg-primary/20 hover:bg-primary border border-primary/40 hover:border-primary text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 shadow-glow-primary/10 hover:shadow-glow-primary/20">
+                                    Join Mission
                                 </button>
                             </div>
                         </div>

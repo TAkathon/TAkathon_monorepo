@@ -11,9 +11,127 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: #1A0A00;
+  background: #050505;
   color: #fff;
   overflow-x: hidden;
+}
+
+/* ─── Digital Dust ─── */
+.digital-dust {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 92, 0, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 60px 60px, 40px 40px;
+  animation: drift 60s linear infinite;
+}
+
+@keyframes drift {
+  from {
+    background-position: 0 0, 0 0;
+  }
+
+  to {
+    background-position: 100px 100px, -50px 50px;
+  }
+}
+
+/* ─── Hero Pattern ─── */
+.hero-pattern {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Tech Input ─── */
+.tech-input {
+  background-color: #000;
+  border: 1px solid #333;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.tech-input:focus {
+  border-color: #FF5C00;
+  box-shadow: 0 0 0 1px #FF5C00;
+  outline: none;
+}
+
+/* ─── Role Radio Cards ─── */
+.role-radio:checked+label {
+  border-color: #FF5C00;
+  box-shadow: 0 0 15px rgba(255, 92, 0, 0.4);
+}
+
+.role-radio:checked+label .overlay {
+  background: linear-gradient(to top, rgba(255, 92, 0, 0.8), rgba(0, 0, 0, 0.2));
+}
+
+.role-radio:checked+label span {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* ─── 3D Button ─── */
+.btn-3d {
+  transition: all 0.1s;
+}
+
+.btn-3d:active {
+  transform: translateY(2px);
+  box-shadow: 0px 2px 0px 0px #CC5500;
+}
+
+/* ─── Floating Animations ─── */
+.float-slow {
+  animation: float-login 8s ease-in-out infinite;
+}
+
+.float-med {
+  animation: float-login 6s ease-in-out infinite reverse;
+}
+
+.float-fast-auth {
+  animation: float-login 4s ease-in-out infinite;
+}
+
+.mascot-float {
+  animation: mascotFloat 5s ease-in-out infinite;
+}
+
+@keyframes float-login {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  50% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+}
+
+@keyframes mascotFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ─── Cinematic Glow ─── */
+.cinematic-glow {
+  background: radial-gradient(circle at center, rgba(255, 92, 0, 0.3) 0%, transparent 70%);
 }
 
 /* ─── Scroll Progress Bar ─── */
@@ -22,24 +140,24 @@ body {
   top: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(90deg, #D94C1A, #F4845F, #D94C1A);
+  background: linear-gradient(90deg, #FF5C00, #FF8A3D, #FF5C00);
   z-index: 9999;
   transition: width 0.1s linear;
-  box-shadow: 0 0 10px rgba(217, 76, 26, 0.7), 0 0 5px rgba(217, 76, 26, 0.5);
+  box-shadow: 0 0 10px rgba(255, 92, 0, 0.7), 0 0 5px rgba(255, 92, 0, 0.5);
 }
 
 /* ─── Title Glow Effect ─── */
 .text-glow {
   text-shadow:
     0 0 10px rgba(255, 255, 255, 0.5),
-    0 0 30px rgba(217, 76, 26, 0.5),
-    0 0 60px rgba(217, 76, 26, 0.3);
+    0 0 30px rgba(255, 92, 0, 0.5),
+    0 0 60px rgba(255, 92, 0, 0.3);
 }
 
 .text-glow-sm {
   text-shadow:
     0 0 5px rgba(255, 255, 255, 0.3),
-    0 0 15px rgba(217, 76, 26, 0.3);
+    0 0 15px rgba(255, 92, 0, 0.3);
 }
 
 /* ─── Glassmorphism ─── */
@@ -51,7 +169,7 @@ body {
 }
 
 .glass-dark {
-  background: rgba(26, 10, 0, 0.8);
+  background: rgba(5, 5, 5, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -59,22 +177,29 @@ body {
 
 /* ─── Button Animations ─── */
 @keyframes glow {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .btn-primary {
-  @apply px-6 py-3 bg-primary text-white font-semibold rounded-lg transition-all duration-300;
+  @apply px-6 py-3 bg-primary text-white font-semibold rounded-sm transition-all duration-300;
   @apply hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30;
 }
 
 .btn-secondary {
-  @apply px-6 py-3 bg-transparent text-white/90 font-semibold rounded-lg border border-white/20;
+  @apply px-6 py-3 bg-transparent text-white/90 font-semibold rounded-sm border border-white/20;
   @apply hover:border-primary/50 hover:text-white transition-all duration-300;
 }
 
 .input-field {
-  @apply w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10;
+  @apply w-full px-4 py-3 rounded-sm bg-white/5 border border-white/10;
   @apply text-white placeholder:text-white/40;
   @apply focus:outline-none focus:border-primary/50 focus:bg-white/10;
   @apply transition-all duration-300;

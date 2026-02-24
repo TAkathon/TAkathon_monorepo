@@ -1,231 +1,91 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { GraduationCap, ClipboardList, Briefcase, X } from "lucide-react";
-
-const audiences = [
+const personas = [
     {
-        icon: GraduationCap,
-        title: "For Students",
-        description:
-            "Stop searching for teams and start building them. Get matched with compatible teammates based on your skills, experience, and availability.",
-        extendedDescription:
-            "Join a vibrant community of innovators! As a student, you'll have access to mentorship from industry experts, workshops to sharpen your skills, and the chance to win amazing prizes. Whether you're a coder, designer, or business enthusiast, there's a place for you to shine and launch your career.",
-        features: ["Skill-based matching", "Team invitations", "AI suggestions"],
-        gradient: "from-primary/20 via-primary-dark/10 to-transparent",
+        number: "01",
+        title: "STUDENTS",
+        subtitle: "Build portfolio & win prizes",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCdDkzqESJSr11_vomiN8MLbt3Py07zDe8gldaww_uJp7Trw_j2ql_KBELRpsTeCCZCRVvMOfZoQFbVd-GpdxxqnHC6buM3o0ErCOVlfOQoqW_93GrHYvK3V30E-O6e7n1t3m0cTJtDCCShjrKCf5fg0W2kOlSMjzNi9pXdBytpN-tsZb0I3ztxG7E_oz_pJ-o4tQEic1xZD8dQj2uRug4_jtHSCRzNn-HrdOQy0ro2GwRPTPAd7zbLk9UWLyU4WCILnU3kHawdTXg",
+        watermarkIcon: (
+            <svg className="w-36 h-36 text-white/10" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
+            </svg>
+        ),
+        floatClass: "floating-delayed",
     },
     {
-        icon: ClipboardList,
-        title: "For Organizers",
-        description:
-            "Eliminate the administrative chaos and focus on the innovation. Get a structured overview of all participants, teams, and progress.",
-        extendedDescription:
-            "Streamline your hackathon management with our comprehensive toolkit. Track registration numbers in real-time, manage team formations effortlessly, and communicate updates instantly to all participants. Our platform handles the logistics so you can focus on creating an unforgettable experience.",
-        features: ["Dashboard overview", "Team management", "Export data"],
-        gradient: "from-orange-500/15 via-amber-600/10 to-transparent",
+        number: "02",
+        title: "ORGANIZERS",
+        subtitle: "Manage events seamlessly",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC0dPT4c0F_jgrCk0ESqzGMgRdBqWhTXxadQ65HVTDmd1zzS4mIWU-0xiBrP48aEHmT4Jv3-IIw6XkDeGrNa-RvmIeMM8GBxaRDOMv-ZVMhr-Kmm05yjr48TsB-fxOdM6Zdt0Cob3cMZohwS7ImLfMsd_sdoTP5_LONgViYXxGk0H51IWGGd5wS6kllWzsTZLd3ry0s8LDKH7fUNf6xBELXnUXskgm4f_2zi7QJe57GCqBJgRD1JigK4nNjDoe6MgR2DM1A78jkAkE",
+        watermarkIcon: (
+            <svg className="w-36 h-36 text-primary/20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M16.53 11.06L12.58 7.11l1.41-1.41 2.54 2.53 5.54-5.53 1.41 1.41-6.95 6.95zM19 19H5V8h7.11l2-2H5c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-6.97l-2 2V19z" />
+            </svg>
+        ),
+        floatClass: "floating",
     },
     {
-        icon: Briefcase,
-        title: "For Sponsors",
-        description:
-            "Invest your money in a framework. Find top teams, showcase your brand, and discover the next generation of talent in Tunisia.",
-        extendedDescription:
-            "Connect with the brightest minds and future leaders. Sponsoring TAKATHON isn't just about brand visibility; it's about direct engagement with top talent. Get access to detailed analytics on participant demographics, judge projects, and host exclusive side-events to showcase your company culture.",
-        features: ["Talent discovery", "Brand visibility", "Team analytics"],
-        gradient: "from-yellow-500/15 via-orange-500/10 to-transparent",
+        number: "03",
+        title: "SPONSORS",
+        subtitle: "Access top tech talent",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDofH7LYXEvRdDP4-juh12WHT-_htvgMPxRU4nQQFqarcpStad_1xPYwDQEdbkPLDv0jDVEkQbdhOrN5OUwkXvyuWAg7Fn1nV-wTE35DfgM1GHszi14qQeYTxXhfwzvWI0jhmNcfuItsIapo2zWu4CjY9KxHwQPwv2WIIgPwc1ggpDyR45ovJpwiI-DDVlV3kzgF5zD7NNV5u4MdxAXCgo8s87nYfRG69Qvtq0PhImWF0jRY25maNRvea045v300BvfzwpH4XV5QrY",
+        watermarkIcon: (
+            <svg className="w-36 h-36 text-yellow-500/10" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" />
+            </svg>
+        ),
+        floatClass: "floating-fast",
     },
 ];
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.15 },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-};
-
 export default function AudienceSection() {
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-    const [selectedAudience, setSelectedAudience] = useState<(typeof audiences)[0] | null>(null);
+    return (
+        <section id="audience" className="py-32 bg-black relative">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+                <h2 className="huge-title text-5xl md:text-8xl text-center mb-24 tracking-tighter text-white">
+                    WHO IS TAKATHON BUILT FOR?
+                </h2>
 
-  return (
-    <section
-      id="audience"
-      ref={sectionRef}
-      className="relative py-24 sm:py-32 overflow-hidden"
-    >
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-dark-100 via-dark to-dark" />
-
-            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
-                {/* Title */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
-                >
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-                        Who is <span className="text-primary">TAKATHON</span> Built For?
-                    </h2>
-                    <p className="text-white/50 text-lg max-w-xl mx-auto">
-                        Every stakeholder in the hackathon ecosystem benefits from a
-                        structured, data-driven approach.
-                    </p>
-                </motion.div>
-
-                {/* Cards */}
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate={isInView ? "visible" : "hidden"}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6"
-                >
-                    {audiences.map((item, i) => (
-                        <motion.div
-                            key={i}
-                            variants={cardVariants}
-                            className="group relative rounded-2xl border border-white/[0.1] hover:border-primary/30 bg-white/[0.02] overflow-hidden transition-all duration-500 hover:shadow-glow flex flex-col h-full"
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+                    {personas.map((persona) => (
+                        <div
+                            key={persona.number}
+                            className="relative aspect-[3/4.5] rounded-[4px] overflow-hidden group cursor-pointer border border-white/10 bg-zinc-900 shadow-2xl hover:border-primary/50 transition-colors"
                         >
-                            {/* Internal mesh gradient */}
-                            <div
-                                className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                            {/* Background Image */}
+                            <img
+                                alt={persona.title}
+                                className="absolute inset-0 w-full h-full object-cover blur-[1px] group-hover:blur-0 transition-all duration-700 brightness-50"
+                                src={persona.image}
                             />
 
-                            <div className="relative p-6 sm:p-8 flex flex-col h-full">
-                                {/* Icon */}
-                                <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-                                    <item.icon className="w-7 h-7 text-primary" />
+                            {/* Overlay */}
+                            <div className="absolute inset-0 persona-card-overlay"></div>
+
+                            {/* Content */}
+                            <div className="absolute inset-0 p-10 flex flex-col justify-between">
+                                <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.3em] text-white">
+                                    <span className="w-2 h-2 bg-primary"></span> {persona.number}
                                 </div>
-
-                {/* Title */}
-                <h3 className="text-xl font-bold text-white mb-3">
-                  {item.title}
-                </h3>
-
-                                {/* Description */}
-                                <p className="text-white/50 text-sm leading-relaxed mb-5 flex-grow">
-                                    {item.description}
-                                </p>
-
-                                {/* Feature tags */}
-                                <div className="flex flex-wrap gap-2 mb-5">
-                                    {item.features.map((feature, j) => (
-                                        <span
-                                            key={j}
-                                            className="px-3 py-1 text-xs text-primary/80 bg-primary/[0.08] rounded-full border border-primary/10"
-                                        >
-                                            {feature}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                {/* See More button - pushed to bottom */}
-                                <button
-                                    onClick={() => setSelectedAudience(item)}
-                                    className="mt-auto text-sm text-primary/70 group-hover:text-primary transition-colors duration-300 flex items-center gap-1 cursor-pointer hover:gap-2"
-                                >
-                                    See More <span>→</span>
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))}
-                </motion.div>
-            </div>
-
-            {/* Modal */}
-            <AnimatePresence>
-                {selectedAudience && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-                        {/* Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedAudience(null)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        />
-
-                        {/* Modal Content */}
-                        <motion.div
-                            layoutId={`card-${selectedAudience.title}`}
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative w-full max-w-lg bg-[#0F0F1A] border border-primary/20 rounded-2xl p-6 sm:p-8 shadow-2xl overflow-hidden"
-                        >
-                            {/* Gradient Background */}
-                            <div
-                                className={`absolute inset-0 bg-gradient-to-br ${selectedAudience.gradient} opacity-20 pointer-events-none`}
-                            />
-
-                            {/* Close Button */}
-                            <button
-                                onClick={() => setSelectedAudience(null)}
-                                className="absolute top-4 right-4 p-2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors z-10"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-
-                            <div className="relative z-10">
-                                {/* Header */}
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/20 flex items-center justify-center">
-                                        <selectedAudience.icon className="w-6 h-6 text-primary" />
+                                <div>
+                                    <div className="huge-title text-5xl lg:text-6xl leading-none mb-2">
+                                        {persona.title}
                                     </div>
-                                    <h3 className="text-2xl font-bold text-white">
-                                        {selectedAudience.title}
-                                    </h3>
-                                </div>
-
-                                {/* Extended Description */}
-                                <div className="prose prose-invert max-w-none">
-                                    <p className="text-white/80 text-base leading-relaxed">
-                                        {selectedAudience.extendedDescription}
+                                    <p className="text-xs font-bold tracking-widest text-zinc-300 uppercase">
+                                        {persona.subtitle}
                                     </p>
                                 </div>
-
-                                {/* Features List in Modal */}
-                                <div className="mt-8">
-                                    <h4 className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
-                                        Key Benefits
-                                    </h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {selectedAudience.features.map((feature, idx) => (
-                                            <div
-                                                key={idx}
-                                                className="flex items-center gap-2 text-white/70 text-sm"
-                                            >
-                                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                                {feature}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Action Button */}
-                                <button
-                                    onClick={() => setSelectedAudience(null)}
-                                    className="w-full mt-8 py-3 px-4 bg-primary hover:bg-primary-dark text-black font-semibold rounded-xl transition-colors duration-300"
-                                >
-                                    Close Details
-                                </button>
                             </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+
+                            {/* Floating Watermark Icon */}
+                            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${persona.floatClass} pointer-events-none`}>
+                                {persona.watermarkIcon}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </section>
     );
 }

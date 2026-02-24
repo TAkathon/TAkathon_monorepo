@@ -1,174 +1,78 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
-import { useMousePosition, useMagnetic } from "@/lib/hooks";
-import SparkleField from "./SparkleField";
-
-const stats = [
-  { value: "260+", label: "Students" },
-  { value: "14", label: "Hackathons" },
-  { value: "🇹🇳", label: "Built in Tunisia" },
-];
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.15, delayChildren: 0.3 },
-  },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-};
-
 export default function HeroSection() {
-  const mouse = useMousePosition();
-  const primaryRef = useRef<HTMLButtonElement>(null);
-  const mascotRef = useRef<HTMLDivElement>(null);
-
-  const { scrollY } = useScroll();
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
-
-  useMagnetic(primaryRef);
-
-  // Calculate eye offset based on cursor position
-  const eyeOffsetX =
-    (mouse.x / (typeof window !== "undefined" ? window.innerWidth : 1) - 0.5) *
-    6;
-  const eyeOffsetY =
-    (mouse.y / (typeof window !== "undefined" ? window.innerHeight : 1) - 0.5) *
-    4;
-
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-    >
-      {/* Background */}
-      <div className="absolute inset-0 bg-dark-gradient" />
+    <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black">
+      {/* Giant Title */}
+      <div className="relative z-10 w-full max-w-7xl px-4 pointer-events-none select-none">
+        <h1 className="huge-title text-[14vw] lg:text-[200px] text-center leading-none text-white tracking-tighter font-black">
+          JOIN<br />
+          TAKATHON
+        </h1>
+      </div>
 
-      {/* Radial Glow */}
-      <div className="absolute inset-0 bg-hero-gradient opacity-40" />
+      {/* Floating Elements */}
+      {/* Yellow coin - top left */}
+      <div className="absolute top-[20%] left-[10%] floating-delayed z-20">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 border-4 border-yellow-300 shadow-[0_0_30px_rgba(234,179,8,0.4)] flex items-center justify-center">
+          <svg className="w-10 h-10 text-yellow-100" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7c-1.1 0-2 .9-2 2v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z" />
+          </svg>
+        </div>
+      </div>
 
-      {/* Sparkle Particles */}
-      <SparkleField count={25} />
+      {/* Yellow coin - bottom right */}
+      <div className="absolute bottom-[15%] right-[10%] floating z-20">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 border-4 border-yellow-300 shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center justify-center">
+          <svg className="w-8 h-8 text-yellow-100" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H11.5v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.65c.09 1.71 1.37 2.66 2.85 2.97V19h1.73v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.65-3.42z" />
+          </svg>
+        </div>
+      </div>
 
-      {/* Content */}
-      <motion.div
-        className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center pt-24"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* Sub-headline */}
-        <motion.p
-          variants={fadeUp}
-          className="text-primary-light text-sm sm:text-base uppercase tracking-[0.3em] font-medium mb-4"
-        >
-          The Operating System for Hackathons in Tunisia
-        </motion.p>
+      {/* Orange diamond - top right */}
+      <div className="absolute top-[30%] right-[15%] floating-fast z-20">
+        <div className="w-12 h-12 bg-primary/20 backdrop-blur-md border border-primary/50 rotate-45 flex items-center justify-center shadow-[0_0_20px_rgba(255,92,0,0.5)]">
+          <div className="w-6 h-6 bg-primary"></div>
+        </div>
+      </div>
 
-        {/* Title */}
-        <motion.h1
-          variants={fadeUp}
-          className="text-glow text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight mb-6"
-        >
-          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-primary-light">
-            TAKATHON
-          </span>
-        </motion.h1>
+      {/* Code icon - bottom left */}
+      <div className="absolute bottom-[30%] left-[12%] floating z-20 opacity-70">
+        <div className="w-10 h-10 bg-blue-500/20 backdrop-blur-md border border-blue-400/50 rotate-[15deg] flex items-center justify-center">
+          <svg className="w-5 h-5 text-blue-300" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+          </svg>
+        </div>
+      </div>
 
-        {/* Mascot with eye-follow */}
-        {/* Mascot with eye-follow */}
-        <motion.div
-          ref={mascotRef}
-          style={{ opacity, scale }}
-          className="relative mx-auto w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 -mt-16 md:-mt-24 mb-10 z-0"
-        >
-          <motion.div
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="relative w-full h-full flex items-center justify-center"
-          >
-            {/* Fallback styling when mascot.png is missing */}
-            <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
-              <span className="text-8xl select-none animate-pulse">🦅</span>
+      {/* Laptop card - top right (desktop only) */}
+      <div className="absolute top-[15%] right-[25%] floating-delayed z-20 hidden lg:block">
+        <div className="p-4 bg-zinc-800 rounded-lg border border-zinc-700 shadow-2xl rotate-12">
+          <svg className="w-9 h-9 text-zinc-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Bottom Mascot Area */}
+      <div className="absolute bottom-[-50px] left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl">
+        <div className="relative w-full aspect-square flex items-end justify-center">
+          <div className="relative w-96 h-96 md:w-[500px] md:h-[500px] floating">
+            <div className="absolute inset-0 bg-primary blur-[120px] opacity-30 rounded-full"></div>
+            <div className="relative z-20 w-full h-full">
+              <img
+                src="/mascot.png"
+                alt="Takathon Mascot"
+                className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(255,92,0,0.6)]"
+              />
             </div>
+          </div>
+        </div>
+      </div>
 
-            <Image
-              src="/mascot.png"
-              alt="TAKATHON Falcon Mascot"
-              fill
-              className="object-contain drop-shadow-2xl z-10"
-              priority
-              sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, 256px"
-              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                const target = e.target as HTMLElement;
-                target.style.display = "none";
-              }}
-            />
-            {/* Eye highlight that follows cursor */}
-            <div
-              className="absolute top-[32%] left-[44%] w-2 h-2 bg-white/80 rounded-full blur-[1px] pointer-events-none transition-transform duration-200 z-20"
-              style={{
-                transform: `translate(${eyeOffsetX}px, ${eyeOffsetY}px)`,
-              }}
-            />
-            <div
-              className="absolute top-[32%] left-[56%] w-2 h-2 bg-white/80 rounded-full blur-[1px] pointer-events-none transition-transform duration-200 z-20"
-              style={{
-                transform: `translate(${eyeOffsetX}px, ${eyeOffsetY}px)`,
-              }}
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* CTA Buttons */}
-        <motion.div
-          variants={fadeUp}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
-        >
-          <button
-            ref={primaryRef}
-            className="btn-magnetic group relative px-8 py-3.5 bg-primary text-white font-semibold rounded-full text-lg overflow-hidden transition-all duration-300 hover:shadow-glow-white"
-          >
-            <span className="relative z-10">Host a Hackathon</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-dark to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </button>
-
-          <button className="btn-magnetic px-8 py-3.5 bg-white/5 text-white font-semibold rounded-full text-lg border-2 border-primary/60 hover:border-primary hover:bg-primary/10 transition-all duration-300">
-            Participate
-          </button>
-        </motion.div>
-
-        {/* Social Proof / Trust Row */}
-        <motion.div
-          variants={fadeUp}
-          className="flex items-center justify-center gap-6 sm:gap-10"
-        >
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white">
-                {stat.value}
-              </div>
-              <div className="text-xs sm:text-sm text-white/60 mt-1">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-dark to-transparent" />
+      {/* Bottom gradient blur */}
+      <div className="gradient-blur"></div>
     </section>
   );
 }

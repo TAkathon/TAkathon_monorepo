@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TAKATHON - Official Landing Page</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#FF5C00",
+                        vibrantOrange: "#FF5C00",
+                        darkPurple: "#2E1065",
+                        "background-light": "#0a0a0a",
+                        "background-dark": "#050505",
+                        "card-bg": "#121212",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        archivo: ["Archivo Black", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "4px",
+                    },
+                },
+            },
+        };
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --primary-color: #FF5C00;
+        }
+        .huge-title {
+            font-family: 'Archivo Black', sans-serif;
+            line-height: 0.85;
+            letter-spacing: -0.04em;
+            text-transform: uppercase;
+        }
+        .section-title {
+            font-family: 'Archivo Black', sans-serif;
+            text-transform: uppercase;
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        .floating-delayed {
+            animation: float 8s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+        .floating-fast {
+            animation: float 4s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .gradient-blur {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,92,0,0.15) 0%, rgba(10,10,10,0) 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .persona-card-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+        }
+        .cartoon-card {
+            border: 6px solid #1a1a1a;
+            box-shadow: 8px 8px 0px #1a1a1a;
+            transition: all 0.2s ease;
+        }
+        .cartoon-card:hover {
+            transform: translate(-4px, -4px) scale(1.02);
+            box-shadow: 12px 12px 0px #1a1a1a;
+            z-index: 20;
+        }
+        .roadmap-card {
+            background: #121212;
+            border: 4px solid #fff;
+            box-shadow: 6px 6px 0px #FF5C00;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .roadmap-card:hover {
+            transform: translateY(-5px) rotate(0deg) !important;
+            box-shadow: 10px 10px 0px #FF5C00;
+        }
+        .card-inner-border {
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .scribble-path {
+             stroke-dasharray: 2000;
+             stroke-dashoffset: 2000;
+             animation: draw 5s ease-out forwards infinite;
+             filter: drop-shadow(0 0 5px #FF5C00);
+        }
+        @keyframes draw {
+            0% { stroke-dashoffset: 2000; }
+            50% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .terminal-box {
+            background-color: #000;
+            border: 3px solid #FF5C00;
+            box-shadow: 0 0 30px rgba(255, 92, 0, 0.15);
+            position: relative;
+        }
+        .terminal-box::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border: 1px solid rgba(255, 92, 0, 0.5);
+            filter: blur(8px);
+            z-index: -1;
+        }
+        .glitch-placeholder::placeholder {
+            color: #444;
+            font-family: 'Courier New', monospace;
+        }
+        .arrow-draw {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawArrow 2s ease-out forwards infinite;
+        }
+        @keyframes drawArrow {
+            to { stroke-dashoffset: 0; }
+        }
+        .digital-dust {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.05) 100%, transparent 0),
+                radial-gradient(1px 1px at 30% 50%, rgba(255, 92, 0, 0.03) 100%, transparent 0),
+                radial-gradient(1px 1px at 60% 80%, rgba(255, 255, 255, 0.05) 100%, transparent 0),
+                radial-gradient(1px 1px at 80% 10%, rgba(255, 92, 0, 0.03) 100%, transparent 0),
+                radial-gradient(1px 1px at 90% 40%, rgba(255, 255, 255, 0.05) 100%, transparent 0);
+            background-size: 200px 200px;
+            animation: dust-move 30s linear infinite;
+        }
+        @keyframes dust-move {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-200px); }
+        }
+        .tight-kern {
+            letter-spacing: -0.06em;
+        }
+    </style>
+</head>
+<body class="bg-black font-display text-white selection:bg-primary selection:text-white overflow-x-hidden relative">
+<div class="digital-dust"></div>
+<nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6 bg-gradient-to-b from-black/90 to-transparent">
+<div class="flex items-center gap-2 group cursor-pointer">
+<img alt="Takathon Bird Logo" class="w-10 h-10 object-contain invert hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUbObfUNSv74K34ojewVzCwnvEnzs2tJMk6XJaWMY7MeDWcchYC1HrndAwV3z4M6xR4Yni6u2mLarAuJZxXF32iOtW9-giiPnjtgPdzP_qe5hD5ZAZcnI3PNO_FW-PYR_M4zloMo-dY2Kj5U7aoh2MxATuWJErmJO4eV-FDapavZDa--3dOe0Sou5bvAqQu52oWsjwAIJXVlDo1CVRCYN1vWi17MsyRanaP7ax7C2PbmkD7D-if8QDbLmw2Yazg7L2mG2vsPqeo8M"/>
+<span class="text-2xl font-black tracking-tighter">TAKATHON</span>
+</div>
+<div class="hidden md:flex items-center gap-10">
+<a class="text-xs font-bold tracking-widest hover:text-primary transition-colors uppercase" href="#">Why?</a>
+<a class="text-xs font-bold tracking-widest hover:text-primary transition-colors uppercase" href="#">For Who?</a>
+<a class="text-xs font-bold tracking-widest hover:text-primary transition-colors uppercase" href="#">How?</a>
+<a class="text-xs font-bold tracking-widest hover:text-primary transition-colors uppercase" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2 text-xs font-bold tracking-widest bg-white text-black hover:bg-gray-200 transition-colors uppercase rounded-sm border border-white">
+                Login
+            </button>
+<button class="px-6 py-2 text-xs font-bold tracking-widest bg-primary text-white hover:bg-orange-600 transition-colors uppercase rounded-sm flex items-center gap-2 border border-primary">
+                Sign Up <span class="material-icons text-[14px]">near_me</span>
+</button>
+</div>
+</nav>
+<section class="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black">
+<div class="relative z-10 w-full max-w-7xl px-4 pointer-events-none select-none">
+<h1 class="huge-title text-[14vw] lg:text-[200px] text-center leading-none text-white tracking-tighter">
+                JOIN<br/>
+                TAKATHON
+            </h1>
+</div>
+<div class="absolute top-[20%] left-[10%] floating-delayed z-20">
+<div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 border-4 border-yellow-300 shadow-[0_0_30px_rgba(234,179,8,0.4)] flex items-center justify-center">
+<span class="material-icons text-4xl text-yellow-100">memory</span>
+</div>
+</div>
+<div class="absolute bottom-[15%] right-[10%] floating z-20">
+<div class="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 border-4 border-yellow-300 shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center justify-center">
+<span class="material-icons text-3xl text-yellow-100">toll</span>
+</div>
+</div>
+<div class="absolute top-[30%] right-[15%] floating-fast z-20">
+<div class="w-12 h-12 bg-primary/20 backdrop-blur-md border border-primary/50 rotate-45 flex items-center justify-center shadow-[0_0_20px_rgba(255,92,0,0.5)]">
+<div class="w-6 h-6 bg-primary"></div>
+</div>
+</div>
+<div class="absolute bottom-[30%] left-[12%] floating z-20 opacity-70">
+<div class="w-10 h-10 bg-blue-500/20 backdrop-blur-md border border-blue-400/50 rotate-[15deg] flex items-center justify-center">
+<span class="material-icons text-blue-300">code</span>
+</div>
+</div>
+<div class="absolute top-[15%] right-[25%] floating-delayed z-20 hidden lg:block">
+<div class="p-4 bg-zinc-800 rounded-lg border border-zinc-700 shadow-2xl rotate-12">
+<span class="material-icons text-4xl text-zinc-400">laptop_mac</span>
+</div>
+</div>
+<div class="absolute bottom-[-20px] left-1/2 -translate-x-1/2 z-30 w-full max-w-lg">
+<div class="relative w-full aspect-square flex items-end justify-center">
+<div class="relative w-64 h-64 md:w-80 md:h-80 floating">
+<div class="absolute inset-0 bg-primary blur-[80px] opacity-40 rounded-full"></div>
+<div class="relative z-10 w-full h-full bg-gradient-to-t from-primary to-orange-400 rounded-2xl flex items-center justify-center border-4 border-white/20 shadow-2xl overflow-hidden">
+<span class="material-icons text-[180px] text-white opacity-90">auto_awesome</span>
+</div>
+</div>
+</div>
+</div>
+<div class="gradient-blur"></div>
+</section>
+<section class="bg-[#050505] py-32 overflow-hidden relative">
+<div class="max-w-7xl mx-auto px-8">
+<div class="text-center mb-16 relative z-10">
+<div class="flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.3em] text-primary mb-6">
+<span class="w-2 h-2 bg-primary"></span> CHALLENGES
+                </div>
+<h2 class="huge-title text-4xl md:text-6xl lg:text-7xl text-white leading-[0.9] mb-8">
+                    PROBLEMS IN TUNISIAN HACKATHONS
+                </h2>
+</div>
+<div class="relative w-full flex justify-center mb-12 floating">
+<div class="w-64 h-64 md:w-80 md:h-80 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-full blur-3xl absolute opacity-30"></div>
+<div class="relative z-10 p-6">
+<span class="material-symbols-outlined text-[200px] md:text-[280px] text-white drop-shadow-[8px_8px_0px_#FF5C00] rotate-6">
+                        bug_report
+                    </span>
+<div class="absolute top-10 right-0 animate-bounce delay-75">
+<span class="material-symbols-outlined text-6xl text-yellow-400 drop-shadow-[4px_4px_0px_#000]">warning</span>
+</div>
+<div class="absolute bottom-10 left-0 animate-bounce delay-150">
+<span class="material-symbols-outlined text-5xl text-red-500 drop-shadow-[4px_4px_0px_#000] -rotate-12">error</span>
+</div>
+</div>
+</div>
+<div class="relative flex flex-col md:flex-row justify-center items-center gap-8 md:gap-4 md:h-[500px] w-full max-w-5xl mx-auto perspective-[1000px]">
+<div class="cartoon-card bg-[#3B82F6] p-2 rounded-xl group cursor-pointer w-full md:w-72 md:absolute md:left-0 md:top-20 md:-rotate-6 hover:rotate-0 hover:z-30 transition-all duration-300">
+<div class="card-inner-border bg-[#2563EB] rounded-lg p-6 h-full flex flex-col items-center text-center">
+<div class="mb-4 relative h-24 w-full flex items-center justify-center">
+<div class="relative flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-6xl text-white drop-shadow-[3px_3px_0px_#1e3a8a]">extension</span>
+<span class="material-symbols-outlined text-4xl text-yellow-400 absolute -top-2 -right-2 drop-shadow-[2px_2px_0px_#1e3a8a] rotate-12">help</span>
+</div>
+</div>
+<div class="mt-auto">
+<h3 class="font-archivo text-lg mb-2 text-white leading-tight drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)] uppercase">Random Team Formation</h3>
+<p class="text-blue-100 text-xs leading-relaxed font-bold">Skills mismatch leading to chaos.</p>
+</div>
+</div>
+</div>
+<div class="cartoon-card bg-[#EF4444] p-2 rounded-xl group cursor-pointer w-full md:w-72 md:absolute md:left-1/2 md:-translate-x-1/2 md:top-0 md:rotate-3 hover:rotate-0 hover:z-30 transition-all duration-300 z-20">
+<div class="card-inner-border bg-[#DC2626] rounded-lg p-6 h-full flex flex-col items-center text-center">
+<div class="mb-4 relative h-24 w-full flex items-center justify-center">
+<div class="relative">
+<span class="material-symbols-outlined text-6xl text-white drop-shadow-[3px_3px_0px_#7f1d1d]">description</span>
+<div class="absolute -bottom-1 -right-1 bg-yellow-400 p-1 border-2 border-red-900 rounded rotate-12">
+<span class="material-symbols-outlined text-red-900 font-black text-sm">priority_high</span>
+</div>
+</div>
+</div>
+<div class="mt-auto">
+<h3 class="font-archivo text-lg mb-2 text-white leading-tight drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)] uppercase">Manual Google Forms</h3>
+<p class="text-red-100 text-xs leading-relaxed font-bold">Messy data, outdated process.</p>
+</div>
+</div>
+</div>
+<div class="cartoon-card bg-[#10B981] p-2 rounded-xl group cursor-pointer w-full md:w-72 md:absolute md:right-0 md:top-24 md:rotate-12 hover:rotate-0 hover:z-30 transition-all duration-300">
+<div class="card-inner-border bg-[#059669] rounded-lg p-6 h-full flex flex-col items-center text-center">
+<div class="mb-4 relative h-24 w-full flex items-center justify-center">
+<div class="relative">
+<span class="material-symbols-outlined text-6xl text-white drop-shadow-[3px_3px_0px_#064e3b]">inventory_2</span>
+<span class="material-symbols-outlined text-3xl text-yellow-300 absolute -top-1 -left-1 drop-shadow-[2px_2px_0px_#064e3b] rotate-[-15deg]">heart_broken</span>
+</div>
+</div>
+<div class="mt-auto">
+<h3 class="font-archivo text-lg mb-2 text-white leading-tight drop-shadow-[2px_2px_0px_rgba(0,0,0,0.5)] uppercase">Fragmented Talent Data</h3>
+<p class="text-emerald-100 text-xs leading-relaxed font-bold">Achievements lost in the void.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-32 bg-black relative">
+<div class="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+<h2 class="huge-title text-5xl md:text-8xl text-center mb-24 tracking-tighter text-white">WHO IS TAKATHON BUILT FOR?</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+<div class="relative aspect-[3/4.5] rounded-[4px] overflow-hidden group cursor-pointer border border-white/10 bg-zinc-900 shadow-2xl hover:border-primary/50 transition-colors">
+<img alt="Student" class="absolute inset-0 w-full h-full object-cover blur-[1px] group-hover:blur-0 transition-all duration-700 brightness-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdDkzqESJSr11_vomiN8MLbt3Py07zDe8gldaww_uJp7Trw_j2ql_KBELRpsTeCCZCRVvMOfZoQFbVd-GpdxxqnHC6buM3o0ErCOVlfOQoqW_93GrHYvK3V30E-O6e7n1t3m0cTJtDCCShjrKCf5fg0W2kOlSMjzNi9pXdBytpN-tsZb0I3ztxG7E_oz_pJ-o4tQEic1xZD8dQj2uRug4_jtHSCRzNn-HrdOQy0ro2GwRPTPAd7zbLk9UWLyU4WCILnU3kHawdTXg"/>
+<div class="absolute inset-0 persona-card-overlay"></div>
+<div class="absolute inset-0 p-10 flex flex-col justify-between">
+<div class="flex items-center gap-2 text-[10px] font-black tracking-[0.3em] text-white">
+<span class="w-2 h-2 bg-primary"></span> 01
+                        </div>
+<div>
+<div class="huge-title text-5xl lg:text-6xl leading-none mb-2">STUDENTS</div>
+<p class="text-xs font-bold tracking-widest text-zinc-300 uppercase">Build portfolio &amp; win prizes</p>
+</div>
+</div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 floating-delayed pointer-events-none">
+<span class="material-symbols-outlined text-white/10 text-[140px]">school</span>
+</div>
+</div>
+<div class="relative aspect-[3/4.5] rounded-[4px] overflow-hidden group cursor-pointer border border-white/10 bg-zinc-900 shadow-2xl hover:border-primary/50 transition-colors">
+<img alt="Organizer" class="absolute inset-0 w-full h-full object-cover blur-[1px] group-hover:blur-0 transition-all duration-700 brightness-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0dPT4c0F_jgrCk0ESqzGMgRdBqWhTXxadQ65HVTDmd1zzS4mIWU-0xiBrP48aEHmT4Jv3-IIw6XkDeGrNa-RvmIeMM8GBxaRDOMv-ZVMhr-Kmm05yjr48TsB-fxOdM6Zdt0Cob3cMZohwS7ImLfMsd_sdoTP5_LONgViYXxGk0H51IWGGd5wS6kllWzsTZLd3ry0s8LDKH7fUNf6xBELXnUXskgm4f_2zi7QJe57GCqBJgRD1JigK4nNjDoe6MgR2DM1A78jkAkE"/>
+<div class="absolute inset-0 persona-card-overlay"></div>
+<div class="absolute inset-0 p-10 flex flex-col justify-between">
+<div class="flex items-center gap-2 text-[10px] font-black tracking-[0.3em] text-white">
+<span class="w-2 h-2 bg-primary"></span> 02
+                        </div>
+<div>
+<div class="huge-title text-5xl lg:text-6xl leading-none mb-2">ORGANIZERS</div>
+<p class="text-xs font-bold tracking-widest text-zinc-300 uppercase">Manage events seamlessly</p>
+</div>
+</div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 floating pointer-events-none">
+<span class="material-symbols-outlined text-primary/20 text-[140px]">event_available</span>
+</div>
+</div>
+<div class="relative aspect-[3/4.5] rounded-[4px] overflow-hidden group cursor-pointer border border-white/10 bg-zinc-900 shadow-2xl hover:border-primary/50 transition-colors">
+<img alt="Sponsor" class="absolute inset-0 w-full h-full object-cover blur-[1px] group-hover:blur-0 transition-all duration-700 brightness-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDofH7LYXEvRdDP4-juh12WHT-_htvgMPxRU4nQQFqarcpStad_1xPYwDQEdbkPLDv0jDVEkQbdhOrN5OUwkXvyuWAg7Fn1nV-wTE35DfgM1GHszi14qQeYTxXhfwzvWI0jhmNcfuItsIapo2zWu4CjY9KxHwQPwv2WIIgPwc1ggpDyR45ovJpwiI-DDVlV3kzgF5zD7NNV5u4MdxAXCgo8s87nYfRG69Qvtq0PhImWF0jRY25maNRvea045v300BvfzwpH4XV5QrY"/>
+<div class="absolute inset-0 persona-card-overlay"></div>
+<div class="absolute inset-0 p-10 flex flex-col justify-between">
+<div class="flex items-center gap-2 text-[10px] font-black tracking-[0.3em] text-white">
+<span class="w-2 h-2 bg-primary"></span> 03
+                        </div>
+<div>
+<div class="huge-title text-5xl lg:text-6xl leading-none mb-2">SPONSORS</div>
+<p class="text-xs font-bold tracking-widest text-zinc-300 uppercase">Access top tech talent</p>
+</div>
+</div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 floating-fast pointer-events-none">
+<span class="material-symbols-outlined text-yellow-500/10 text-[140px]">diamond</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-[#080808] py-32 relative overflow-hidden border-t border-white/5">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50"></div>
+<div class="max-w-7xl mx-auto px-8 relative z-10">
+<div class="text-center mb-24">
+<div class="flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.3em] text-primary mb-6">
+<span class="w-2 h-2 bg-primary"></span> ROADMAP
+                </div>
+<h2 class="huge-title text-4xl md:text-6xl text-white leading-[0.9]">
+                    HOW IT WORKS?
+                </h2>
+</div>
+<div class="relative flex flex-col md:flex-row justify-between items-center gap-12 md:gap-4 md:h-[400px]">
+<svg class="absolute top-[20%] left-0 w-full h-full z-0 hidden md:block pointer-events-none overflow-visible" height="100%" width="100%">
+<path class="scribble-path" d="M 100,80 Q 250,20 350,100 T 600,80 T 850,120 T 1100,50" fill="none" stroke="#FF5C00" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+<div class="relative z-10 group w-full max-w-[240px] md:-rotate-6 hover:rotate-0 transition-transform duration-300">
+<div class="roadmap-card p-6 flex flex-col items-center text-center rounded-sm">
+<div class="w-16 h-16 mb-4 bg-black rounded-full flex items-center justify-center border-2 border-primary shadow-[4px_4px_0_#FF5C00]">
+<span class="huge-title text-2xl text-white">01</span>
+</div>
+<h3 class="font-archivo text-xl text-white mb-4 uppercase leading-tight bg-black inline-block px-2 -skew-x-6">Create your<br/>profile</h3>
+<p class="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">Start your journey</p>
+</div>
+</div>
+<div class="relative z-10 group w-full max-w-[240px] md:rotate-3 md:mt-24 hover:rotate-0 transition-transform duration-300">
+<div class="roadmap-card p-6 flex flex-col items-center text-center rounded-sm">
+<div class="w-16 h-16 mb-4 bg-black rounded-full flex items-center justify-center border-2 border-primary shadow-[4px_4px_0_#FF5C00]">
+<span class="huge-title text-2xl text-white">02</span>
+</div>
+<h3 class="font-archivo text-xl text-white mb-4 uppercase leading-tight bg-black inline-block px-2 -skew-x-6">Join a<br/>hackathon</h3>
+<p class="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">Browse active events</p>
+</div>
+</div>
+<div class="relative z-10 group w-full max-w-[240px] md:-rotate-3 md:mb-16 hover:rotate-0 transition-transform duration-300">
+<div class="roadmap-card p-6 flex flex-col items-center text-center rounded-sm">
+<div class="w-16 h-16 mb-4 bg-black rounded-full flex items-center justify-center border-2 border-primary shadow-[4px_4px_0_#FF5C00]">
+<span class="huge-title text-2xl text-white">03</span>
+</div>
+<h3 class="font-archivo text-xl text-white mb-4 uppercase leading-tight bg-black inline-block px-2 -skew-x-6">Build your<br/>team</h3>
+<p class="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">Find perfect allies</p>
+</div>
+</div>
+<div class="relative z-10 group w-full max-w-[240px] md:rotate-6 md:mt-8 hover:rotate-0 transition-transform duration-300">
+<div class="roadmap-card p-6 flex flex-col items-center text-center rounded-sm">
+<div class="w-16 h-16 mb-4 bg-black rounded-full flex items-center justify-center border-2 border-primary shadow-[4px_4px_0_#FF5C00]">
+<span class="huge-title text-2xl text-white">04</span>
+</div>
+<h3 class="font-archivo text-xl text-white mb-4 uppercase leading-tight bg-black inline-block px-2 -skew-x-6">Win great<br/>prizes</h3>
+<p class="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">Level up your career</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-vibrantOrange py-48 px-8 relative overflow-hidden flex flex-col items-center justify-center">
+<div class="absolute top-[10%] left-[5%] floating-fast rotate-12 z-0">
+<div class="w-24 h-24 bg-black rounded-xl rotate-12 flex items-center justify-center border-4 border-white shadow-2xl overflow-hidden">
+<span class="material-icons text-white text-6xl">local_fire_department</span>
+</div>
+</div>
+<div class="absolute bottom-[10%] right-[5%] floating-delayed -rotate-12 z-0">
+<div class="w-24 h-24 bg-white rounded-xl -rotate-12 flex items-center justify-center border-4 border-black shadow-2xl">
+<span class="material-icons text-black text-6xl">emoji_events</span>
+</div>
+</div>
+<div class="absolute top-[20%] right-[10%] floating rotate-[45deg] z-0">
+<div class="w-16 h-16 bg-black flex items-center justify-center rounded shadow-xl border border-white/20">
+<span class="material-icons text-white text-4xl">casino</span>
+</div>
+</div>
+<div class="absolute bottom-[20%] left-[12%] floating-fast z-0">
+<div class="p-4 bg-white rounded-lg border-2 border-black/10 shadow-2xl -rotate-6">
+<span class="material-icons text-3xl text-black">laptop_mac</span>
+</div>
+</div>
+<div class="absolute top-[5%] right-[30%] floating-delayed z-0 opacity-20">
+<span class="material-icons text-black text-8xl">keyboard_double_arrow_up</span>
+</div>
+<div class="relative z-10 text-center max-w-5xl">
+<div class="flex items-center justify-center gap-2 text-[12px] font-black tracking-[0.4em] text-black mb-6">
+                ■ TAKATHON
+            </div>
+<h2 class="huge-title text-6xl md:text-[140px] text-black mb-12 tight-kern leading-[0.85]">
+                READY TO<br/>LAUNCH
+            </h2>
+<div class="flex justify-center">
+<button class="px-12 py-4 bg-black text-white font-black tracking-widest text-[14px] border-2 border-black hover:bg-white hover:text-black transition-all uppercase flex items-center gap-2 shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+                    EXPLORE <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+<footer class="bg-background-dark py-32 px-8 border-t border-white/5 relative overflow-hidden">
+<div class="max-w-7xl mx-auto relative z-10">
+<div class="mb-20">
+<h2 class="huge-title text-7xl md:text-[140px] text-white leading-none mb-4 tight-kern">CONTACT US</h2>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start mb-24">
+<div class="flex flex-col gap-8">
+<div class="relative group">
+<h2 class="section-title text-4xl mb-4 text-white uppercase glitch-effect relative">
+                            STAY NETWORKED
+                        </h2>
+<div class="w-24 h-1 bg-primary mb-6"></div>
+<p class="text-zinc-500 text-sm font-bold tracking-widest uppercase max-w-md leading-relaxed">
+                            Initialize direct communication protocols. Our team is standing by to respond to your transmission from the command center.
+                        </p>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-xs font-black tracking-[0.2em] text-primary uppercase">Social Nodes</h4>
+<div class="flex gap-4">
+<a class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-sm hover:bg-primary transition-all text-white border border-white/10 hover:border-primary group" href="#">
+<i class="material-icons text-2xl group-hover:scale-110 transition-transform">discord</i>
+</a>
+<a class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-sm hover:bg-primary transition-all text-white border border-white/10 hover:border-primary group" href="#">
+<i class="material-icons text-2xl group-hover:scale-110 transition-transform">camera_alt</i>
+</a>
+<a class="w-12 h-12 bg-white/5 flex items-center justify-center rounded-sm hover:bg-primary transition-all text-white border border-white/10 hover:border-primary group" href="#">
+<i class="material-icons text-2xl group-hover:scale-110 transition-transform">terminal</i>
+</a>
+</div>
+</div>
+</div>
+<div class="terminal-box p-8 rounded-lg relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-8 bg-zinc-900/50 border-b border-primary/30 flex items-center px-4 justify-between">
+<div class="flex gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
+</div>
+<div class="text-[8px] font-mono text-primary/50 tracking-widest">TRANSMISSION_PROTOCOL_V2.0</div>
+</div>
+<div class="absolute top-4 right-4 opacity-10">
+<span class="material-symbols-outlined text-8xl text-primary">sensors</span>
+</div>
+<form class="flex flex-col gap-6 mt-6">
+<div class="relative group">
+<label class="text-[10px] font-mono text-primary mb-1 block">IDENTIFICATION_EMAIL</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-xs font-mono">&gt;</span>
+<input class="w-full bg-black/50 border border-zinc-800 px-8 py-4 text-sm tracking-widest focus:outline-none focus:border-primary text-green-400 font-mono glitch-placeholder uppercase transition-all" placeholder="USER@DOMAIN.COM" type="email"/>
+</div>
+</div>
+<div class="relative group">
+<label class="text-[10px] font-mono text-primary mb-1 block">MESSAGE_PAYLOAD</label>
+<div class="relative">
+<span class="absolute left-3 top-4 text-primary text-xs font-mono">&gt;</span>
+<textarea class="w-full bg-black/50 border border-zinc-800 px-8 py-4 text-sm tracking-widest focus:outline-none focus:border-primary text-green-400 h-40 resize-none font-mono glitch-placeholder uppercase transition-all" placeholder="START_TYPING_YOUR_DATA_HERE..."></textarea>
+</div>
+</div>
+<div class="flex items-center justify-between gap-6 pt-2">
+<button class="bg-primary text-black px-12 py-4 font-black text-sm tracking-[0.2em] uppercase hover:bg-white transition-all border-2 border-primary relative group flex items-center gap-4 overflow-hidden">
+<span class="relative z-10">CONNECT</span>
+<span class="material-icons relative z-10 text-sm">bolt</span>
+<div class="absolute inset-0 bg-white translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+</button>
+<div class="hidden sm:flex items-center gap-4">
+<svg class="w-24 h-10 stroke-primary/50" fill="none" viewBox="0 0 100 40">
+<path class="arrow-draw" d="M 0,20 L 70,20 M 60,10 L 70,20 L 60,30" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-[10px] font-mono text-primary animate-pulse">TX_READY</span>
+</div>
+</div>
+</form>
+<div class="mt-8 pt-6 border-t border-zinc-900 flex justify-between items-center text-[8px] font-mono text-zinc-600">
+<span>LATENCY: 12ms</span>
+<span>SECURE_CONNECTION: AES-256</span>
+<span>STATUS: ACTIVE</span>
+</div>
+</div>
+</div>
+<div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-[8px] text-zinc-600 tracking-widest uppercase">© 2024 TAKATHON TUNISIA. OPERATION SECURED. PRIVACY PROTOCOL / TERMS OF ENGAGEMENT</p>
+<div class="flex items-center gap-4">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-[8px] font-bold tracking-widest text-zinc-400 uppercase">SYSTEM ONLINE</span>
+</div>
+</div>
+</div>
+</footer>
+<div class="fixed bottom-0 left-0 right-0 p-6 flex justify-between items-center z-50 pointer-events-none">
+<div class="flex items-center gap-4 bg-black/50 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 pointer-events-auto">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">ACTIF PLAYERS : 73</span>
+</div>
+</div>
+
+</body></html>
