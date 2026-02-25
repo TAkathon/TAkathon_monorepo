@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 export default function ProblemSection() {
     return (
@@ -18,10 +19,15 @@ export default function ProblemSection() {
                 <div className="relative w-full flex justify-center mb-12 floating">
                     <div className="w-64 h-64 md:w-80 md:h-80 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-full blur-3xl absolute opacity-30"></div>
                     <div className="relative z-10 p-6">
-                        {/* Bug Report Icon */}
-                        <svg className="w-48 h-48 md:w-64 md:h-64 text-white drop-shadow-[8px_8px_0px_#FF5C00] rotate-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z" />
-                        </svg>
+                        {/* Takathon Logo with Duplicated Effect */}
+                        <div className="relative w-48 h-48 md:w-64 md:h-64 drop-shadow-[8px_8px_0px_#FF5C00] rotate-6">
+                            <Image
+                                src="/logotakathon.png"
+                                alt="Takathon Logo"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
                         {/* Warning badge */}
                         <div className="absolute top-10 right-0 animate-bounce">
                             <svg className="w-12 h-12 text-yellow-400 drop-shadow-[4px_4px_0px_#000]" fill="currentColor" viewBox="0 0 24 24">
