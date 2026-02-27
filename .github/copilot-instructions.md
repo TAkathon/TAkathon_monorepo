@@ -5,21 +5,25 @@
 ### ✅ Completed
 
 - **Docker Infrastructure**: Full containerization with multi-stage builds
-  - PostgreSQL 16 container with healthchecks
+  - PostgreSQL 16 container with healthchecks and initialization scripts
   - Core Gateway (Express + Prisma 7 with adapter pattern)
   - All 4 Next.js frontends (landing-page, student-portal, organizer-dashboard, sponsor-panel)
   - AI Engine (FastAPI stub with profiles)
   - All services orchestrated via `docker-compose up -d`
 - **Build Pipeline**: esbuild bundling for core-gateway, Next.js standalone mode for frontends
 - **Database**: Prisma schema defined with all tables (users, profiles, hackathons, teams, skills)
+  - PostgreSQL 16 Alpine container with volume persistence
+  - Complete seed data with 36 skills, 8 users, 2 hackathons, teams, and sponsorships
+  - Management scripts (PowerShell & Bash) and npm commands for all operations
+  - Comprehensive documentation in `database/README.md`
 - **TypeScript Configuration**: Workspace-wide path aliases in `tsconfig.base.json`
 - **Authentication Foundation**: JWT-based auth routes (`/api/v1/auth/*`) with access/refresh tokens
+- **Student API**: Complete implementation (`/api/v1/students/*`) with profile, teams, hackathons, and matching endpoints
 
 ### 🚧 In Progress
 
-- **Backend API Implementation**: Only auth routes exist; need role-specific endpoints
+- **Backend API Implementation**: Student routes complete; need organizer and sponsor endpoints
 - **Frontend-Backend Integration**: Frontends not yet connected to APIs
-- **Database Seeding**: No seed data for development/testing
 
 ### ✅ Recent Operational Notes
 
@@ -28,11 +32,14 @@
 - **Core Gateway dev**: Requires Prisma client generated (`npx prisma generate`) and JWT secrets available.
 - **Docker rebuilds**: Frontend changes require `docker compose up --build` (cached `up` can show old assets).
 - **Docker Hub access**: If builds fail on `node:22-alpine`, check Docker Desktop proxy/DNS or network.
+- **Database setup**: PostgreSQL runs in Docker on port 5432, use `npm run db:start` to initialize, `npm run db:seed` populates test data.
+- **Prisma adapter pattern**: Prisma 7 requires `@prisma/adapter-pg` with `Pool` for connection management.
+- **Test credentials**: alice.student@university.edu / password123 (all test users have same password).
 
 ### 📋 Next Steps (Priority Order)
 
 1. **Backend API Development** (Current Focus)
-   - Implement student-specific routes (`/api/v1/students/*`)
+   - ✅ Implement student-specific routes (`/api/v1/students/*`)
    - Implement organizer-specific routes (`/api/v1/organizers/*`)
    - Implement sponsor-specific routes (`/api/v1/sponsors/*`)
    - Shared routes for hackathons, teams, skills
@@ -45,7 +52,7 @@
    - Complete FastAPI matching implementation
    - Integrate with core-gateway via HTTP proxy
 4. **Testing & Validation**
-   - Seed database with realistic test data
+   - ✅ Seed database with realistic test data
    - E2E tests for critical user flows
 5. **Deployment**
    - CI/CD pipeline setup
@@ -338,6 +345,179 @@ nx affected:test
 - **Branching**: Always create a feature branch (`feat/`), bugfix branch (`fix/`), or chore branch (`chore/`) from `dev`.
 - **Pull Requests**: Every merge into the `dev` or `main` branch **must** be performed via a Pull Request (PR). Direct merges or pushes to these branches are prohibited.
 - **Commit Messages**: Follow conventional commits (see `COMMIT_CONVENTIONS.md`).
+
+## 🗄️ Database Management
+
+### Quick Start
+
+```bash
+# Start PostgreSQL container
+npm run db:start
+
+# Generate Prisma Client (required after schema changes)
+npm run db:generate
+
+# Push schema to database (for development)
+npm run db:push
+
+# Seed database with test data
+npm run db:seed
+
+# Open Prisma Studio GUI
+npm run db:studio
+```
+
+### Connection Details
+
+- **Host**: localhost
+- **Port**: 5432
+- **Database**: takathon
+- **User**: postgres
+- **Password**: postgrespassword
+- **Connection String**: `postgresql://postgres:postgrespassword@localhost:5432/takathon?schema=public`
+
+### Available Commands
+
+**NPM Scripts** (use these for most operations):
+
+```bash
+npm run db:start       # Start PostgreSQL container
+npm run db:stop        # Stop PostgreSQL container
+npm run db:reset       # Stop, remove, and restart fresh database
+npm run db:seed        # Populate database with test data
+npm run db:studio      # Open Prisma Studio GUI
+npm run db:generate    # Generate Prisma Client
+npm run db:push        # Push schema to database (dev only)
+npm run db:migrate     # Run migrations (production)
+npm run db:status      # Check container status
+npm run db:shell       # Open psql shell
+```
+
+**Management Scripts** (PowerShell/Bash CLIs):
+
+```powershell
+# PowerShell (Windows)
+.\tools\scripts\db.ps1 start
+.\tools\scripts\db.ps1 seed
+.\tools\scripts\db.ps1 backup
+.\tools\scripts\db.ps1 restore backup-2024-02-15.sql
+
+# Bash (Linux/Mac)
+./tools/scripts/db.sh start
+./tools/scripts/db.sh seed
+./tools/scripts/db.sh backup
+./tools/scripts/db.sh restore backup-2024-02-15.sql
+```
+
+### Schema Management
+
+**Source of Truth**: `prisma/schema.prisma` (354 lines, 18 models, 9 enums)
+
+**Schema Workflow**:
+
+1. Edit `prisma/schema.prisma`
+2. Run `npm run db:generate` to update Prisma Client
+3. Development: `npm run db:push` to sync schema
+4. Production: `npx prisma migrate dev --name <migration-name>` to create migration
+
+**Key Models**:
+
+- `User` - Base user account (STUDENT, ORGANIZER, SPONSOR)
+- `StudentProfile`, `OrganizerProfile`, `SponsorProfile` - Role-specific data
+- `Skill` - Skill taxonomy (36 predefined skills)
+- `UserSkill` - Many-to-many with proficiency levels (BEGINNER, INTERMEDIATE, ADVANCED, EXPERT)
+- `Hackathon` - Event metadata with registration periods
+- `HackathonParticipant` - Student registrations
+- `Team` - Student-created teams (with creator/captain)
+- `TeamMember` - Team membership
+- `TeamInvitation` - Pending invites (PENDING, ACCEPTED, DECLINED)
+- `Sponsorship` - Sponsor contributions
+
+### Seed Data
+
+Located in `prisma/seed.ts` (300+ lines), creates:
+
+- **36 Skills**: JavaScript, Python, React, Node.js, TypeScript, Docker, etc.
+- **8 Users**: 4 students (Alice, Bob, Carol, David), 2 organizers (Emma, Frank), 2 sponsors (Grace, Henry)
+- **16 User-Skill Assignments**: Students have 4 skills each with varying proficiencies
+- **2 Hackathons**: "Spring Innovation Challenge" and "AI & ML Hackathon 2024"
+- **6 Hackathon Participants**: All students registered for events
+- **1 Team**: "Code Warriors" with Alice (captain) and Bob
+- **2 Sponsorships**: Microsoft and Google sponsoring events
+
+**Test Credentials** (all users have same password):
+
+```
+Email: alice.student@university.edu
+Password: password123
+
+Email: bob.student@university.edu
+Password: password123
+
+(etc. for all 8 users)
+```
+
+### Database Architecture
+
+**Adapter Pattern** (Prisma 7+ requirement):
+
+```typescript
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+```
+
+**Why Adapter?**: Prisma 7 uses driver adapters for connection pooling and edge environment support.
+
+### Troubleshooting
+
+**Container won't start**:
+- Check Docker Desktop is running
+- Verify port 5432 isn't in use: `netstat -an | findstr 5432`
+- Check logs: `docker logs takathon-db`
+
+**Seed fails with "PrismaClientInitializationError"**:
+- Ensure `@prisma/adapter-pg` and `pg` are installed
+- Verify `DATABASE_URL` in `.env`
+- Run `npm run db:generate` first
+
+**Schema out of sync**:
+- Development: `npm run db:push` (overwrites database)
+- Production: `npx prisma migrate deploy` (applies migrations)
+
+**Connection refused**:
+- Check container is running: `npm run db:status`
+- Wait for healthcheck: container may still be initializing
+
+### Backup & Restore
+
+```powershell
+# Create backup
+.\tools\scripts\db.ps1 backup
+
+# Restore from backup
+.\tools\scripts\db.ps1 restore backup-2024-02-15.sql
+
+# List backups
+ls database/backups/
+```
+
+Backups stored in `database/backups/` as timestamped SQL dumps.
+
+### Production Considerations
+
+- Use migrations (`prisma migrate deploy`) instead of `prisma db push`
+- Set up connection pooling (e.g., PgBouncer)
+- Enable SSL for database connections
+- Use environment-specific `.env` files
+- Implement backup automation
+- Monitor query performance with Prisma logging
+
+For detailed documentation, see [database/README.md](../database/README.md).
 
 ### Backend (Core Gateway - Express)
 

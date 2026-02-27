@@ -10,7 +10,20 @@
     "test": "nx test",
     "lint": "nx lint",
     "dev:student": "nx dev student-portal",
-    "dev:organizer": "nx dev organizer-dashboard"
+    "dev:organizer": "nx dev organizer-dashboard",
+    "db:start": "docker compose up postgres -d",
+    "db:stop": "docker compose stop postgres",
+    "db:reset": "docker compose down -v && docker compose up postgres -d && npm run db:push && npm run db:seed",
+    "db:seed": "npx prisma db seed",
+    "db:studio": "npx prisma studio",
+    "db:push": "npx prisma db push",
+    "db:migrate": "npx prisma migrate dev",
+    "db:generate": "npx prisma generate",
+    "db:status": "npx prisma migrate status",
+    "db:shell": "docker exec -it takathon-db psql -U postgres -d takathon"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "devDependencies": {
     "@nx/eslint": "^20.4.4",
@@ -40,6 +53,7 @@
     "prisma": "^7.4.0",
     "tailwindcss": "^3.4.16",
     "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.0"
   },
