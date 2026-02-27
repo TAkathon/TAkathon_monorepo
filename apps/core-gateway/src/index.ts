@@ -4,6 +4,10 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
 import authRouter from "./routes/auth";
+import studentProfileRouter from "./routes/students/profile";
+import studentHackathonsRouter from "./routes/students/hackathons";
+import studentTeamsRouter from "./routes/students/teams";
+import studentMatchingRouter from "./routes/students/matching";
 import { requestLogger, logStartup } from "./middleware/logger";
 import { ResponseHandler } from "./utils/response";
 
@@ -46,6 +50,10 @@ app.get("/api/v1/health", (_req, res) => {
 });
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/students", studentProfileRouter);
+app.use("/api/v1/students/hackathons", studentHackathonsRouter);
+app.use("/api/v1/students/teams", studentTeamsRouter);
+app.use("/api/v1/students/teams", studentMatchingRouter);
 
 app.listen(PORT);
 logStartup(PORT, CORS_ORIGINS);
