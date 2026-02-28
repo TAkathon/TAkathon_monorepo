@@ -18,12 +18,16 @@
   - Comprehensive documentation in `database/README.md`
 - **TypeScript Configuration**: Workspace-wide path aliases in `tsconfig.base.json`
 - **Authentication Foundation**: JWT-based auth routes (`/api/v1/auth/*`) with access/refresh tokens
-- **Student API**: Complete implementation (`/api/v1/students/*`) with profile, teams, hackathons, and matching endpoints
+- **RBAC Middleware**: `requireStudent`, `requireOrganizer`, `requireSponsor` guards in `middleware/rbac.ts`
+- **Student API**: Complete implementation (`/api/v1/students/*`) — profile, hackathons browse/register/withdraw, teams CRUD + invite/join/leave, AI matching stub
+- **Organizer API**: Complete implementation (`/api/v1/organizers/*`) — profile, hackathon CRUD + publish/cancel/start/complete lifecycle, participant management, analytics + CSV export
+- **Sponsor API**: Complete implementation (`/api/v1/sponsors/*`) — profile, hackathon browsing + sponsorship, team search/details/favorites
+- **Shared API**: Public hackathon listings + skills taxonomy (`/api/v1/hackathons`, `/api/v1/skills`)
 
 ### 🚧 In Progress
 
-- **Backend API Implementation**: Student routes complete; need organizer and sponsor endpoints
 - **Frontend-Backend Integration**: Frontends not yet connected to APIs
+- **AI Matching Engine**: FastAPI service is a stub; scoring logic not yet implemented
 
 ### ✅ Recent Operational Notes
 
@@ -38,24 +42,19 @@
 
 ### 📋 Next Steps (Priority Order)
 
-1. **Backend API Development** (Current Focus)
-   - ✅ Implement student-specific routes (`/api/v1/students/*`)
-   - Implement organizer-specific routes (`/api/v1/organizers/*`)
-   - Implement sponsor-specific routes (`/api/v1/sponsors/*`)
-   - Shared routes for hackathons, teams, skills
-2. **Frontend Integration**
+1. **Frontend Integration** (Current Focus)
    - Connect student-portal to student API endpoints
    - Connect organizer-dashboard to organizer endpoints
    - Connect sponsor-panel to sponsor endpoints
-   - Implement auth flows in all frontends
-3. **AI Matching Engine**
-   - Complete FastAPI matching implementation
-   - Integrate with core-gateway via HTTP proxy
-4. **Testing & Validation**
+   - Implement auth flows in all frontends using shared Axios client + Zustand store
+2. **AI Matching Engine**
+   - Complete FastAPI scoring logic in `apps/ai-engine/app/matching/scoring.py`
+   - Wire proxy from core-gateway matching routes to AI engine over HTTP
+3. **Testing & Validation**
    - ✅ Seed database with realistic test data
-   - E2E tests for critical user flows
-5. **Deployment**
-   - CI/CD pipeline setup
+   - E2E tests for critical user flows (auth, team creation, hackathon registration)
+4. **Deployment**
+   - CI/CD pipeline setup (GitHub Actions)
    - Production environment configuration
 
 ---
