@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { 
     Search, 
@@ -10,47 +10,48 @@ import {
     DollarSign,
     ExternalLink,
     ChevronRight,
-    Trophy
+    Trophy,
+    Loader2
 } from "lucide-react";
-
-const opportunities = [
-    {
-        id: 1,
-        name: "Global AI Hackathon 2024",
-        organizer: "AI Society",
-        date: "Oct 15-17, 2024",
-        location: "Tunis, Tunisia (Hybrid)",
-        category: "Artificial Intelligence",
-        budgetRange: "$1,000 - $10,000",
-        description: "Join 500+ developers building the next generation of AI tools.",
-        tags: ["AI", "Web3", "Machine Learning"],
-    },
-    {
-        id: 2,
-        name: "GreenTech Challenge",
-        organizer: "Eco Innovators",
-        date: "Nov 5-6, 2024",
-        location: "Sousse, Tunisia",
-        category: "Sustainability",
-        budgetRange: "$500 - $5,000",
-        description: "Solving environmental challenges through sustainable technology.",
-        tags: ["Sustainability", "IoT", "Clean Energy"],
-    },
-    {
-        id: 3,
-        name: "FinTech Forge",
-        organizer: "Banking Group",
-        date: "Dec 10-12, 2024",
-        location: "Online",
-        category: "FinTech",
-        budgetRange: "$2,000 - $15,000",
-        description: "Revolutionizing digital banking and financial inclusion.",
-        tags: ["Finance", "Blockchain", "Security"],
-    },
-];
+import api from "@takathon/shared/api";
+import { Hackathon } from "@takathon/shared/types";
+import { toast } from "sonner";
 
 export default function OpportunitiesPage() {
     const [searchTerm, setSearchTerm] = useState("");
+    const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchHackathons();
+    }, []);
+
+    const fetchHackathons = async () => {
+        try {
+            const response = await api.get("/api/v1/sponsors/hackathons");
+            setHackathons(response.data.data);
+        } catch (error) {
+            console.error("Failed to fetch hackathons:", error);
+            toast.error("Failed to load opportunities");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredHackathons = hackathons.filter((h) => {
+        const matchesSearch = h.title.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesSearch;
+    });
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex items-center justify-center h-full min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout>
@@ -97,7 +98,7 @@ export default function OpportunitiesPage() {
 
                 {/* Opportunities List */}
                 <div className="grid grid-cols-1 gap-6">
-                    {opportunities.map((opp) => (
+                    {filteredHackathons.map((opp) => (
                         <div key={opp.id} className="glass p-6 rounded-2xl hover:border-primary/30 transition-all duration-300 group">
                             <div className="flex flex-col lg:flex-row gap-6">
                                 {/* Event Info */}
@@ -105,36 +106,36 @@ export default function OpportunitiesPage() {
                                     <div className="flex items-start justify-between">
                                         <div>
                                             <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">
-                                                {opp.name}
+                                                {opp.title}
                                             </h3>
-                                            <p className="text-white/40 text-sm">by {opp.organizer}</p>
+                                            <p className="text-white/40 text-sm">Organizer ID: {opp.organizerId.substring(0, 8)}...</p>
                                         </div>
                                         <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium uppercase">
-                                            {opp.category}
+                                            {opp.status.replace("_", " ")}
                                         </div>
                                     </div>
                                     
-                                    <p className="text-white/70 text-sm leading-relaxed max-w-2xl">
+                                    <p className="text-white/70 text-sm leading-relaxed max-w-2xl line-clamp-2">
                                         {opp.description}
                                     </p>
 
                                     <div className="flex flex-wrap gap-4 text-sm text-white/40">
                                         <div className="flex items-center gap-1.5">
                                             <Calendar className="w-4 h-4" />
-                                            {opp.date}
+                                            {new Date(opp.startDate).toLocaleDateString()}
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <MapPin className="w-4 h-4" />
-                                            {opp.location}
+                                            {opp.isVirtual ? "Virtual" : opp.location || "TBD"}
                                         </div>
                                         <div className="flex items-center gap-1.5 text-primary">
                                             <DollarSign className="w-4 h-4" />
-                                            {opp.budgetRange}
+                                            {opp.prizePool || "TBD"}
                                         </div>
                                     </div>
 
                                     <div className="flex gap-2">
-                                        {opp.tags.map(tag => (
+                                        {(opp.requiredSkills || []).map(tag => (
                                             <span key={tag} className="px-2 py-1 rounded bg-white/5 border border-white/5 text-[10px] text-white/40 uppercase tracking-wider">
                                                 {tag}
                                             </span>
