@@ -14,7 +14,7 @@ router.use(requireAuth, requireOrganizer);
  * List hackathons created by the organizer
  */
 router.get("/", async (req: any, res) => {
-  const result = await OrganizerHackathonService.myHackathons(req.user.sub);
+  const result = await OrganizerHackathonService.myHackathons(req.user.id);
   return ResponseHandler.success(res, result);
 });
 
@@ -29,7 +29,7 @@ router.get("/:id", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
   }
 
-  const hackathon = await OrganizerHackathonService.getHackathonDetail(req.user.sub, parsed.data);
+  const hackathon = await OrganizerHackathonService.getHackathonDetail(req.user.id, parsed.data);
   if (!hackathon) {
     return ResponseHandler.error(res, "NOT_FOUND", "Hackathon not found", 404);
   }
@@ -64,10 +64,10 @@ router.post("/", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
 
-  const result = await OrganizerHackathonService.createHackathon(req.user.sub, parsed.data);
+  const result = await OrganizerHackathonService.createHackathon(req.user.id, parsed.data);
 
   if ("error" in result) {
-    return ResponseHandler.error(res, result.error, (result as any).message || result.error, 400);
+    return ResponseHandler.error(res, result.error as string, (result as any).message || result.error, 400);
   }
 
   return ResponseHandler.success(res, result.data, 201);
@@ -107,15 +107,15 @@ router.put("/:id", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
 
-  const result = await OrganizerHackathonService.updateHackathon(req.user.sub, idParsed.data, parsed.data);
+  const result = await OrganizerHackathonService.updateHackathon(req.user.id, idParsed.data, parsed.data);
 
   if ("error" in result) {
     const statusMap: Record<string, number> = { NOT_OWNER: 403, HACKATHON_NOT_FOUND: 404 };
     return ResponseHandler.error(
       res,
-      result.error,
+      result.error as string,
       (result as any).message || result.error,
-      statusMap[result.error] ?? 400,
+      statusMap[result.error as string] ?? 400,
     );
   }
 
@@ -133,7 +133,7 @@ router.post("/:id/publish", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
   }
 
-  const result = await OrganizerHackathonService.publishHackathon(req.user.sub, parsed.data);
+  const result = await OrganizerHackathonService.publishHackathon(req.user.id, parsed.data);
 
   if ("error" in result) {
     const statusMap: Record<string, number> = {
@@ -143,9 +143,9 @@ router.post("/:id/publish", async (req: any, res) => {
     };
     return ResponseHandler.error(
       res,
-      result.error,
+      result.error as string,
       (result as any).message || result.error,
-      statusMap[result.error] ?? 400,
+      statusMap[result.error as string] ?? 400,
     );
   }
 
@@ -179,7 +179,7 @@ router.post("/:id/status", async (req: any, res) => {
   }
 
   const result = await OrganizerHackathonService.updateStatus(
-    req.user.sub,
+    req.user.id,
     idParsed.data,
     parsed.data.status,
   );
@@ -192,9 +192,9 @@ router.post("/:id/status", async (req: any, res) => {
     };
     return ResponseHandler.error(
       res,
-      result.error,
+      result.error as string,
       (result as any).message || result.error,
-      statusMap[result.error] ?? 400,
+      statusMap[result.error as string] ?? 400,
     );
   }
 
@@ -212,7 +212,7 @@ router.post("/:id/cancel", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
   }
 
-  const result = await OrganizerHackathonService.cancelHackathon(req.user.sub, parsed.data);
+  const result = await OrganizerHackathonService.cancelHackathon(req.user.id, parsed.data);
 
   if ("error" in result) {
     const statusMap: Record<string, number> = {
@@ -221,9 +221,9 @@ router.post("/:id/cancel", async (req: any, res) => {
     };
     return ResponseHandler.error(
       res,
-      result.error,
+      result.error as string,
       (result as any).message || result.error,
-      statusMap[result.error] ?? 400,
+      statusMap[result.error as string] ?? 400,
     );
   }
 

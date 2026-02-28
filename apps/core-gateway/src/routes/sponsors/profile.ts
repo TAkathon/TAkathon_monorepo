@@ -13,7 +13,7 @@ router.use(requireAuth, requireSponsor);
  * GET /api/v1/sponsors/profile
  */
 router.get("/profile", async (req: any, res) => {
-  const profile = await SponsorProfileService.getProfile(req.user.sub);
+  const profile = await SponsorProfileService.getProfile(req.user.id);
   if (!profile) {
     return ResponseHandler.error(res, "PROFILE_NOT_FOUND", "Sponsor profile not found", 404);
   }
@@ -40,7 +40,7 @@ router.put("/profile", async (req: any, res) => {
   if (!parsed.success) {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
-  const profile = await SponsorProfileService.updateProfile(req.user.sub, parsed.data);
+  const profile = await SponsorProfileService.updateProfile(req.user.id, parsed.data);
   if (!profile) {
     return ResponseHandler.error(res, "PROFILE_NOT_FOUND", "Sponsor profile not found", 404);
   }

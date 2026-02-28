@@ -19,8 +19,8 @@ router.get("/", async (req: any, res) => {
   const result = await SponsorHackathonService.listHackathons({
     page: page ? Number(page) : undefined,
     limit: limit ? Number(limit) : undefined,
-    search: search as string,
-    status: status as string,
+    search: typeof search === "string" ? search : undefined,
+    status: typeof status === "string" ? status : undefined,
   });
   return ResponseHandler.success(res, result);
 });
@@ -31,8 +31,8 @@ router.get("/", async (req: any, res) => {
  */
 router.get("/sponsorships", async (req: any, res) => {
   const { status, page, limit } = req.query;
-  const result = await SponsorHackathonService.mySponsorships(req.user.sub, {
-    status: status as string,
+  const result = await SponsorHackathonService.mySponsorships(req.user.id, {
+    status: typeof status === "string" ? status : undefined,
     page: page ? Number(page) : undefined,
     limit: limit ? Number(limit) : undefined,
   });
@@ -45,7 +45,7 @@ router.get("/sponsorships", async (req: any, res) => {
  */
 router.get("/sponsorships/:sponsorshipId", async (req: any, res) => {
   const sponsorship = await SponsorHackathonService.getSponsorshipDetail(
-    req.user.sub,
+    req.user.id,
     req.params.sponsorshipId,
   );
   if (!sponsorship) {
@@ -95,14 +95,14 @@ router.post("/:id/sponsor", async (req: any, res) => {
   }
 
   const result = await SponsorHackathonService.createSponsorship(
-    req.user.sub,
+    req.user.id,
     req.params.id,
     parsed.data,
   );
 
   if ("error" in result) {
     const status = result.error === "HACKATHON_NOT_FOUND" ? 404 : 409;
-    return ResponseHandler.error(res, result.error, result.message, status);
+    return ResponseHandler.error(res, result.error as string, (result as any).message || (result.error as string), status);
   }
 
   return ResponseHandler.success(res, result.sponsorship, 201);
@@ -114,13 +114,13 @@ router.post("/:id/sponsor", async (req: any, res) => {
  */
 router.post("/sponsorships/:sponsorshipId/cancel", async (req: any, res) => {
   const result = await SponsorHackathonService.cancelSponsorship(
-    req.user.sub,
+    req.user.id,
     req.params.sponsorshipId,
   );
 
   if ("error" in result) {
     const status = result.error === "NOT_FOUND" ? 404 : 409;
-    return ResponseHandler.error(res, result.error, result.message, status);
+    return ResponseHandler.error(res, result.error as string, (result as any).message || (result.error as string), status);
   }
 
   return ResponseHandler.success(res, result.sponsorship);
@@ -135,11 +135,11 @@ router.get("/:id/teams", async (req: any, res) => {
   const result = await SponsorTeamService.listTeams(req.params.id, {
     page: page ? Number(page) : undefined,
     limit: limit ? Number(limit) : undefined,
-    status: status as string,
+    status: typeof status === "string" ? status : undefined,
   });
 
   if ("error" in result) {
-    return ResponseHandler.error(res, result.error, result.message, 404);
+    return ResponseHandler.error(res, result.error as string, (result as any).message || (result.error as string), 404);
   }
 
   return ResponseHandler.success(res, result);

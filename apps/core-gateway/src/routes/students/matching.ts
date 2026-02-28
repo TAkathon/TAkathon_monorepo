@@ -22,7 +22,7 @@ router.get("/:id/matches", async (req: any, res) => {
 
   const limit = req.query.limit ? Number(req.query.limit) : 5;
 
-  const result = await StudentMatchingService.getMatches(req.user.sub, parsed.data, limit);
+  const result = await StudentMatchingService.getMatches(req.user.id, parsed.data, limit);
 
   if ("error" in result) {
     if (!result.error) {
@@ -33,7 +33,7 @@ router.get("/:id/matches", async (req: any, res) => {
       TEAM_NOT_FOUND: { message: "Team not found", status: 404 },
       TEAM_FULL: { message: "Team is already full", status: 400 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }
@@ -55,7 +55,7 @@ router.post("/:id/matches/:userId", async (req: any, res) => {
   }
 
   const result = await StudentMatchingService.inviteMatch(
-    req.user.sub,
+    req.user.id,
     teamIdParsed.data,
     userIdParsed.data,
   );
@@ -73,7 +73,7 @@ router.post("/:id/matches/:userId", async (req: any, res) => {
       CANDIDATE_NOT_AVAILABLE: { message: "Candidate is not available", status: 400 },
       ALREADY_INVITED: { message: "Already invited this candidate", status: 409 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }

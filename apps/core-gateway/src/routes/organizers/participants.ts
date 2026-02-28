@@ -21,15 +21,15 @@ router.get("/:id/participants", async (req: any, res) => {
   }
 
   const { status, page, perPage } = req.query;
-  const result = await OrganizerParticipantService.listParticipants(req.user.sub, parsed.data, {
-    status: status as string | undefined,
+  const result = await OrganizerParticipantService.listParticipants(req.user.id, parsed.data, {
+    status: typeof status === "string" ? status : undefined,
     page: page ? Number(page) : undefined,
     perPage: perPage ? Number(perPage) : undefined,
   });
 
   if ("error" in result) {
     const statusMap: Record<string, number> = { NOT_OWNER: 403, HACKATHON_NOT_FOUND: 404 };
-    return ResponseHandler.error(res, result.error, result.error, statusMap[result.error] ?? 400);
+    return ResponseHandler.error(res, result.error as string, result.error as string, statusMap[result.error as string] ?? 400);
   }
 
   return ResponseHandler.success(res, result);
@@ -47,15 +47,15 @@ router.get("/:id/teams", async (req: any, res) => {
   }
 
   const { status, page, perPage } = req.query;
-  const result = await OrganizerParticipantService.listTeams(req.user.sub, parsed.data, {
-    status: status as string | undefined,
+  const result = await OrganizerParticipantService.listTeams(req.user.id, parsed.data, {
+    status: typeof status === "string" ? status : undefined,
     page: page ? Number(page) : undefined,
     perPage: perPage ? Number(perPage) : undefined,
   });
 
   if ("error" in result) {
     const statusMap: Record<string, number> = { NOT_OWNER: 403, HACKATHON_NOT_FOUND: 404 };
-    return ResponseHandler.error(res, result.error, result.error, statusMap[result.error] ?? 400);
+    return ResponseHandler.error(res, result.error as string, result.error as string, statusMap[result.error as string] ?? 400);
   }
 
   return ResponseHandler.success(res, result);
@@ -74,7 +74,7 @@ router.get("/:id/teams/:teamId", async (req: any, res) => {
   }
 
   const result = await OrganizerParticipantService.getTeamDetail(
-    req.user.sub,
+    req.user.id,
     hackathonIdParsed.data,
     teamIdParsed.data,
   );
@@ -85,7 +85,7 @@ router.get("/:id/teams/:teamId", async (req: any, res) => {
       HACKATHON_NOT_FOUND: 404,
       TEAM_NOT_FOUND: 404,
     };
-    return ResponseHandler.error(res, result.error, result.error, statusMap[result.error] ?? 400);
+    return ResponseHandler.error(res, result.error as string, result.error as string, statusMap[result.error as string] ?? 400);
   }
 
   return ResponseHandler.success(res, result.data);

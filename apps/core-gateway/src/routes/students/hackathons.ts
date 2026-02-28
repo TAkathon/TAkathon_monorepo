@@ -17,8 +17,8 @@ router.use(requireAuth, requireStudent);
 router.get("/", async (req: any, res) => {
   const { status, search, page, perPage } = req.query;
   const result = await StudentHackathonService.listHackathons({
-    status: status as string | undefined,
-    search: search as string | undefined,
+    status: typeof status === "string" ? status : undefined,
+    search: typeof search === "string" ? search : undefined,
     page: page ? Number(page) : undefined,
     perPage: perPage ? Number(perPage) : undefined,
   });
@@ -30,7 +30,7 @@ router.get("/", async (req: any, res) => {
  * List hackathons the student is registered for
  */
 router.get("/mine", async (req: any, res) => {
-  const result = await StudentHackathonService.myHackathons(req.user.sub);
+  const result = await StudentHackathonService.myHackathons(req.user.id);
   return ResponseHandler.success(res, result);
 });
 
@@ -63,7 +63,7 @@ router.post("/:id/register", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
   }
 
-  const result = await StudentHackathonService.register(req.user.sub, parsed.data);
+  const result = await StudentHackathonService.register(req.user.id, parsed.data);
 
   if ("error" in result) {
     if (!result.error) {
@@ -76,7 +76,7 @@ router.post("/:id/register", async (req: any, res) => {
       HACKATHON_FULL: { message: "Hackathon has reached max participants", status: 400 },
       ALREADY_REGISTERED: { message: "Already registered for this hackathon", status: 409 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }
@@ -95,7 +95,7 @@ router.post("/:id/withdraw", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
   }
 
-  const result = await StudentHackathonService.withdraw(req.user.sub, parsed.data);
+  const result = await StudentHackathonService.withdraw(req.user.id, parsed.data);
 
   if ("error" in result) {
     if (!result.error) {
@@ -105,7 +105,7 @@ router.post("/:id/withdraw", async (req: any, res) => {
       NOT_REGISTERED: { message: "Not registered for this hackathon", status: 404 },
       IN_TEAM: { message: "Leave your team before withdrawing", status: 400 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }

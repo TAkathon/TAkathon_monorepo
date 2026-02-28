@@ -15,7 +15,7 @@ router.use(requireAuth, requireStudent);
  * Get the authenticated student's profile
  */
 router.get("/profile", async (req: any, res) => {
-  const profile = await StudentProfileService.getProfile(req.user.sub);
+  const profile = await StudentProfileService.getProfile(req.user.id);
   if (!profile) {
     return ResponseHandler.error(res, "PROFILE_NOT_FOUND", "Student profile not found", 404);
   }
@@ -45,7 +45,7 @@ router.put("/profile", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
 
-  const profile = await StudentProfileService.updateProfile(req.user.sub, parsed.data);
+  const profile = await StudentProfileService.updateProfile(req.user.id, parsed.data);
   if (!profile) {
     return ResponseHandler.error(res, "PROFILE_NOT_FOUND", "Student profile not found", 404);
   }
@@ -75,7 +75,7 @@ router.post("/skills", async (req: any, res) => {
     yearsOfExperience: parsed.data.yearsOfExperience
   };
 
-  const result = await StudentProfileService.addSkill(req.user.sub, skillData);
+  const result = await StudentProfileService.addSkill(req.user.id, skillData);
 
   if ("error" in result) {
     if (result.error === "SKILL_NOT_FOUND") {
@@ -94,7 +94,7 @@ router.post("/skills", async (req: any, res) => {
  * Remove a skill from the student's profile
  */
 router.delete("/skills/:id", async (req: any, res) => {
-  const result = await StudentProfileService.removeSkill(req.user.sub, req.params.id);
+  const result = await StudentProfileService.removeSkill(req.user.id, req.params.id);
 
   if ("error" in result) {
     return ResponseHandler.error(res, "SKILL_NOT_FOUND", "Skill not found or not yours", 404);

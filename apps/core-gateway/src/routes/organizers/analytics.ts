@@ -20,11 +20,11 @@ router.get("/:id/analytics", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
   }
 
-  const result = await OrganizerAnalyticsService.getAnalytics(req.user.sub, parsed.data);
+  const result = await OrganizerAnalyticsService.getAnalytics(req.user.id, parsed.data);
 
   if ("error" in result) {
     const statusMap: Record<string, number> = { NOT_OWNER: 403, HACKATHON_NOT_FOUND: 404 };
-    return ResponseHandler.error(res, result.error, result.error, statusMap[result.error] ?? 400);
+    return ResponseHandler.error(res, result.error as string, result.error as string, statusMap[result.error as string] ?? 400);
   }
 
   return ResponseHandler.success(res, result.data);
@@ -41,11 +41,11 @@ router.get("/:id/export", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
   }
 
-  const result = await OrganizerAnalyticsService.exportData(req.user.sub, parsed.data);
+  const result = await OrganizerAnalyticsService.exportData(req.user.id, parsed.data);
 
   if ("error" in result) {
     const statusMap: Record<string, number> = { NOT_OWNER: 403, HACKATHON_NOT_FOUND: 404 };
-    return ResponseHandler.error(res, result.error, result.error, statusMap[result.error] ?? 400);
+    return ResponseHandler.error(res, result.error as string, result.error as string, statusMap[result.error as string] ?? 400);
   }
 
   return ResponseHandler.success(res, result.data);

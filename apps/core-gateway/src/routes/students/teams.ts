@@ -14,7 +14,7 @@ router.use(requireAuth, requireStudent);
  * List teams the student is a member of
  */
 router.get("/", async (req: any, res) => {
-  const teams = await StudentTeamService.myTeams(req.user.sub);
+  const teams = await StudentTeamService.myTeams(req.user.id);
   return ResponseHandler.success(res, teams);
 });
 
@@ -23,7 +23,7 @@ router.get("/", async (req: any, res) => {
  * List pending invitations for the student
  */
 router.get("/invitations", async (req: any, res) => {
-  const invitations = await StudentTeamService.myInvitations(req.user.sub);
+  const invitations = await StudentTeamService.myInvitations(req.user.id);
   return ResponseHandler.success(res, invitations);
 });
 
@@ -73,7 +73,7 @@ router.post("/", async (req: any, res) => {
     projectIdea: parsed.data.projectIdea
   };
 
-  const result = await StudentTeamService.createTeam(req.user.sub, teamData);
+  const result = await StudentTeamService.createTeam(req.user.id, teamData);
 
   if ("error" in result) {
     if (!result.error) {
@@ -86,7 +86,7 @@ router.post("/", async (req: any, res) => {
       ALREADY_IN_TEAM: { message: "You are already in a team for this hackathon", status: 409 },
       INVALID_TEAM_SIZE: { message: "Team size is out of allowed range", status: 400 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }
@@ -117,7 +117,7 @@ router.put("/:id", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
 
-  const result = await StudentTeamService.updateTeam(req.user.sub, idParsed.data, parsed.data);
+  const result = await StudentTeamService.updateTeam(req.user.id, idParsed.data, parsed.data);
 
   if ("error" in result) {
     if (!result.error) {
@@ -127,7 +127,7 @@ router.put("/:id", async (req: any, res) => {
       TEAM_NOT_FOUND: { message: "Team not found", status: 404 },
       NOT_CAPTAIN: { message: "Only the captain can update the team", status: 403 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }
@@ -146,7 +146,7 @@ router.delete("/:id", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid team ID", 400);
   }
 
-  const result = await StudentTeamService.deleteTeam(req.user.sub, parsed.data);
+  const result = await StudentTeamService.deleteTeam(req.user.id, parsed.data);
 
   if ("error" in result) {
     if (!result.error) {
@@ -157,7 +157,7 @@ router.delete("/:id", async (req: any, res) => {
       NOT_CAPTAIN: { message: "Only the captain can delete the team", status: 403 },
       TEAM_NOT_FORMING: { message: "Can only disband teams in forming status", status: 400 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }
@@ -191,7 +191,7 @@ router.post("/:id/invite", async (req: any, res) => {
     message: parsed.data.message
   };
 
-  const result = await StudentTeamService.inviteToTeam(req.user.sub, idParsed.data, inviteData);
+  const result = await StudentTeamService.inviteToTeam(req.user.id, idParsed.data, inviteData);
 
   if ("error" in result) {
     if (!result.error) {
@@ -207,7 +207,7 @@ router.post("/:id/invite", async (req: any, res) => {
       INVITEE_ALREADY_IN_TEAM: { message: "User is already in a team", status: 409 },
       ALREADY_INVITED: { message: "User already has a pending invitation", status: 409 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }
@@ -236,7 +236,7 @@ router.post("/invitations/:id/respond", async (req: any, res) => {
   }
 
   const result = await StudentTeamService.respondToInvitation(
-    req.user.sub,
+    req.user.id,
     idParsed.data,
     parsed.data.accept,
   );
@@ -252,7 +252,7 @@ router.post("/invitations/:id/respond", async (req: any, res) => {
       TEAM_FULL: { message: "Team is now full", status: 400 },
       ALREADY_IN_TEAM: { message: "You are already in a team for this hackathon", status: 409 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }
@@ -271,7 +271,7 @@ router.post("/:id/leave", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid team ID", 400);
   }
 
-  const result = await StudentTeamService.leaveTeam(req.user.sub, parsed.data);
+  const result = await StudentTeamService.leaveTeam(req.user.id, parsed.data);
 
   if ("error" in result) {
     if (!result.error) {
@@ -282,7 +282,7 @@ router.post("/:id/leave", async (req: any, res) => {
       TEAM_NOT_FOUND: { message: "Team not found", status: 404 },
       CAPTAIN_CANNOT_LEAVE: { message: "Captain cannot leave. Transfer captaincy or disband.", status: 400 },
     };
-    const errorKey = result.error;
+    const errorKey = result.error as string;
     const err = errorMap[errorKey] ?? { message: errorKey, status: 400 };
     return ResponseHandler.error(res, errorKey, err.message, err.status);
   }

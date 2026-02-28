@@ -14,7 +14,7 @@ router.use(requireAuth, requireOrganizer);
  * Get the authenticated organizer's profile
  */
 router.get("/profile", async (req: any, res) => {
-  const profile = await OrganizerProfileService.getProfile(req.user.sub);
+  const profile = await OrganizerProfileService.getProfile(req.user.id);
   if (!profile) {
     return ResponseHandler.error(res, "PROFILE_NOT_FOUND", "Organizer profile not found", 404);
   }
@@ -44,7 +44,7 @@ router.put("/profile", async (req: any, res) => {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
   }
 
-  const profile = await OrganizerProfileService.updateProfile(req.user.sub, parsed.data);
+  const profile = await OrganizerProfileService.updateProfile(req.user.id, parsed.data);
   if (!profile) {
     return ResponseHandler.error(res, "PROFILE_NOT_FOUND", "Organizer profile not found", 404);
   }

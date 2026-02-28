@@ -15,8 +15,8 @@ router.use(requireAuth, requireSponsor);
 router.get("/search", async (req: any, res) => {
   const { search, skillCategory, page, limit } = req.query;
   const result = await SponsorTeamService.searchTeams({
-    search: search as string,
-    skillCategory: skillCategory as string,
+    search: typeof search === "string" ? search : undefined,
+    skillCategory: typeof skillCategory === "string" ? skillCategory : undefined,
     page: page ? Number(page) : undefined,
     limit: limit ? Number(limit) : undefined,
   });

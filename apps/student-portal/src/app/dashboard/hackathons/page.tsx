@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown } from "lucide-react";
 
