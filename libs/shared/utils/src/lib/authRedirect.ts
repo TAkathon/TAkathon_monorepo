@@ -1,4 +1,4 @@
-import type { UserRole } from "./authStore";
+import { UserRole } from "@takathon/shared/types";
 import { getLandingUrl, getStudentUrl, getOrganizerUrl, getSponsorUrl } from "./urls";
 
 export function getRedirectUrl(role: UserRole): string {
