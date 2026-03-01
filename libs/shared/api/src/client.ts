@@ -57,6 +57,12 @@ api.interceptors.response.use(
       } catch {
         useAuthStore.getState().logout();
         onRefreshed();
+        // Redirect to landing page login after session expiry
+        if (typeof window !== "undefined") {
+          const landingUrl =
+            process.env.NEXT_PUBLIC_LANDING_URL || "http://localhost:3000";
+          window.location.href = `${landingUrl}/login`;
+        }
       } finally {
         isRefreshing = false;
       }
