@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
+import { useAuthStore, getRedirectUrl, getLandingUrl } from "@takathon/shared/utils";
 import {
     Home,
     Calendar,
