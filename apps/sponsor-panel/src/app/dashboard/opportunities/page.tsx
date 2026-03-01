@@ -29,7 +29,7 @@ export default function OpportunitiesPage() {
     const fetchHackathons = async () => {
         try {
             const response = await api.get("/api/v1/sponsors/hackathons");
-            setHackathons(response.data.data);
+            setHackathons(response.data.data || []);
         } catch (error) {
             console.error("Failed to fetch hackathons:", error);
             toast.error("Failed to load opportunities");
@@ -43,18 +43,13 @@ export default function OpportunitiesPage() {
         return matchesSearch;
     });
 
-    if (loading) {
-        return (
-            <DashboardLayout>
+    return (
+        <DashboardLayout>
+            {loading ? (
                 <div className="flex items-center justify-center h-full min-h-[400px]">
                     <Loader2 className="w-8 h-8 text-primary animate-spin" />
                 </div>
-            </DashboardLayout>
-        );
-    }
-
-    return (
-        <DashboardLayout>
+            ) : (
             <div className="space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -98,6 +93,29 @@ export default function OpportunitiesPage() {
 
                 {/* Opportunities List */}
                 <div className="grid grid-cols-1 gap-6">
+                    {filteredHackathons.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-20 glass rounded-2xl border border-white/5">
+                            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                                <Trophy className="w-10 h-10 text-primary/60" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">
+                                {searchTerm ? "No opportunities match your search" : "No opportunities available yet"}
+                            </h3>
+                            <p className="text-white/40 text-center max-w-sm mb-6">
+                                {searchTerm
+                                    ? "Try a different keyword to find more events."
+                                    : "Hackathons seeking sponsors will appear here. Check back soon!"}
+                            </p>
+                            {searchTerm && (
+                                <button
+                                    onClick={() => setSearchTerm("")}
+                                    className="px-5 py-2.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all text-sm font-medium"
+                                >
+                                    Clear Search
+                                </button>
+                            )}
+                        </div>
+                    )}
                     {filteredHackathons.map((opp) => (
                         <div key={opp.id} className="glass p-6 rounded-2xl hover:border-primary/30 transition-all duration-300 group">
                             <div className="flex flex-col lg:flex-row gap-6">
@@ -108,10 +126,10 @@ export default function OpportunitiesPage() {
                                             <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">
                                                 {opp.title}
                                             </h3>
-                                            <p className="text-white/40 text-sm">Organizer ID: {opp.organizerId.substring(0, 8)}...</p>
+                                            <p className="text-white/40 text-sm">Organizer ID: {(opp.organizerId || '--------').substring(0, 8)}...</p>
                                         </div>
                                         <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium uppercase">
-                                            {opp.status.replace("_", " ")}
+                                            {(opp.status || '').replace(/_/g, ' ')}
                                         </div>
                                     </div>
                                     
@@ -159,6 +177,7 @@ export default function OpportunitiesPage() {
                     ))}
                 </div>
             </div>
+            )}
         </DashboardLayout>
     );
 }
