@@ -68,15 +68,19 @@ function LoginContent() {
         role: selectedRole,
       });
 
-      const mockUser = {
-        id: result.user?.id ?? "1",
-        email: formData.email,
-        fullName: result.user?.fullName ?? "User",
-        role: selectedRole,
-      };
-      login(mockUser);
+      // result = { success, data: { user, accessToken, refreshToken } }
+      const apiUser = result.data?.user;
+      const accessToken = result.data?.accessToken;
 
-      const url = getRedirectUrl(selectedRole);
+      const userData = {
+        id: apiUser?.id ?? "1",
+        email: apiUser?.email ?? formData.email,
+        fullName: apiUser?.fullName ?? "User",
+        role: (apiUser?.role as UserRole) ?? selectedRole,
+      };
+      login(userData, accessToken);
+
+      const url = getRedirectUrl(userData.role);
       if (url.startsWith("http")) {
         window.location.href = url;
       } else {

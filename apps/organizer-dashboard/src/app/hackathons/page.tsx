@@ -36,7 +36,7 @@ export default function HackathonsPage() {
     const fetchHackathons = async () => {
         try {
             const response = await api.get("/api/v1/organizers/hackathons");
-            setHackathons(response.data.data);
+            setHackathons(response.data.data || []);
         } catch (error) {
             console.error("Failed to fetch hackathons:", error);
             toast.error("Failed to load hackathons");
@@ -109,6 +109,29 @@ export default function HackathonsPage() {
 
                 {/* Hackathons Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredHackathons.length === 0 && (
+                        <div className="col-span-full flex flex-col items-center justify-center py-20 glass rounded-2xl border border-white/5">
+                            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                                <Calendar className="w-10 h-10 text-primary/60" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">
+                                {searchQuery || selectedStatus !== "All" ? "No hackathons match your filters" : "No hackathons yet"}
+                            </h3>
+                            <p className="text-white/40 text-center max-w-sm mb-6">
+                                {searchQuery || selectedStatus !== "All"
+                                    ? "Try clearing your search or changing the status filter."
+                                    : "Create your first hackathon and start bringing people together."}
+                            </p>
+                            {(searchQuery || selectedStatus !== "All") ? (
+                                <button
+                                    onClick={() => { setSearchQuery(""); setSelectedStatus("All"); }}
+                                    className="px-5 py-2.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 transition-all text-sm font-medium"
+                                >
+                                    Clear Filters
+                                </button>
+                            ) : null}
+                        </div>
+                    )}
                     {filteredHackathons.map((hackathon) => (
                         <div 
                             key={hackathon.id} 
@@ -151,7 +174,7 @@ export default function HackathonsPage() {
                                         </span>
                                         <span className="flex items-center gap-1">
                                             <Calendar className="w-4 h-4" />
-                                            {new Date(hackathon.startDate).toLocaleDateString()}
+                                            {hackathon.startDate ? new Date(hackathon.startDate).toLocaleDateString() : "TBD"}
                                         </span>
                                     </div>
                                 </div>
