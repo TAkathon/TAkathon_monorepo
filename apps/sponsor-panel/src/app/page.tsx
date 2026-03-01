@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
+import { UserRole } from "@takathon/shared/types";
 
 export default function HomePage() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function HomePage() {
     if (!_hasHydrated) return;
 
     if (isAuthenticated) {
-      if (user?.role === "sponsor") {
+      if (user?.role === UserRole.SPONSOR) {
         router.replace("/dashboard");
       } else if (user?.role) {
         window.location.href = getRedirectUrl(user.role);

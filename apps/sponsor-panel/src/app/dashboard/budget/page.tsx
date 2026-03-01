@@ -1,184 +1,144 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { 
     Wallet, 
     TrendingUp, 
     TrendingDown, 
-    ArrowUpRight,
-    PieChart,
-    BarChart3,
     Calendar,
-    Download
+    Loader2,
+    DollarSign
 } from "lucide-react";
+import api from "@takathon/shared/api";
+import { toast } from "sonner";
 
-const budgetStats = [
-    {
-        name: "Total Budget",
-        value: "$100,000",
-        icon: Wallet,
-        color: "text-blue-500",
-        bg: "bg-blue-500/10",
-    },
-    {
-        name: "Allocated",
-        value: "$55,000",
-        icon: TrendingUp,
-        color: "text-primary",
-        bg: "bg-primary/10",
-    },
-    {
-        name: "Remaining",
-        value: "$45,000",
-        icon: TrendingDown,
-        color: "text-green-500",
-        bg: "bg-green-500/10",
-    },
-];
+export default function SponsorBudget() {
+    const [sponsorships, setSponsorships] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-const transactions = [
-    {
-        id: "TX-101",
-        event: "TechNova 2024",
-        amount: "$15,000",
-        date: "2024-06-12",
-        status: "Completed",
-    },
-    {
-        id: "TX-102",
-        event: "AI Summit",
-        amount: "$10,000",
-        date: "2024-05-28",
-        status: "Completed",
-    },
-    {
-        id: "TX-103",
-        event: "GreenTech Challenge",
-        amount: "$5,000",
-        date: "2024-05-15",
-        status: "Processing",
-    },
-];
+    useEffect(() => {
+        api.get("/api/v1/sponsors/hackathons/sponsorships")
+            .then((res) => {
+                const data = res.data.data?.sponsorships || res.data.data || [];
+                setSponsorships(Array.isArray(data) ? data : []);
+            })
+            .catch(() => toast.error("Failed to load budget data"))
+            .finally(() => setLoading(false));
+    }, []);
 
-export default function BudgetPage() {
+    const totalAllocated = sponsorships.reduce((sum: number, s: any) => sum + (Number(s.amount) || 0), 0);
+    const activeAmount = sponsorships
+        .filter((s: any) => (s.status || "").toLowerCase() === "active")
+        .reduce((sum: number, s: any) => sum + (Number(s.amount) || 0), 0);
+    const pendingAmount = sponsorships
+        .filter((s: any) => (s.status || "").toLowerCase() === "pending")
+        .reduce((sum: number, s: any) => sum + (Number(s.amount) || 0), 0);
+
+    const budgetStats = [
+        { name: "Total Allocated", value: `$${totalAllocated.toLocaleString()}`, icon: Wallet, color: "text-blue-400" },
+        { name: "Active Sponsorships", value: `$${activeAmount.toLocaleString()}`, icon: TrendingUp, color: "text-primary" },
+        { name: "Pending Confirmation", value: `$${pendingAmount.toLocaleString()}`, icon: TrendingDown, color: "text-amber-400" },
+    ];
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex items-center justify-center h-full min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            </DashboardLayout>
+        );
+    }
+
     return (
         <DashboardLayout>
             <div className="space-y-8">
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Budget Tracking</h1>
-                        <p className="text-white/60">Monitor your sponsorship spending and allocations.</p>
-                    </div>
-                    <button className="btn-secondary flex items-center gap-2">
-                        <Download className="w-4 h-4" />
-                        Export Report
-                    </button>
+                <div>
+                    <h1 className="text-3xl font-bold text-white">Budget Overview</h1>
+                    <p className="text-white/60 mt-1">Track your sponsorship spending across all events</p>
                 </div>
 
-                {/* Stats Grid */}
+                {/* Budget Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {budgetStats.map((stat) => {
                         const Icon = stat.icon;
                         return (
-                            <div key={stat.name} className="glass p-6 rounded-2xl">
-                                <div className="flex items-center gap-4">
-                                    <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
-                                        <Icon className="w-6 h-6" />
+                            <div key={stat.name} className="glass p-6 rounded-2xl hover:border-primary/30 transition-all">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="p-3 rounded-xl bg-white/5">
+                                        <Icon className={`w-6 h-6 ${stat.color}`} />
                                     </div>
-                                    <div>
-                                        <p className="text-sm text-white/40">{stat.name}</p>
-                                        <h3 className="text-2xl font-bold text-white">{stat.value}</h3>
-                                    </div>
+                                    <p className="text-sm text-white/60">{stat.name}</p>
                                 </div>
+                                <h3 className="text-3xl font-bold text-white">{stat.value}</h3>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Charts & Breakdown */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="glass rounded-2xl p-6">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <BarChart3 className="w-5 h-5 text-primary" />
-                                Spending Over Time
-                            </h2>
-                            <select className="bg-white/5 border border-white/10 rounded-lg text-xs text-white/60 px-2 py-1 outline-none">
-                                <option>Last 6 Months</option>
-                                <option>This Year</option>
-                            </select>
-                        </div>
-                        <div className="h-64 flex items-end justify-between gap-2 px-2">
-                            {[40, 70, 45, 90, 65, 80].map((height, i) => (
-                                <div key={i} className="flex-1 space-y-2">
-                                    <div 
-                                        className="w-full bg-primary/20 hover:bg-primary/40 rounded-t-lg transition-all duration-300 relative group"
-                                        style={{ height: `${height}%` }}
-                                    >
-                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-dark text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                            ${height/10}k
-                                        </div>
-                                    </div>
-                                    <p className="text-[10px] text-center text-white/40">Month {i+1}</p>
-                                </div>
-                            ))}
-                        </div>
+                {/* Transactions */}
+                <div className="glass rounded-2xl overflow-hidden border border-white/10">
+                    <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-white">Sponsorship Transactions</h2>
                     </div>
-
-                    <div className="glass rounded-2xl p-6">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <PieChart className="w-5 h-5 text-primary" />
-                                Allocation by Category
-                            </h2>
+                    {sponsorships.length === 0 ? (
+                        <div className="p-12 text-center">
+                            <DollarSign className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                            <p className="text-white/40">No transactions yet</p>
                         </div>
-                        <div className="space-y-6">
-                            {[
-                                { name: "Hackathons", percent: 65, color: "bg-primary" },
-                                { name: "Conferences", percent: 20, color: "bg-blue-500" },
-                                { name: "Workshops", percent: 15, color: "bg-green-500" },
-                            ].map((cat) => (
-                                <div key={cat.name} className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-white/60">{cat.name}</span>
-                                        <span className="text-white font-medium">{cat.percent}%</span>
-                                    </div>
-                                    <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                                        <div className={`${cat.color} h-full rounded-full`} style={{ width: `${cat.percent}%` }} />
-                                    </div>
-                                </div>
-                            ))}
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-white/5 border-b border-white/10">
+                                        <th className="px-6 py-4 text-sm font-semibold text-white/60 uppercase tracking-wider">Event</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-white/60 uppercase tracking-wider">Tier</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-white/60 uppercase tracking-wider">Amount</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-white/60 uppercase tracking-wider">Date</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-white/60 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {sponsorships.map((s: any) => {
+                                        const title = s.hackathon?.title || "Hackathon";
+                                        const tier = s.tier || s.tierName || "-";
+                                        const amount = s.amount ? `$${Number(s.amount).toLocaleString()}` : "-";
+                                        const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : "N/A";
+                                        const status = (s.status || "pending").toLowerCase();
+                                        return (
+                                            <tr key={s.id} className="hover:bg-white/[0.02] transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold">
+                                                            {title.charAt(0)}
+                                                        </div>
+                                                        <span className="text-white font-medium">{title}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-white/60 text-sm">{tier}</td>
+                                                <td className="px-6 py-4 text-white font-semibold">{amount}</td>
+                                                <td className="px-6 py-4 text-white/40 text-sm flex items-center gap-1">
+                                                    <Calendar className="w-3 h-3" />{date}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                                        status === "active" ? "bg-green-500/10 text-green-400" :
+                                                        status === "cancelled" ? "bg-red-500/10 text-red-400" :
+                                                        "bg-amber-500/10 text-amber-400"
+                                                    }`}>{status}</span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                </div>
-
-                {/* Recent Transactions */}
-                <div className="glass rounded-2xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-white">Recent Transactions</h2>
-                        <button className="text-sm text-primary hover:underline">View All</button>
-                    </div>
-                    <div className="divide-y divide-white/5">
-                        {transactions.map((tx) => (
-                            <div key={tx.id} className="px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-all">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-2 rounded-lg bg-white/5">
-                                        <ArrowUpRight className="w-5 h-5 text-white/40" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-white font-medium">{tx.event}</h4>
-                                        <p className="text-xs text-white/40">{tx.date} • {tx.id}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-white font-bold">{tx.amount}</p>
-                                    <p className={`text-[10px] uppercase tracking-widest font-bold ${
-                                        tx.status === "Completed" ? "text-green-500" : "text-amber-500"
-                                    }`}>{tx.status}</p>
-                                </div>
-                            </div>
-                        ))}
+                    )}
+                    <div className="px-6 py-4 border-t border-white/10 bg-white/5 flex items-center justify-between text-sm">
+                        <span className="text-white/40">{sponsorships.length} transactions</span>
+                        <span className="text-white font-semibold">Total: ${totalAllocated.toLocaleString()}</span>
                     </div>
                 </div>
             </div>

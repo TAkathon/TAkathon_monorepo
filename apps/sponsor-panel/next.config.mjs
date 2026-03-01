@@ -7,6 +7,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.resolve(__dirname, "../../"),
+  transpilePackages: [
+    "@takathon/shared/ui",
+    "@takathon/shared/utils",
+    "@takathon/shared/types",
+    "@takathon/shared/api",
+  ],
 };
 
 export default nextConfig;

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
+import { UserRole } from "@takathon/shared/types";
 import {
     Home,
     Search,
@@ -39,7 +40,7 @@ export default function DashboardLayout({
 
         if (!isAuthenticated) {
             window.location.href = `${getLandingUrl()}/login`;
-        } else if (user?.role && user.role !== "sponsor") {
+        } else if (user?.role && user.role !== UserRole.SPONSOR) {
             const url = getRedirectUrl(user.role);
             window.location.href = url;
         }
@@ -50,7 +51,7 @@ export default function DashboardLayout({
         window.location.href = `${getLandingUrl()}/login`;
     };
 
-    if (!_hasHydrated || !isAuthenticated || user?.role !== "sponsor") {
+    if (!_hasHydrated || !isAuthenticated || user?.role !== UserRole.SPONSOR) {
         return (
             <div className="min-h-screen bg-dark flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
