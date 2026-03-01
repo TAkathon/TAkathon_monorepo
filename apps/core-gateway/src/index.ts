@@ -37,7 +37,10 @@ app.use(
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
       if (!origin) return callback(null, true);
-      if (CORS_ORIGINS.length === 0 || CORS_ORIGINS.includes(origin)) {
+      if (CORS_ORIGINS.length === 0) {
+        return callback(new Error("CORS not configured"), false);
+      }
+      if (CORS_ORIGINS.includes(origin)) {
         return callback(null, true);
       }
       return callback(new Error("Not allowed by CORS"));
@@ -65,7 +68,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/students", studentProfileRouter);
 app.use("/api/v1/students/hackathons", studentHackathonsRouter);
 app.use("/api/v1/students/teams", studentTeamsRouter);
-app.use("/api/v1/students/teams", studentMatchingRouter);
+app.use("/api/v1/students/matching", studentMatchingRouter);
 app.use("/api/v1/organizers", organizerProfileRouter);
 app.use("/api/v1/organizers/hackathons", organizerHackathonsRouter);
 app.use("/api/v1/organizers/hackathons", organizerParticipantsRouter);
