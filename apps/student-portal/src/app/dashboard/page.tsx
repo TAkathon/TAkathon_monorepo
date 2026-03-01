@@ -1,67 +1,81 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, Users, Trophy, TrendingUp } from "lucide-react";
-
-const stats = [
-    { name: "Hackathons Joined", value: "3", icon: Calendar, trend: "+1 this month" },
-    { name: "Active Teams", value: "2", icon: Users, trend: "2 looking for members" },
-    { name: "Completed Projects", value: "5", icon: Trophy, trend: "+2 this month" },
-    { name: "Skill Level", value: "Intermediate", icon: TrendingUp, trend: "Growing" },
-];
-
-const upcomingHackathons = [
-    {
-        id: 1,
-        name: "AI Innovators Challenge",
-        date: "March 15-17, 2026",
-        participants: 120,
-        status: "Registered",
-    },
-    {
-        id: 2,
-        name: "Web3 Summit Hackathon",
-        date: "March 22-24, 2026",
-        participants: 95,
-        status: "Interested",
-    },
-    {
-        id: 3,
-        name: "Climate Tech Solutions",
-        date: "April 5-7, 2026",
-        participants: 78,
-        status: "Open",
-    },
-];
-
-const myTeams = [
-    {
-        id: 1,
-        name: "Code Wizards",
-        hackathon: "AI Innovators Challenge",
-        members: 4,
-        maxMembers: 5,
-        status: "Looking for 1 more",
-    },
-    {
-        id: 2,
-        name: "Tech Titans",
-        hackathon: "Past Event",
-        members: 5,
-        maxMembers: 5,
-        status: "Complete",
-    },
-];
+import { Calendar, Users, Trophy, TrendingUp, Loader2 } from "lucide-react";
+import api from "@takathon/shared/api";
+import { useAuthStore } from "@takathon/shared/utils";
 
 export default function DashboardPage() {
+    const { user } = useAuthStore();
+    const [loading, setLoading] = useState(true);
+    const [profileName, setProfileName] = useState(user?.fullName || "");
+    const [hackathons, setHackathons] = useState<any[]>([]);
+    const [teams, setTeams] = useState<any[]>([]);
+    const [skillLevel, setSkillLevel] = useState("Loading...");
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [profileRes, hackathonsRes, teamsRes] = await Promise.all([
+                api.get("/api/v1/students/profile").catch(() => null),
+                api.get("/api/v1/students/hackathons").catch(() => ({ data: { data: [] } })),
+                api.get("/api/v1/students/teams").catch(() => ({ data: { data: [] } })),
+            ]);
+
+            if (profileRes?.data?.data) {
+                const p = profileRes.data.data;
+                setProfileName(p.fullName || p.user?.fullName || user?.fullName || "");
+                const skills = p.skills || [];
+                if (skills.length > 0) {
+                    const levels: Record<string, number> = { beginner: 1, intermediate: 2, advanced: 3, expert: 4 };
+                    const avg = skills.reduce((sum: number, s: any) => sum + (levels[s.proficiencyLevel] || 1), 0) / skills.length;
+                    setSkillLevel(avg >= 3.5 ? "Expert" : avg >= 2.5 ? "Advanced" : avg >= 1.5 ? "Intermediate" : "Beginner");
+                } else {
+                    setSkillLevel("Getting Started");
+                }
+            }
+
+            setHackathons(hackathonsRes?.data?.data || []);
+            setTeams(teamsRes?.data?.data || []);
+        } catch (error) {
+            console.error("Failed to fetch dashboard data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const registeredHackathons = hackathons.filter((h: any) => h.isRegistered);
+    const activeTeams = teams.filter((t: any) => t.status === "forming");
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex items-center justify-center h-full min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    const stats = [
+        { name: "Hackathons Joined", value: String(registeredHackathons.length), icon: Calendar, trend: `${hackathons.length} available` },
+        { name: "Active Teams", value: String(activeTeams.length), icon: Users, trend: `${teams.length} total teams` },
+        { name: "Completed Projects", value: String(teams.filter((t: any) => t.status === "complete").length), icon: Trophy, trend: "Keep it up!" },
+        { name: "Skill Level", value: skillLevel, icon: TrendingUp, trend: "Growing" },
+    ];
+
     return (
         <DashboardLayout>
             <div className="space-y-8">
                 {/* Welcome Section */}
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">
-                        Welcome back, <span className="text-primary">John</span>!
+                        Welcome back, <span className="text-primary">{profileName.split(" ")[0] || "Student"}</span>!
                     </h1>
                     <p className="text-white/60">
                         Here's what's happening with your hackathons and teams
@@ -96,31 +110,37 @@ export default function DashboardPage() {
                             </Link>
                         </div>
                         <div className="space-y-4">
-                            {upcomingHackathons.map((hackathon) => (
-                                <div
-                                    key={hackathon.id}
-                                    className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 cursor-pointer"
-                                >
-                                    <div className="flex items-start justify-between mb-2">
-                                        <h3 className="font-semibold text-white">{hackathon.name}</h3>
-                                        <span
-                                            className={`px-2 py-1 text-xs rounded-full ${
-                                                hackathon.status === "Registered"
-                                                    ? "bg-primary/20 text-primary"
-                                                    : hackathon.status === "Interested"
-                                                    ? "bg-blue-500/20 text-blue-400"
-                                                    : "bg-white/10 text-white/60"
-                                            }`}
-                                        >
-                                            {hackathon.status}
-                                        </span>
+                            {hackathons.slice(0, 3).length === 0 ? (
+                                <p className="text-white/40 text-sm text-center py-4">No hackathons available</p>
+                            ) : (
+                                hackathons.slice(0, 3).map((hackathon: any) => (
+                                    <div
+                                        key={hackathon.id}
+                                        className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 cursor-pointer"
+                                    >
+                                        <div className="flex items-start justify-between mb-2">
+                                            <h3 className="font-semibold text-white">{hackathon.title}</h3>
+                                            <span
+                                                className={`px-2 py-1 text-xs rounded-full ${
+                                                    hackathon.isRegistered
+                                                        ? "bg-primary/20 text-primary"
+                                                        : hackathon.status === "registration_open"
+                                                        ? "bg-green-500/20 text-green-400"
+                                                        : "bg-white/10 text-white/60"
+                                                }`}
+                                            >
+                                                {hackathon.isRegistered ? "Registered" : hackathon.status?.replace(/_/g, " ") || "Open"}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-white/60 mb-2">
+                                            {hackathon.startDate ? new Date(hackathon.startDate).toLocaleDateString() : "TBD"}
+                                        </p>
+                                        <p className="text-xs text-white/40">
+                                            {hackathon._count?.participants || 0} participants registered
+                                        </p>
                                     </div>
-                                    <p className="text-sm text-white/60 mb-2">{hackathon.date}</p>
-                                    <p className="text-xs text-white/40">
-                                        {hackathon.participants} participants registered
-                                    </p>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
 
@@ -133,26 +153,33 @@ export default function DashboardPage() {
                             </Link>
                         </div>
                         <div className="space-y-4">
-                            {myTeams.map((team) => (
-                                <div
-                                    key={team.id}
-                                    className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 cursor-pointer"
-                                >
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div>
-                                            <h3 className="font-semibold text-white">{team.name}</h3>
-                                            <p className="text-sm text-white/60">{team.hackathon}</p>
+                            {teams.slice(0, 3).length === 0 ? (
+                                <p className="text-white/40 text-sm text-center py-4">No teams yet</p>
+                            ) : (
+                                teams.slice(0, 3).map((team: any) => (
+                                    <div
+                                        key={team.id}
+                                        className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 cursor-pointer"
+                                    >
+                                        <div className="flex items-start justify-between mb-2">
+                                            <div>
+                                                <h3 className="font-semibold text-white">{team.name}</h3>
+                                                <p className="text-sm text-white/60">{team.hackathon?.title || "No hackathon"}</p>
+                                            </div>
+                                            <span className="px-2 py-1 text-xs bg-white/10 text-white/60 rounded-full">
+                                                {team.currentSize}/{team.maxSize} members
+                                            </span>
                                         </div>
-                                        <span className="px-2 py-1 text-xs bg-white/10 text-white/60 rounded-full">
-                                            {team.members}/{team.maxMembers} members
-                                        </span>
+                                        <p className="text-xs text-primary capitalize">{team.status}</p>
                                     </div>
-                                    <p className="text-xs text-primary">{team.status}</p>
-                                </div>
-                            ))}
-                            <button className="w-full p-4 bg-primary/10 border-2 border-dashed border-primary/30 rounded-lg text-primary hover:bg-primary/20 hover:border-primary/50 transition-all duration-200 font-semibold">
+                                ))
+                            )}
+                            <Link
+                                href="/dashboard/teams"
+                                className="block w-full p-4 bg-primary/10 border-2 border-dashed border-primary/30 rounded-lg text-primary hover:bg-primary/20 hover:border-primary/50 transition-all duration-200 font-semibold text-center"
+                            >
                                 + Create New Team
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -161,21 +188,21 @@ export default function DashboardPage() {
                 <div className="glass rounded-xl p-6">
                     <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <button className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group">
+                        <Link href="/dashboard/hackathons" className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group">
                             <Calendar className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
                             <p className="font-semibold text-white mb-1">Browse Hackathons</p>
                             <p className="text-xs text-white/60">Find your next challenge</p>
-                        </button>
-                        <button className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group">
+                        </Link>
+                        <Link href="/dashboard/teams" className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group">
                             <Users className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                            <p className="font-semibold text-white mb-1">Find Teammates</p>
+                            <p className="font-semibold text-white mb-1">Manage Teams</p>
                             <p className="text-xs text-white/60">Build your dream team</p>
-                        </button>
-                        <button className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group">
+                        </Link>
+                        <Link href="/dashboard/profile" className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group">
                             <Trophy className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                            <p className="font-semibold text-white mb-1">View Achievements</p>
-                            <p className="text-xs text-white/60">Track your progress</p>
-                        </button>
+                            <p className="font-semibold text-white mb-1">Update Profile</p>
+                            <p className="text-xs text-white/60">Showcase your skills</p>
+                        </Link>
                     </div>
                 </div>
             </div>

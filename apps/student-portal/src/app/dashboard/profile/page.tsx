@@ -1,38 +1,126 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { User, Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin, Trash2 } from "lucide-react";
+import { Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin, Loader2, Trash2 } from "lucide-react";
+import api from "@takathon/shared/api";
+import { useAuthStore } from "@takathon/shared/utils";
+import { toast } from "sonner";
+
+interface ProfileData {
+    fullName: string;
+    email: string;
+    bio: string;
+    location: string;
+    university: string;
+    major: string;
+    graduationYear: string;
+    github: string;
+    linkedin: string;
+    website: string;
+}
+
+interface SkillData {
+    name: string;
+    level: string;
+}
 
 export default function ProfilePage() {
+    const { user } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
-    const [profile, setProfile] = useState({
-        fullName: "John Doe",
-        email: "john.doe@example.com",
-        bio: "Passionate developer and hackathon enthusiast. Love building innovative solutions with AI and web technologies.",
-        location: "Tunis, Tunisia",
-        university: "INSAT - National Institute of Applied Science and Technology",
-        major: "Computer Science",
-        graduationYear: "2026",
-        github: "johndoe",
-        linkedin: "johndoe",
-        website: "https://johndoe.dev",
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [profile, setProfile] = useState<ProfileData>({
+        fullName: "",
+        email: "",
+        bio: "",
+        location: "",
+        university: "",
+        major: "",
+        graduationYear: "",
+        github: "",
+        linkedin: "",
+        website: "",
     });
+    const [skills, setSkills] = useState<SkillData[]>([]);
 
-    const [skills, setSkills] = useState([
-        { name: "React", level: "Advanced" },
-        { name: "Node.js", level: "Intermediate" },
-        { name: "Python", level: "Advanced" },
-        { name: "Machine Learning", level: "Beginner" },
-        { name: "TypeScript", level: "Intermediate" },
-        { name: "UI/UX Design", level: "Beginner" },
-    ]);
+    useEffect(() => {
+        fetchProfile();
+    }, []);
 
-    const handleSave = () => {
-        // TODO: Save to backend
-        setIsEditing(false);
-        console.log("Saving profile:", profile);
+    const fetchProfile = async () => {
+        try {
+            const res = await api.get("/api/v1/students/profile");
+            const data = res.data.data;
+            setProfile({
+                fullName: data.fullName || data.user?.fullName || user?.fullName || "",
+                email: data.email || data.user?.email || user?.email || "",
+                bio: data.bio || "",
+                location: data.location || "",
+                university: data.university || "",
+                major: data.major || "",
+                graduationYear: data.graduationYear?.toString() || "",
+                github: data.githubUrl || "",
+                linkedin: data.linkedinUrl || "",
+                website: data.portfolioUrl || "",
+            });
+            if (data.skills) {
+                setSkills(
+                    data.skills.map((s: any) => ({
+                        name: s.skill?.name || s.name,
+                        level: s.proficiencyLevel || "beginner",
+                    }))
+                );
+            }
+        } catch (error) {
+            console.error("Failed to load profile:", error);
+            toast.error("Failed to load profile");
+            if (user) {
+                setProfile((prev) => ({ ...prev, fullName: user.fullName, email: user.email }));
+            }
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await api.put("/api/v1/students/profile", {
+                bio: profile.bio,
+                location: profile.location,
+                university: profile.university,
+                major: profile.major,
+                graduationYear: profile.graduationYear ? parseInt(profile.graduationYear) : undefined,
+                githubUrl: profile.github || undefined,
+                linkedinUrl: profile.linkedin || undefined,
+                portfolioUrl: profile.website || undefined,
+            });
+            toast.success("Profile saved successfully!");
+            setIsEditing(false);
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Failed to save profile");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const initials = profile.fullName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase() || "??";
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex items-center justify-center h-full min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout>
@@ -45,9 +133,15 @@ export default function ProfilePage() {
                     </div>
                     <button
                         onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                        className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2"
+                        disabled={saving}
+                        className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50"
                     >
-                        {isEditing ? (
+                        {saving ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Saving...
+                            </>
+                        ) : isEditing ? (
                             <>
                                 <Save className="w-4 h-4" />
                                 Save Changes
@@ -64,97 +158,59 @@ export default function ProfilePage() {
                 {/* Profile Card */}
                 <div className="glass rounded-xl p-6">
                     <div className="flex flex-col sm:flex-row gap-6">
-                        {/* Avatar */}
                         <div className="flex-shrink-0">
                             <div className="w-32 h-32 bg-primary/20 rounded-full flex items-center justify-center text-primary text-4xl font-bold">
-                                JD
+                                {initials}
                             </div>
-                            {isEditing && (
-                                <button className="mt-3 text-sm text-primary hover:text-primary-light">
-                                    Change Photo
-                                </button>
-                            )}
                         </div>
-
-                        {/* Basic Info */}
                         <div className="flex-1 space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Full Name */}
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Full Name
-                                    </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={profile.fullName}
-                                            onChange={(e) =>
-                                                setProfile({ ...profile, fullName: e.target.value })
-                                            }
-                                            className="input-field"
-                                        />
-                                    ) : (
-                                        <p className="text-white font-semibold">{profile.fullName}</p>
-                                    )}
+                                    <label className="block text-sm font-medium text-white/60 mb-2">Full Name</label>
+                                    <p className="text-white font-semibold">{profile.fullName}</p>
                                 </div>
-
-                                {/* Email */}
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Email
-                                    </label>
+                                    <label className="block text-sm font-medium text-white/60 mb-2">Email</label>
                                     <div className="flex items-center gap-2 text-white/70">
                                         <Mail className="w-4 h-4" />
                                         <span>{profile.email}</span>
                                     </div>
                                 </div>
-
-                                {/* Location */}
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Location
-                                    </label>
+                                    <label className="block text-sm font-medium text-white/60 mb-2">Location</label>
                                     {isEditing ? (
                                         <input
                                             type="text"
                                             value={profile.location}
-                                            onChange={(e) =>
-                                                setProfile({ ...profile, location: e.target.value })
-                                            }
+                                            onChange={(e) => setProfile({ ...profile, location: e.target.value })}
                                             className="input-field"
+                                            placeholder="e.g. Tunis, Tunisia"
                                         />
                                     ) : (
                                         <div className="flex items-center gap-2 text-white/70">
                                             <MapPin className="w-4 h-4" />
-                                            <span>{profile.location}</span>
+                                            <span>{profile.location || "Not set"}</span>
                                         </div>
                                     )}
                                 </div>
-
-                                {/* Graduation Year */}
                                 <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-2">
-                                        Graduation Year
-                                    </label>
+                                    <label className="block text-sm font-medium text-white/60 mb-2">Graduation Year</label>
                                     {isEditing ? (
                                         <input
                                             type="text"
                                             value={profile.graduationYear}
-                                            onChange={(e) =>
-                                                setProfile({ ...profile, graduationYear: e.target.value })
-                                            }
+                                            onChange={(e) => setProfile({ ...profile, graduationYear: e.target.value })}
                                             className="input-field"
+                                            placeholder="e.g. 2026"
                                         />
                                     ) : (
                                         <div className="flex items-center gap-2 text-white/70">
                                             <Calendar className="w-4 h-4" />
-                                            <span>{profile.graduationYear}</span>
+                                            <span>{profile.graduationYear || "Not set"}</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
-
-                            {/* Bio */}
                             <div>
                                 <label className="block text-sm font-medium text-white/60 mb-2">Bio</label>
                                 {isEditing ? (
@@ -163,9 +219,10 @@ export default function ProfilePage() {
                                         onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                                         rows={3}
                                         className="input-field resize-none"
+                                        placeholder="Tell us about yourself..."
                                     />
                                 ) : (
-                                    <p className="text-white/70">{profile.bio}</p>
+                                    <p className="text-white/70">{profile.bio || "No bio yet"}</p>
                                 )}
                             </div>
                         </div>
@@ -177,20 +234,17 @@ export default function ProfilePage() {
                     <h2 className="text-xl font-bold text-white mb-4">Education</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-white/60 mb-2">
-                                University
-                            </label>
+                            <label className="block text-sm font-medium text-white/60 mb-2">University</label>
                             {isEditing ? (
                                 <input
                                     type="text"
                                     value={profile.university}
-                                    onChange={(e) =>
-                                        setProfile({ ...profile, university: e.target.value })
-                                    }
+                                    onChange={(e) => setProfile({ ...profile, university: e.target.value })}
                                     className="input-field"
+                                    placeholder="Your university name"
                                 />
                             ) : (
-                                <p className="text-white font-semibold">{profile.university}</p>
+                                <p className="text-white font-semibold">{profile.university || "Not set"}</p>
                             )}
                         </div>
                         <div>
@@ -201,9 +255,10 @@ export default function ProfilePage() {
                                     value={profile.major}
                                     onChange={(e) => setProfile({ ...profile, major: e.target.value })}
                                     className="input-field"
+                                    placeholder="Your major / field of study"
                                 />
                             ) : (
-                                <p className="text-white font-semibold">{profile.major}</p>
+                                <p className="text-white font-semibold">{profile.major || "Not set"}</p>
                             )}
                         </div>
                     </div>
@@ -217,7 +272,7 @@ export default function ProfilePage() {
                             <button
                                 onClick={() => {
                                     const name = prompt("Enter skill name:");
-                                    if (name) setSkills([...skills, { name, level: "Beginner" }]);
+                                    if (name) setSkills([...skills, { name, level: "beginner" }]);
                                 }}
                                 className="text-sm text-primary hover:text-primary-light"
                             >
@@ -225,37 +280,43 @@ export default function ProfilePage() {
                             </button>
                         )}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {skills.map((skill, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center justify-between p-3 bg-white/5 rounded-lg group"
-                            >
-                                <span className="text-white font-medium">{skill.name}</span>
-                                <div className="flex items-center gap-2">
-                                    <span
-                                        className={`px-2 py-1 text-xs rounded-full ${
-                                            skill.level === "Advanced"
-                                                ? "bg-green-500/20 text-green-400"
-                                                : skill.level === "Intermediate"
-                                                ? "bg-blue-500/20 text-blue-400"
-                                                : "bg-yellow-500/20 text-yellow-400"
-                                        }`}
-                                    >
-                                        {skill.level}
-                                    </span>
-                                    {isEditing && (
-                                        <button
-                                            onClick={() => setSkills(skills.filter((_, i) => i !== index))}
-                                            className="p-1 text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                    {skills.length === 0 ? (
+                        <p className="text-white/40 text-sm">No skills added yet</p>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {skills.map((skill, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center justify-between p-3 bg-white/5 rounded-lg group"
+                                >
+                                    <span className="text-white font-medium">{skill.name}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span
+                                            className={`px-2 py-1 text-xs rounded-full ${
+                                                skill.level === "expert"
+                                                    ? "bg-purple-500/20 text-purple-400"
+                                                    : skill.level === "advanced"
+                                                    ? "bg-green-500/20 text-green-400"
+                                                    : skill.level === "intermediate"
+                                                    ? "bg-blue-500/20 text-blue-400"
+                                                    : "bg-yellow-500/20 text-yellow-400"
+                                            }`}
                                         >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    )}
+                                            {skill.level}
+                                        </span>
+                                        {isEditing && (
+                                            <button
+                                                onClick={() => setSkills(skills.filter((_, i) => i !== index))}
+                                                className="p-1 text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Social Links */}
@@ -272,15 +333,12 @@ export default function ProfilePage() {
                                     placeholder="GitHub username"
                                     className="input-field flex-1"
                                 />
-                            ) : (
-                                <a
-                                    href={`https://github.com/${profile.github}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-primary hover:text-primary-light"
-                                >
+                            ) : profile.github ? (
+                                <a href={`https://github.com/${profile.github}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light">
                                     github.com/{profile.github}
                                 </a>
+                            ) : (
+                                <span className="text-white/40">Not set</span>
                             )}
                         </div>
                         <div className="flex items-center gap-3">
@@ -289,21 +347,16 @@ export default function ProfilePage() {
                                 <input
                                     type="text"
                                     value={profile.linkedin}
-                                    onChange={(e) =>
-                                        setProfile({ ...profile, linkedin: e.target.value })
-                                    }
+                                    onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
                                     placeholder="LinkedIn username"
                                     className="input-field flex-1"
                                 />
-                            ) : (
-                                <a
-                                    href={`https://linkedin.com/in/${profile.linkedin}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-primary hover:text-primary-light"
-                                >
+                            ) : profile.linkedin ? (
+                                <a href={`https://linkedin.com/in/${profile.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light">
                                     linkedin.com/in/{profile.linkedin}
                                 </a>
+                            ) : (
+                                <span className="text-white/40">Not set</span>
                             )}
                         </div>
                         <div className="flex items-center gap-3">
@@ -312,21 +365,16 @@ export default function ProfilePage() {
                                 <input
                                     type="url"
                                     value={profile.website}
-                                    onChange={(e) =>
-                                        setProfile({ ...profile, website: e.target.value })
-                                    }
-                                    placeholder="Personal website"
+                                    onChange={(e) => setProfile({ ...profile, website: e.target.value })}
+                                    placeholder="Personal website URL"
                                     className="input-field flex-1"
                                 />
-                            ) : (
-                                <a
-                                    href={profile.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-primary hover:text-primary-light"
-                                >
+                            ) : profile.website ? (
+                                <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-light">
                                     {profile.website}
                                 </a>
+                            ) : (
+                                <span className="text-white/40">Not set</span>
                             )}
                         </div>
                     </div>
@@ -334,4 +382,5 @@ export default function ProfilePage() {
             </div>
         </DashboardLayout>
     );
+
 }
