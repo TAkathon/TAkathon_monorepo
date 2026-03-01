@@ -51,13 +51,10 @@ export default function DashboardLayout({
         window.location.href = `${getLandingUrl()}/login`;
     };
 
-    if (!_hasHydrated || !isAuthenticated || user?.role !== UserRole.SPONSOR) {
-        return (
-            <div className="min-h-screen bg-dark flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
+    // Middleware already guards this route — render layout shell immediately.
+    const initials = _hasHydrated && user?.fullName
+        ? user.fullName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+        : null;
 
     return (
         <div className="min-h-screen bg-dark">
@@ -217,10 +214,10 @@ export default function DashboardLayout({
                             {/* User avatar */}
                             <button className="flex items-center gap-3 p-1.5 hover:bg-white/5 rounded-lg transition-all">
                                 <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-primary font-semibold">
-                                    {user?.fullName?.split(' ').map(n => n[0]).join('') || 'JD'}
+                                    {initials ?? <span className="w-4 h-4 rounded-full bg-primary/30 animate-pulse block" />}
                                 </div>
                                 <span className="text-sm font-medium text-white/80 hidden sm:block">
-                                    {user?.fullName || 'Sponsor User'}
+                                    {_hasHydrated ? (user?.fullName || 'Sponsor User') : <span className="w-20 h-4 bg-white/10 rounded animate-pulse block" />}
                                 </span>
                             </button>
                         </div>
