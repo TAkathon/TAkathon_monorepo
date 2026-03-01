@@ -80,15 +80,19 @@ function SignUpContent() {
         role: selectedRole,
       });
 
-      const mockUser = {
-        id: result.user?.id ?? Math.random().toString(36).slice(2),
-        email: formData.email,
-        fullName: formData.fullName,
-        role: selectedRole,
-      };
-      login(mockUser);
+      // result = { success, data: { user, accessToken } }
+      const apiUser = result.data?.user;
+      const accessToken = result.data?.accessToken;
 
-      const url = getRedirectUrl(selectedRole);
+      const userData = {
+        id: apiUser?.id ?? Math.random().toString(36).slice(2),
+        email: apiUser?.email ?? formData.email,
+        fullName: apiUser?.fullName ?? formData.fullName,
+        role: (apiUser?.role as UserRole) ?? selectedRole,
+      };
+      login(userData, accessToken);
+
+      const url = getRedirectUrl(userData.role);
       if (url.startsWith("http")) {
         window.location.href = url;
       } else {

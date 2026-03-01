@@ -6,6 +6,7 @@ const api = axios.create({
         "Content-Type": "application/json",
     },
     timeout: 10000,
+    withCredentials: true,
 });
 
 // Response interceptor for error handling
@@ -56,21 +57,11 @@ export interface RegisterPayload {
 }
 
 export async function loginUser(payload: LoginPayload) {
-    try {
-        const response = await api.post("/api/v1/auth/login", payload);
-        return response.data;
-    } catch {
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        return { success: true, user: { id: "1", fullName: "User" } };
-    }
+    const response = await api.post("/api/v1/auth/login", payload);
+    return response.data;
 }
 
 export async function registerUser(payload: RegisterPayload) {
-    try {
-        const response = await api.post("/api/v1/auth/register", payload);
-        return response.data;
-    } catch {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        return { success: true, user: { id: "1" } };
-    }
+    const response = await api.post("/api/v1/auth/register", payload);
+    return response.data;
 }
