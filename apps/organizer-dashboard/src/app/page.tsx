@@ -50,16 +50,6 @@ export default function OverviewPage() {
     const totalParticipants = hackathons.reduce((sum: number, h: any) => sum + (h._count?.participants || 0), 0);
     const totalTeams = hackathons.reduce((sum: number, h: any) => sum + (h._count?.teams || 0), 0);
 
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div className="flex items-center justify-center h-full min-h-[400px]">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                </div>
-            </DashboardLayout>
-        );
-    }
-
     const stats = [
         { name: "Total Participants", value: String(totalParticipants), change: "across all events", changeType: "increase", icon: Users },
         { name: "Active Hackathons", value: String(activeHackathons.length), change: `${hackathons.length} total`, changeType: "neutral", icon: Calendar },
@@ -69,6 +59,11 @@ export default function OverviewPage() {
 
     return (
         <DashboardLayout>
+            {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            ) : (
             <div className="space-y-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -215,6 +210,7 @@ export default function OverviewPage() {
                     </div>
                 </div>
             </div>
+            )}
         </DashboardLayout>
     );
 }

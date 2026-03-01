@@ -11,30 +11,33 @@
   - AI Engine (FastAPI stub with profiles)
   - All services orchestrated via `docker-compose up -d`
 - **Build Pipeline**: esbuild bundling for core-gateway, Next.js standalone mode for frontends
+- **CI Pipeline**: GitHub Actions workflow with tsc type-checks (all apps) + Nx build matrix for all frontend/backend apps
 - **Database**: Prisma schema defined with all tables (users, profiles, hackathons, teams, skills)
   - PostgreSQL 16 Alpine container with volume persistence
   - Complete seed data with 36 skills, 8 users, 2 hackathons, teams, and sponsorships
   - Management scripts (PowerShell & Bash) and npm commands for all operations
   - Comprehensive documentation in `database/README.md`
-- **TypeScript Configuration**: Workspace-wide path aliases in `tsconfig.base.json`
+- **TypeScript Configuration**: Workspace-wide path aliases in `tsconfig.base.json`; `*.tsbuildinfo` excluded from git
 - **Authentication Foundation**: JWT-based auth routes (`/api/v1/auth/*`) with access/refresh tokens
+- **Route Protection**: Next.js `middleware.ts` in student-portal, organizer-dashboard, and sponsor-panel enforces role-based access using httpOnly cookie checks — unauthenticated users are redirected to `/login`
 - **RBAC Middleware**: `requireStudent`, `requireOrganizer`, `requireSponsor` guards in `middleware/rbac.ts`
 - **Student API**: Complete implementation (`/api/v1/students/*`) — profile, hackathons browse/register/withdraw, teams CRUD + invite/join/leave, AI matching stub
 - **Organizer API**: Complete implementation (`/api/v1/organizers/*`) — profile, hackathon CRUD + publish/cancel/start/complete lifecycle, participant management, analytics + CSV export
 - **Sponsor API**: Complete implementation (`/api/v1/sponsors/*`) — profile, hackathon browsing + sponsorship, team search/details/favorites
 - **Shared API**: Public hackathon listings + skills taxonomy (`/api/v1/hackathons`, `/api/v1/skills`)
 - **Frontend-Backend Integration** (V1 complete):
-  - student-portal dashboard, profile, teams pages connected via shared Axios client + Zustand auth store
-  - organizer-dashboard connected to organizer API endpoints (hackathons, participants, teams, analytics)
-  - sponsor-panel fully integrated (dashboard, profile, budget, sponsorship requests)
-  - landing-page login/signup flows wired to `/api/v1/auth/*`
+  - student-portal: dashboard, profile, teams, hackathons, settings pages — live API data via shared Axios + Zustand
+  - organizer-dashboard: hackathons list + create, participants, teams, settings pages
+  - sponsor-panel: dashboard, budget, opportunities, requests, profile pages
+  - landing-page: home, login, signup flows wired to `/api/v1/auth/*`
+- **UX Improvements**: DashboardLayout renders shell immediately without full-screen hydration spinner; 401 refresh failure auto-redirects to login
 - **Shared Libraries**:
-  - `@takathon/shared/api` — Axios client with JWT auto-refresh interceptors
-  - `@takathon/shared/utils` — Zustand auth store (`useAuthStore`)
+  - `@takathon/shared/api` — Axios client with JWT auto-refresh interceptors + global 401 → login redirect
+  - `@takathon/shared/utils` — Zustand auth store (`useAuthStore`) with `UserRole` enum-based auth redirect
   - `@takathon/shared/types` — Full `UserRole` enum (STUDENT, ORGANIZER, SPONSOR), domain models
 - **Codebase Audit & Bug Fixes**:
   - CORS dev fallback: localhost ports 3000-3003 allowed by default in dev when `CORS_ORIGINS` unset
-  - `UserRole.SPONSOR` added to shared types enum
+  - `UserRole.SPONSOR` added to shared types enum; `UserRole` enum used consistently in `authRedirect`
   - Empty NestJS scaffold files (`main.ts`, `app.module.ts`, `app.controller.ts`) annotated with disambiguation comments — Express entry at `src/index.ts`
   - Organizer router sub-paths documented and confirmed non-conflicting
   - Full audit report in `docs/code-audit.md`

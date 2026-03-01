@@ -51,18 +51,13 @@ export default function HackathonsPage() {
         return matchesSearch && matchesStatus;
     });
 
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div className="flex items-center justify-center h-full min-h-[400px]">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                </div>
-            </DashboardLayout>
-        );
-    }
-
     return (
         <DashboardLayout>
+            {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            ) : (
             <div className="space-y-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -200,6 +195,7 @@ export default function HackathonsPage() {
                     </Link>
                 </div>
             </div>
+            )}
         </DashboardLayout>
     );
 }

@@ -67,20 +67,15 @@ export default function SponsorDashboard() {
         { name: "Total Invested", value: totalAmount > 0 ? `$${totalAmount.toLocaleString()}` : "$0", icon: DollarSign, color: "text-blue-400" },
     ];
 
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div className="flex items-center justify-center h-full min-h-[400px]">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                </div>
-            </DashboardLayout>
-        );
-    }
-
     const companyName = profile?.companyName || profile?.user?.fullName || "Sponsor";
 
     return (
         <DashboardLayout>
+            {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            ) : (
             <div className="space-y-8">
                 {/* Header */}
                 <div>
@@ -190,6 +185,7 @@ export default function SponsorDashboard() {
                     </div>
                 </div>
             </div>
+            )}
         </DashboardLayout>
     );
 }

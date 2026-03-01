@@ -52,16 +52,6 @@ export default function DashboardPage() {
     const registeredHackathons = hackathons.filter((h: any) => h.isRegistered);
     const activeTeams = teams.filter((t: any) => t.status === "forming");
 
-    if (loading) {
-        return (
-            <DashboardLayout>
-                <div className="flex items-center justify-center h-full min-h-[400px]">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                </div>
-            </DashboardLayout>
-        );
-    }
-
     const stats = [
         { name: "Hackathons Joined", value: String(registeredHackathons.length), icon: Calendar, trend: `${hackathons.length} available` },
         { name: "Active Teams", value: String(activeTeams.length), icon: Users, trend: `${teams.length} total teams` },
@@ -71,6 +61,11 @@ export default function DashboardPage() {
 
     return (
         <DashboardLayout>
+            {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+            ) : (
             <div className="space-y-8">
                 {/* Welcome Section */}
                 <div>
@@ -206,6 +201,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+            )}
         </DashboardLayout>
     );
 }
