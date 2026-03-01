@@ -2,8 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-export type UserRole = "student" | "organizer" | "sponsor" | null;
+import { UserRole } from "@takathon/shared/types";
 
 interface User {
   id: string;
