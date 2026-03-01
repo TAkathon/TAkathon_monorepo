@@ -50,15 +50,19 @@ TAkathon_monorepo/
 
 ### Option 1: Docker (Recommended)
 
-Start the complete stack (PostgreSQL + Backend + Frontend):
+Start the complete stack (PostgreSQL + Gateway + Frontends):
 
 ```bash
 docker-compose up
 ```
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
+- Landing page: http://localhost:3000
+- Student portal: http://localhost:3001
+- Organizer dashboard: http://localhost:3002
+- Sponsor panel: http://localhost:3003
+- Gateway API: http://localhost:8000
 - API Docs: http://localhost:8000/docs
+- Postgres: localhost:5432
 
 ### Option 2: Local Development
 

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
+import { useAuthStore, getRedirectUrl, getLandingUrl } from "@takathon/shared/utils";
 
 export default function HomePage() {
   const router = useRouter();

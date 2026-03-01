@@ -4,6 +4,19 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
 import authRouter from "./routes/auth";
+import studentProfileRouter from "./routes/students/profile";
+import studentHackathonsRouter from "./routes/students/hackathons";
+import studentTeamsRouter from "./routes/students/teams";
+import studentMatchingRouter from "./routes/students/matching";
+import organizerProfileRouter from "./routes/organizers/profile";
+import organizerHackathonsRouter from "./routes/organizers/hackathons";
+import organizerParticipantsRouter from "./routes/organizers/participants";
+import organizerAnalyticsRouter from "./routes/organizers/analytics";
+import sponsorProfileRouter from "./routes/sponsors/profile";
+import sponsorHackathonsRouter from "./routes/sponsors/hackathons";
+import sponsorTeamsRouter from "./routes/sponsors/teams";
+import sharedHackathonsRouter from "./routes/shared/hackathons";
+import sharedSkillsRouter from "./routes/shared/skills";
 import { requestLogger, logStartup } from "./middleware/logger";
 import { ResponseHandler } from "./utils/response";
 
@@ -12,22 +25,47 @@ dotenv.config({ path: path.resolve(process.cwd(), "apps/core-gateway/.env") });
 const app = express();
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8000;
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+// Default dev origins when CORS_ORIGINS env var is not set
+const DEV_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
+  "http://localhost:3003",
+  "http://localhost:4200",
+];
+
 const CORS_ORIGINS = (process.env.CORS_ORIGINS || "")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
 
+// In dev mode, fall back to DEV_ORIGINS if CORS_ORIGINS is not configured
+const allowedOrigins = CORS_ORIGINS.length > 0 ? CORS_ORIGINS : IS_PRODUCTION ? [] : DEV_ORIGINS;
+
+if (!IS_PRODUCTION && CORS_ORIGINS.length === 0) {
+  console.warn("[CORS] CORS_ORIGINS not set — allowing default localhost origins for development:", DEV_ORIGINS.join(", "));
+}
+
 app.use(
   cors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      // Allow server-to-server requests (no Origin header)
       if (!origin) return callback(null, true);
-      if (CORS_ORIGINS.length === 0 || CORS_ORIGINS.includes(origin)) {
+      if (allowedOrigins.length === 0) {
+        return callback(new Error("CORS not configured — set CORS_ORIGINS env var"), false);
+      }
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error("Not allowed by CORS"));
+      return callback(new Error(`Origin '${origin}' not allowed by CORS`));
     },
     credentials: true,
-  })
+  }),
 );
 app.use(cookieParser());
 app.use(express.json());
@@ -37,7 +75,7 @@ app.get("/", (_req, res) => {
   ResponseHandler.success(res, {
     message: "Welcome to TAkathon Core Gateway API",
     version: "1.0.0",
-    health: "/api/v1/health"
+    health: "/api/v1/health",
   });
 });
 
@@ -45,7 +83,34 @@ app.get("/api/v1/health", (_req, res) => {
   ResponseHandler.success(res, { ok: true, service: "core-gateway" });
 });
 
+// --- Auth ---
 app.use("/api/v1/auth", authRouter);
 
+// --- Student routes ---
+app.use("/api/v1/students", studentProfileRouter);
+app.use("/api/v1/students/hackathons", studentHackathonsRouter);
+app.use("/api/v1/students/teams", studentTeamsRouter);
+app.use("/api/v1/students/matching", studentMatchingRouter);
+
+// --- Organizer routes ---
+app.use("/api/v1/organizers", organizerProfileRouter);
+// NOTE: Three routers share the same base path intentionally.
+// Each defines unique sub-paths:
+//   organizerHackathonsRouter   → /, /:id, /:id/publish, /:id/cancel, etc.
+//   organizerParticipantsRouter → /:id/participants, /:id/teams, /:id/teams/:teamId
+//   organizerAnalyticsRouter    → /:id/analytics, /:id/export
+app.use("/api/v1/organizers/hackathons", organizerHackathonsRouter);
+app.use("/api/v1/organizers/hackathons", organizerParticipantsRouter);
+app.use("/api/v1/organizers/hackathons", organizerAnalyticsRouter);
+
+// --- Sponsor routes ---
+app.use("/api/v1/sponsors", sponsorProfileRouter);
+app.use("/api/v1/sponsors/hackathons", sponsorHackathonsRouter);
+app.use("/api/v1/sponsors/teams", sponsorTeamsRouter);
+
+// --- Shared/public routes ---
+app.use("/api/v1/hackathons", sharedHackathonsRouter);
+app.use("/api/v1/skills", sharedSkillsRouter);
+
 app.listen(PORT);
-logStartup(PORT, CORS_ORIGINS);
+logStartup(PORT, allowedOrigins);

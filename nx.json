@@ -42,6 +42,12 @@
       }
     }
   ],
+  "pluginsConfig": {
+    "@nx/js": {
+      "analyzeLockfile": false,
+      "analyzeSourceFiles": false
+    }
+  },
   "generators": {
     "@nx/react": {
       "application": {

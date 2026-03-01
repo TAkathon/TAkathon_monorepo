@@ -2,8 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-export type UserRole = "student" | "organizer" | "sponsor" | null;
+import { UserRole } from "@takathon/shared/types";
 
 interface User {
   id: string;
@@ -14,10 +13,12 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
-  login: (user: User) => void;
+  setAccessToken: (token: string) => void;
+  login: (user: User, accessToken?: string) => void;
   logout: () => void;
 }
 
@@ -25,15 +26,17 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      accessToken: null,
       isAuthenticated: false,
       _hasHydrated: false,
       setHasHydrated: (state) => set({ _hasHydrated: state }),
-      login: (user) => set({ user, isAuthenticated: true }),
+      setAccessToken: (token) => set({ accessToken: token }),
+      login: (user, accessToken) => set({ user, accessToken: accessToken || null, isAuthenticated: true }),
       logout: () => {
         if (typeof document !== "undefined") {
           document.cookie = "auth-storage=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
         }
-        set({ user: null, isAuthenticated: false });
+        set({ user: null, accessToken: null, isAuthenticated: false });
       },
     }),
     {

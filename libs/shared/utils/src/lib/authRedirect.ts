@@ -1,9 +1,9 @@
-import type { UserRole } from "./authStore";
+import { UserRole } from "@takathon/shared/types";
 import { getLandingUrl, getStudentUrl, getOrganizerUrl, getSponsorUrl } from "./urls";
 
 export function getRedirectUrl(role: UserRole): string {
-  if (role === "student") return `${getStudentUrl()}/`;
-  if (role === "organizer") return `${getOrganizerUrl()}/`;
-  if (role === "sponsor") return `${getSponsorUrl()}/dashboard`;
+  if (role === UserRole.STUDENT) return `${getStudentUrl()}/dashboard`;
+  if (role === UserRole.ORGANIZER) return `${getOrganizerUrl()}/`;
+  if (role === UserRole.SPONSOR) return `${getSponsorUrl()}/dashboard`;
   return `${getLandingUrl()}/login`;
 }

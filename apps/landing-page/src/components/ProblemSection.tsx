@@ -213,12 +213,7 @@ export default function ProblemSection() {
                         The current state of hackathon management is broken. Here&apos;s what
                         organizers and participants face every single time.
                     </p>
-                  </div>
-                </div>
-              </TiltCard>
-            </motion.div>
-          ))}
-        </motion.div>
+                </motion.div>
 
                 <motion.div variants={containerVariants} initial="hidden" animate={isInView ? "visible" : "hidden"}>
                     <div className="relative overflow-visible">

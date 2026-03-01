@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User as UserIcon, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
-import { useAuthStore, UserRole, getRedirectUrl } from "@shared/utils";
+import { useAuthStore, getRedirectUrl } from "@shared/utils";
+import { UserRole } from "@takathon/shared/types";
 import { registerUser } from "../../lib/api";
 import ClientOnly from "../../lib/ClientOnly";
 
@@ -21,7 +22,7 @@ function SignUpContent() {
   const { login, isAuthenticated, user, _hasHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Exclude<UserRole, null>>("student");
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.STUDENT);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -79,15 +80,19 @@ function SignUpContent() {
         role: selectedRole,
       });
 
-      const mockUser = {
-        id: result.user?.id ?? Math.random().toString(36).slice(2),
-        email: formData.email,
-        fullName: formData.fullName,
-        role: selectedRole,
-      };
-      login(mockUser);
+      // result = { success, data: { user, accessToken } }
+      const apiUser = result.data?.user;
+      const accessToken = result.data?.accessToken;
 
-      const url = getRedirectUrl(selectedRole);
+      const userData = {
+        id: apiUser?.id ?? Math.random().toString(36).slice(2),
+        email: apiUser?.email ?? formData.email,
+        fullName: apiUser?.fullName ?? formData.fullName,
+        role: (apiUser?.role as UserRole) ?? selectedRole,
+      };
+      login(userData, accessToken);
+
+      const url = getRedirectUrl(userData.role);
       if (url.startsWith("http")) {
         window.location.href = url;
       } else {
@@ -119,9 +124,9 @@ function SignUpContent() {
           <div className="grid grid-cols-3 gap-3 mb-8">
             <button
               type="button"
-              onClick={() => setSelectedRole("student")}
+              onClick={() => setSelectedRole(UserRole.STUDENT)}
               className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                selectedRole === "student" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                selectedRole === UserRole.STUDENT ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
               }`}
             >
               <UserIcon className="w-5 h-5" />
@@ -129,9 +134,9 @@ function SignUpContent() {
             </button>
             <button
               type="button"
-              onClick={() => setSelectedRole("organizer")}
+              onClick={() => setSelectedRole(UserRole.ORGANIZER)}
               className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                selectedRole === "organizer" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                selectedRole === UserRole.ORGANIZER ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
               }`}
             >
               <ShieldCheck className="w-5 h-5" />
@@ -139,9 +144,9 @@ function SignUpContent() {
             </button>
             <button
               type="button"
-              onClick={() => setSelectedRole("sponsor")}
+              onClick={() => setSelectedRole(UserRole.SPONSOR)}
               className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                selectedRole === "sponsor" ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                selectedRole === UserRole.SPONSOR ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
               }`}
             >
               <Building2 className="w-5 h-5" />

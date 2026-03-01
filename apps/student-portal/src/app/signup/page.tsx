@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { getLandingUrl } from "@shared/utils";
+import { getLandingUrl } from "@takathon/shared/utils";
 
 export default function SignUpPage() {
   useEffect(() => {

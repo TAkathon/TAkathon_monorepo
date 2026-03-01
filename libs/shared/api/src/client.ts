@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuthStore } from "@shared/utils";
+import { useAuthStore } from "@takathon/shared/utils";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
@@ -57,6 +57,12 @@ api.interceptors.response.use(
       } catch {
         useAuthStore.getState().logout();
         onRefreshed();
+        // Redirect to landing page login after session expiry
+        if (typeof window !== "undefined") {
+          const landingUrl =
+            process.env.NEXT_PUBLIC_LANDING_URL || "http://localhost:3000";
+          window.location.href = `${landingUrl}/login`;
+        }
       } finally {
         isRefreshing = false;
       }
