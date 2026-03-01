@@ -1,6 +1,6 @@
 # TAkathon Copilot Instructions
 
-## 📊 Current Project Status (Feb 2026)
+## 📊 Current Project Status (March 2026)
 
 ### ✅ Completed
 
@@ -23,39 +23,83 @@
 - **Organizer API**: Complete implementation (`/api/v1/organizers/*`) — profile, hackathon CRUD + publish/cancel/start/complete lifecycle, participant management, analytics + CSV export
 - **Sponsor API**: Complete implementation (`/api/v1/sponsors/*`) — profile, hackathon browsing + sponsorship, team search/details/favorites
 - **Shared API**: Public hackathon listings + skills taxonomy (`/api/v1/hackathons`, `/api/v1/skills`)
+- **Frontend-Backend Integration** (V1 complete):
+  - student-portal dashboard, profile, teams pages connected via shared Axios client + Zustand auth store
+  - organizer-dashboard connected to organizer API endpoints (hackathons, participants, teams, analytics)
+  - sponsor-panel fully integrated (dashboard, profile, budget, sponsorship requests)
+  - landing-page login/signup flows wired to `/api/v1/auth/*`
+- **Shared Libraries**:
+  - `@takathon/shared/api` — Axios client with JWT auto-refresh interceptors
+  - `@takathon/shared/utils` — Zustand auth store (`useAuthStore`)
+  - `@takathon/shared/types` — Full `UserRole` enum (STUDENT, ORGANIZER, SPONSOR), domain models
+- **Codebase Audit & Bug Fixes**:
+  - CORS dev fallback: localhost ports 3000-3003 allowed by default in dev when `CORS_ORIGINS` unset
+  - `UserRole.SPONSOR` added to shared types enum
+  - Empty NestJS scaffold files (`main.ts`, `app.module.ts`, `app.controller.ts`) annotated with disambiguation comments — Express entry at `src/index.ts`
+  - Organizer router sub-paths documented and confirmed non-conflicting
+  - Full audit report in `docs/code-audit.md`
 
-### 🚧 In Progress
+### 🚧 In Progress / Remaining for V1
 
-- **Frontend-Backend Integration**: Frontends not yet connected to APIs
-- **AI Matching Engine**: FastAPI service is a stub; scoring logic not yet implemented
+- **Frontend polish**: Error states, loading skeletons, form validation feedback
+- **End-to-end testing**: Auth flows, team creation, hackathon registration
+
+### ⛔ Out of Scope for V1
+
+- AI Matching Engine (FastAPI scoring logic — Phase 2)
+- AI coaching / chatbot features (Phase 2)
 
 ### ✅ Recent Operational Notes
 
 - **Nx graph timeouts**: Use `NX_PLUGIN_NO_TIMEOUTS=true` and `NX_DAEMON=false` for stable graph generation on Windows.
 - **Nx JS plugin config**: `nx.json` disables lockfile and source file analysis for stability.
 - **Core Gateway dev**: Requires Prisma client generated (`npx prisma generate`) and JWT secrets available.
+- **CORS in dev**: `CORS_ORIGINS` is optional in development — gateway defaults to `localhost:3000-3003`. Set explicitly in production.
 - **Docker rebuilds**: Frontend changes require `docker compose up --build` (cached `up` can show old assets).
 - **Docker Hub access**: If builds fail on `node:22-alpine`, check Docker Desktop proxy/DNS or network.
 - **Database setup**: PostgreSQL runs in Docker on port 5432, use `npm run db:start` to initialize, `npm run db:seed` populates test data.
 - **Prisma adapter pattern**: Prisma 7 requires `@prisma/adapter-pg` with `Pool` for connection management.
 - **Test credentials**: alice.student@university.edu / password123 (all test users have same password).
+- **Express entry point**: `apps/core-gateway/src/index.ts` — ignore empty NestJS scaffold files in `src/app/` and `src/main.ts`.
 
-### 📋 Next Steps (Priority Order)
+### 📋 V1 Completion — Next Steps (Priority Order)
 
-1. **Frontend Integration** (Current Focus)
-   - Connect student-portal to student API endpoints
-   - Connect organizer-dashboard to organizer endpoints
-   - Connect sponsor-panel to sponsor endpoints
-   - Implement auth flows in all frontends using shared Axios client + Zustand store
-2. **AI Matching Engine**
-   - Complete FastAPI scoring logic in `apps/ai-engine/app/matching/scoring.py`
-   - Wire proxy from core-gateway matching routes to AI engine over HTTP
-3. **Testing & Validation**
-   - ✅ Seed database with realistic test data
-   - E2E tests for critical user flows (auth, team creation, hackathon registration)
-4. **Deployment**
-   - CI/CD pipeline setup (GitHub Actions)
-   - Production environment configuration
+1. **Frontend Polish & Error Handling**
+   - Add proper loading skeletons to all dashboard pages
+   - Show user-friendly error messages on API failures (toast notifications)
+   - Add form validation feedback (inline errors on login/signup/profile forms)
+   - Ensure responsive layout passes on mobile (375px breakpoint)
+
+2. **Organizer Dashboard — Missing Pages**
+   - Create hack create/edit form page (`/dashboard/hackathons/new`, `/dashboard/hackathons/[id]/edit`)
+   - Wire CSV export button to `GET /api/v1/organizers/hackathons/:id/export`
+
+3. **Student Portal — Missing Pages**
+   - Hackathons list page with register/withdraw actions (`/dashboard/hackathons`)
+   - Team detail page with member list and invite flow (`/dashboard/teams/[id]`)
+
+4. **Sponsor Panel — Missing Pages**
+   - Team detail modal/page with project info (`/dashboard/teams/[id]`)
+   - Confirmation flow for sponsorship submission
+
+5. **Auth & Session Hardening**
+   - Redirect unauthenticated users from protected routes to `/login`
+   - Implement token refresh on app load (check session validity on mount)
+   - Handle 401 globally → clear store → redirect to login
+
+6. **Response Standardization (Core Gateway)**
+   - Audit all route handlers: replace ad-hoc `res.json(...)` calls with `ResponseHandler.success/error`
+   - Enforce consistent `{ success, data | error }` shape across all endpoints
+
+7. **E2E Testing**
+   - Auth flow: register → login → dashboard redirect
+   - Team creation flow: create team → invite member → accept invite
+   - Hackathon registration flow: browse → register → appear in dashboard
+
+8. **Deployment Prep**
+   - Write `apps/core-gateway/.env.production.example` and `apps/*/next.config.prod.mjs`
+   - Set up GitHub Actions CI: lint → type-check → test → build
+   - Document Render/DigitalOcean deployment steps in `docs/deployment.md`
 
 ---
 
