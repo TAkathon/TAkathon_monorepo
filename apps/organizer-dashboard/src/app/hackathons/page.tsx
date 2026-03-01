@@ -174,7 +174,7 @@ export default function HackathonsPage() {
                                         </span>
                                         <span className="flex items-center gap-1">
                                             <Calendar className="w-4 h-4" />
-                                            {new Date(hackathon.startDate).toLocaleDateString()}
+                                            {hackathon.startDate ? new Date(hackathon.startDate).toLocaleDateString() : "TBD"}
                                         </span>
                                     </div>
                                 </div>

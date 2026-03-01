@@ -150,7 +150,7 @@ export default function HackathonsPage() {
                             <div className="grid grid-cols-2 gap-3 mb-4">
                                 <div className="flex items-center gap-2 text-sm text-white/60">
                                     <Calendar className="w-4 h-4 text-primary" />
-                                    <span>{new Date(hackathon.startDate).toLocaleDateString()}</span>
+                                    <span>{hackathon.startDate ? new Date(hackathon.startDate).toLocaleDateString() : "TBD"}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm text-white/60">
                                     <MapPin className="w-4 h-4 text-primary" />
@@ -159,7 +159,9 @@ export default function HackathonsPage() {
                                 <div className="flex items-center gap-2 text-sm text-white/60">
                                     <Clock className="w-4 h-4 text-primary" />
                                     <span>
-                                        {Math.ceil((new Date(hackathon.endDate).getTime() - new Date(hackathon.startDate).getTime()) / (1000 * 60 * 60 * 24))} Days
+                                        {hackathon.startDate && hackathon.endDate
+                                            ? `${Math.ceil((new Date(hackathon.endDate).getTime() - new Date(hackathon.startDate).getTime()) / (1000 * 60 * 60 * 24))} Days`
+                                            : "TBD"}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm text-white/60">

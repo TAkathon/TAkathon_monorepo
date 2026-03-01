@@ -140,7 +140,7 @@ export default function OpportunitiesPage() {
                                     <div className="flex flex-wrap gap-4 text-sm text-white/40">
                                         <div className="flex items-center gap-1.5">
                                             <Calendar className="w-4 h-4" />
-                                            {new Date(opp.startDate).toLocaleDateString()}
+                                            {opp.startDate ? new Date(opp.startDate).toLocaleDateString() : "TBD"}
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <MapPin className="w-4 h-4" />
