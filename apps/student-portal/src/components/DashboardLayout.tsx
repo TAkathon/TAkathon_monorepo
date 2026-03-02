@@ -185,33 +185,48 @@ export default function DashboardLayout({
             {/* Main content */}
             <div className="lg:pl-64 relative z-10">
                 {/* Top bar */}
-                <header className="sticky top-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5">
-                    <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
-                        <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-white/50 hover:text-white">
-                            <Menu className="w-5 h-5" />
-                        </button>
+                <header className="sticky top-0 z-40 bg-gradient-to-b from-black/95 to-black/60 backdrop-blur-xl border-b border-white/10">
+                    <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
+                        <div className="flex items-center gap-4">
+                            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-white/50 hover:text-white transition-colors">
+                                <Menu className="w-6 h-6" />
+                            </button>
+
+                            {/* Logo for mobile - same style as landing page */}
+                            <Link href="/" className="flex lg:hidden items-center gap-2 group cursor-pointer">
+                                <span className="text-xl font-black tracking-tighter text-white group-hover:text-primary transition-colors">
+                                    TAKATHON
+                                </span>
+                            </Link>
+                        </div>
 
                         {/* Search bar */}
                         <div className="flex-1 max-w-2xl mx-4 hidden sm:block">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                            <div className="relative group">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-primary transition-colors" />
                                 <input
                                     type="text"
-                                    placeholder="Search hackathons, teams..."
-                                    className="w-full pl-10 pr-4 py-2 bg-black border border-white/5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/30 transition-all font-medium tracking-wide"
+                                    placeholder="SEARCH COMMAND CENTER..."
+                                    className="w-full pl-12 pr-4 py-2 bg-white/[0.02] border border-white/10 text-xs font-bold uppercase tracking-widest text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/5 rounded-sm transition-all"
                                 />
                             </div>
                         </div>
 
                         {/* Right section */}
-                        <div className="flex items-center gap-3">
-                            <button className="relative p-2 text-white/40 hover:text-white hover:bg-white/5 transition-all">
+                        <div className="flex items-center gap-4">
+                            <button className="relative p-2 text-white/50 hover:text-white transition-colors">
                                 <Bell className="w-5 h-5" />
-                                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
+                                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-black" />
                             </button>
-                            <div className="w-8 h-8 bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black text-xs">
-                                {user?.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
-                            </div>
+                            <Link href="/dashboard/profile" className="flex items-center gap-3 group cursor-pointer pl-4 border-l border-white/10">
+                                <div className="hidden md:block text-right">
+                                    <div className="text-[10px] font-bold text-white uppercase tracking-widest">{user?.fullName || 'OPERATIVE'}</div>
+                                    <div className="text-[8px] font-bold text-primary uppercase tracking-[0.2em]">ONLINE</div>
+                                </div>
+                                <div className="w-9 h-9 bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-black text-xs group-hover:bg-primary/20 group-hover:border-primary/50 transition-all rounded-sm">
+                                    {user?.fullName?.split(' ').map(n => n[0]).join('') || 'OP'}
+                                </div>
+                            </Link>
                         </div>
                     </div>
                 </header>

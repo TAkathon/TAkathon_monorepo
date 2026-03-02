@@ -2,56 +2,35 @@
 
 import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, Users, Trophy, TrendingUp } from "lucide-react";
+import { Calendar, Users, Trophy, ChevronRight } from "lucide-react";
 import { useAuthStore } from "@shared/utils";
 
 const stats = [
-    { name: "Hackathons Joined", value: "3", icon: Calendar, trend: "+1 this month" },
-    { name: "Active Teams", value: "2", icon: Users, trend: "2 looking for members" },
-    { name: "Completed Projects", value: "5", icon: Trophy, trend: "+2 this month" },
-    { name: "Skill Level", value: "Intermediate", icon: TrendingUp, trend: "Growing" },
-];
-
-const upcomingHackathons = [
-    {
-        id: 1,
-        name: "AI Innovators Challenge",
-        date: "March 15-17, 2026",
-        participants: 120,
-        status: "Registered",
-    },
-    {
-        id: 2,
-        name: "Web3 Summit Hackathon",
-        date: "March 22-24, 2026",
-        participants: 95,
-        status: "Interested",
-    },
-    {
-        id: 3,
-        name: "Climate Tech Solutions",
-        date: "April 5-7, 2026",
-        participants: 78,
-        status: "Open",
-    },
+    { name: "HACKATHONS JOINED", value: "3", icon: Calendar },
+    { name: "ACTIVE TEAMS", value: "2", icon: Users },
+    { name: "COMPLETED PROJECTS", value: "5", icon: Trophy },
 ];
 
 const myTeams = [
     {
         id: 1,
-        name: "Code Wizards",
-        hackathon: "AI Innovators Challenge",
+        name: "CODE WIZARDS",
+        hackathon: "AI INNOVATORS CHALLENGE",
         members: 4,
         maxMembers: 5,
-        status: "Looking for 1 more",
+        status: "LOOKING FOR 1 MORE",
+        statusColor: "text-primary",
+        avatar: "🧙‍♂️",
     },
     {
         id: 2,
-        name: "Tech Titans",
-        hackathon: "Past Event",
+        name: "TECH TITANS",
+        hackathon: "PAST EVENT",
         members: 5,
         maxMembers: 5,
-        status: "Complete",
+        status: "PROJECT SUBMITTED",
+        statusColor: "text-green-500",
+        avatar: "🤖",
     },
 ];
 
@@ -59,127 +38,207 @@ export default function DashboardPage() {
     const { user } = useAuthStore();
     return (
         <DashboardLayout>
-            <div className="space-y-10">
-                {/* Welcome Section */}
+            <div className="max-w-6xl mx-auto space-y-8 pb-12">
+                {/* Header section */}
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                        Welcome back, <span className="text-primary-light drop-shadow-glow-sm transition-all duration-500">{user?.fullName?.split(' ')[0] || 'John'}</span>!
-                    </h1>
-                    <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full" />
-                        <span className="text-xs text-white/40 uppercase tracking-[0.2em] font-medium">
-                            System Online • Ready to hack
+                    <div className="flex items-center relative mb-1">
+                        <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                            WELCOME BACK, <span className="text-primary text-glow">JOHN!</span>
+                        </h1>
+                        <div className="flex ml-4 gap-1 opacity-60">
+                            <div className="w-8 h-1 bg-primary"></div>
+                            <div className="w-2 h-1 bg-primary"></div>
+                            <div className="w-1 h-1 bg-primary"></div>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4 mb-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-sm" />
+                        <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold">
+                            SYSTEM ONLINE • READY TO HACK
                         </span>
                     </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Top Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {stats.map((stat) => {
                         const Icon = stat.icon;
                         return (
-                            <div key={stat.name} className="glass rounded-2xl p-6 hover:bg-white/10 border border-white/5 hover:border-primary/20 transition-all duration-500 group">
-                                <div className="flex items-center justify-between mb-4">
-                                    <Icon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
-                                    <span className="text-[10px] text-primary/60 font-bold uppercase tracking-widest bg-primary/5 px-2 py-1 rounded-full">{stat.trend}</span>
+                            <div key={stat.name} className="relative p-6 border border-white/5 bg-black rounded-sm">
+                                {/* Corner accents */}
+                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary"></div>
+
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest mb-3">
+                                            {stat.name}
+                                        </p>
+                                        <p className="text-4xl font-black text-white tracking-tighter">{stat.value}</p>
+                                    </div>
+                                    <div className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center rounded-sm">
+                                        <Icon className="w-4 h-4 text-primary" />
+                                    </div>
                                 </div>
-                                <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-1">{stat.name}</p>
-                                <p className="text-3xl font-bold text-white tracking-tight">{stat.value}</p>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Main Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Upcoming Hackathons */}
-                    <div className="glass rounded-2xl p-6 border border-white/5">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-white tracking-tight uppercase">Registered Hackathons</h2>
-                            <Link href="/dashboard/hackathons" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-primary-light transition-colors">
-                                View All →
-                            </Link>
-                        </div>
-                        <div className="space-y-4">
-                            {upcomingHackathons.map((hackathon) => (
-                                <div
-                                    key={hackathon.id}
-                                    className="p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/5 hover:border-primary/20 transition-all duration-300 group"
-                                >
-                                    <div className="flex items-start justify-between mb-2">
-                                        <h3 className="font-bold text-white group-hover:text-primary-light transition-colors">{hackathon.name}</h3>
-                                        <span
-                                            className={`px-2 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full ${hackathon.status === "Registered"
-                                                ? "bg-primary/10 text-primary border border-primary/20"
-                                                : hackathon.status === "Interested"
-                                                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                                                    : "bg-white/5 text-white/40 border border-white/10"
-                                                }`}
-                                        >
-                                            {hackathon.status}
-                                        </span>
-                                    </div>
-                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium mb-2">{hackathon.date}</p>
-                                    <p className="text-[10px] text-primary/60 uppercase tracking-widest font-bold">
-                                        {hackathon.participants} participants registered
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                {/* Level / Rank Banner */}
+                <div className="relative p-8 border border-primary/20 bg-[#080808] rounded-sm shadow-[0_0_15px_rgba(255,92,0,0.05)] overflow-hidden">
+                    <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-primary"></div>
+                    <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary"></div>
 
-                    {/* My Teams */}
-                    <div className="glass rounded-2xl p-6 border border-white/5">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-white tracking-tight uppercase">My Teams</h2>
-                            <Link href="/dashboard/teams" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-primary-light transition-colors">
-                                View All →
-                            </Link>
+                    {/* Background glow for rank banner */}
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none"></div>
+
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-6">
+                            <div>
+                                <p className="text-[10px] text-primary font-bold uppercase tracking-widest mb-1">CURRENT RANK</p>
+                                <p className="text-5xl font-black text-white italic tracking-tighter">LEVEL 5</p>
+                            </div>
+                            <div className="hidden sm:block border-l border-white/10 h-12 mx-2"></div>
+                            <div className="hidden sm:block">
+                                <p className="text-sm font-bold text-white uppercase tracking-wider mb-1">ELITE DEVELOPER</p>
+                                <p className="text-[10px] text-white/40 uppercase tracking-widest">NEXT RANK: CODE MASTER</p>
+                            </div>
                         </div>
-                        <div className="space-y-4">
-                            {myTeams.map((team) => (
-                                <div
-                                    key={team.id}
-                                    className="p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/5 hover:border-primary/20 transition-all duration-300 group"
-                                >
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div>
-                                            <h3 className="font-bold text-white group-hover:text-primary-light transition-colors">{team.name}</h3>
-                                            <p className="text-xs text-white/40 uppercase tracking-widest mt-1">{team.hackathon}</p>
-                                        </div>
-                                        <span className="px-2 py-1 text-[10px] bg-white/5 border border-white/10 text-white/60 rounded-full font-bold">
-                                            {team.members}/{team.maxMembers}
-                                        </span>
-                                    </div>
-                                    <p className="text-[10px] text-primary uppercase tracking-widest font-bold">{team.status}</p>
-                                </div>
-                            ))}
-                            <button className="w-full p-4 bg-primary/5 border border-dashed border-primary/20 rounded-xl text-primary text-[10px] uppercase font-bold tracking-widest hover:bg-primary/10 hover:border-primary/40 transition-all duration-300">
-                                + Create New Mission
-                            </button>
+
+                        <div className="flex-1 max-w-md w-full">
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest">XP PROGRESS</span>
+                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                    <span className="text-primary text-glow">2450</span> / 3000 XP
+                                </span>
+                            </div>
+                            <div className="h-2.5 bg-white/5 rounded-sm overflow-hidden flex relative border border-white/10">
+                                <div className="h-full bg-gradient-to-r from-primary/60 to-primary w-[81%] shadow-[0_0_10px_rgba(255,92,0,0.5)]"></div>
+                            </div>
+                        </div>
+
+                        <div className="hidden md:flex text-primary/20 ml-4">
+                            <Trophy className="w-16 h-16 drop-shadow-[0_0_15px_rgba(255,92,0,0.5)]" />
                         </div>
                     </div>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="glass rounded-2xl p-8 border border-white/5">
-                    <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-tight">Quick Actions</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <button className="p-6 bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-white/5 rounded-xl text-left transition-all duration-300 group">
-                            <Calendar className="w-8 h-8 text-primary mb-4 group-hover:scale-110 group-hover:drop-shadow-glow-sm transition-all" />
-                            <p className="font-bold text-white mb-1 uppercase text-xs tracking-wider">Browse Hackathons</p>
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Find your next challenge</p>
-                        </button>
-                        <button className="p-6 bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-white/5 rounded-xl text-left transition-all duration-300 group">
-                            <Users className="w-8 h-8 text-primary mb-4 group-hover:scale-110 group-hover:drop-shadow-glow-sm transition-all" />
-                            <p className="font-bold text-white mb-1 uppercase text-xs tracking-wider">Find Teammates</p>
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Build your dream team</p>
-                        </button>
-                        <button className="p-6 bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-white/5 rounded-xl text-left transition-all duration-300 group">
-                            <Trophy className="w-8 h-8 text-primary mb-4 group-hover:scale-110 group-hover:drop-shadow-glow-sm transition-all" />
-                            <p className="font-bold text-white mb-1 uppercase text-xs tracking-wider">View Achievements</p>
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Track your progress</p>
-                        </button>
+                {/* Dual Column Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+                    {/* Hackathons Column */}
+                    <div>
+                        <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/5">
+                            <div className="flex items-start gap-2">
+                                <div className="w-2 h-2 rotate-45 bg-primary mt-1.5" />
+                                <h2 className="text-2xl font-black text-white tracking-tighter uppercase leading-none">
+                                    REGISTERED<br /><span className="text-white/70">HACKATHONS</span>
+                                </h2>
+                            </div>
+                            <Link href="/dashboard/hackathons" className="text-[10px] font-bold text-primary flex items-center gap-1 uppercase tracking-widest hover:text-primary-light transition-colors group">
+                                VIEW ALL <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+
+                        <div className="relative p-6 bg-[#080808] border border-white/5 rounded-sm">
+                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20"></div>
+                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r flex items-end justify-end">
+                                <div className="w-3 h-3 bg-white/5"></div>
+                            </div>
+
+                            <h3 className="text-lg font-black text-white italic tracking-tighter uppercase mb-2">AI INNOVATORS<br />CHALLENGE</h3>
+                            <p className="text-xs text-white/50 mb-6">Build the future of generative AI.</p>
+
+                            <div className="flex items-center gap-6 mb-8 mt-4">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-primary" />
+                                    <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest">MAR 15-17</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Users className="w-4 h-4 text-primary" />
+                                    <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest">120 PARTICIPANTS</span>
+                                </div>
+                            </div>
+
+                            <div className="absolute top-6 right-6 px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase rounded-sm">
+                                REGISTERED
+                            </div>
+
+                            <div className="flex gap-4">
+                                <button className="flex-1 py-3 text-[10px] font-bold tracking-widest uppercase bg-transparent text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all rounded-sm">
+                                    VIEW DETAILS
+                                </button>
+                                <button className="flex-1 py-3 text-[10px] font-bold tracking-widest uppercase bg-primary text-white border border-primary hover:bg-primary-dark hover:shadow-[0_0_15px_rgba(255,92,0,0.4)] transition-all rounded-sm drop-shadow-md">
+                                    ACCESS HUB
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Teams Column */}
+                    <div>
+                        <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/5">
+                            <div className="flex items-start gap-2">
+                                <div className="w-2 h-2 rotate-45 bg-primary mt-1.5" />
+                                <h2 className="text-2xl font-black text-white tracking-tighter uppercase leading-none">
+                                    MY <span className="text-white/70">TEAMS</span>
+                                </h2>
+                            </div>
+                            <Link href="/dashboard/teams" className="text-[10px] font-bold text-primary flex items-center gap-1 uppercase tracking-widest hover:text-primary-light transition-colors group">
+                                VIEW ALL <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+
+                        <div className="space-y-4">
+                            {myTeams.map((team) => (
+                                <div key={team.id} className="relative p-5 bg-[#080808] border border-white/5 rounded-sm hover:border-white/10 transition-all group">
+                                    {/* Corner tick */}
+                                    <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/10 group-hover:border-primary/50 transition-colors"></div>
+
+                                    <div className="flex items-start gap-4">
+                                        <div className="relative">
+                                            <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-xl">
+                                                {team.avatar}
+                                            </div>
+                                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-sm transform rotate-45 border-2 border-black" />
+                                        </div>
+
+                                        <div className="flex-1">
+                                            <div className="flex items-start justify-between">
+                                                <div>
+                                                    <h3 className="text-sm font-black text-white tracking-wider uppercase mb-1">{team.name}</h3>
+                                                    <p className="text-[10px] text-primary/80 font-bold uppercase tracking-widest">{team.hackathon}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-[10px] text-white/60 font-bold uppercase tracking-widest mb-1.5">
+                                                        {team.members}/{team.maxMembers} OPERATIVES
+                                                    </div>
+                                                    <div className="flex items-center gap-0.5 mt-1 justify-end">
+                                                        {[...Array(team.maxMembers)].map((_, i) => (
+                                                            <div
+                                                                key={i}
+                                                                className={`w-4 h-1.5 rounded-sm ${i < team.members ? "bg-primary" : "bg-white/10"}`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2">
+                                                {team.statusColor === 'text-primary' ? (
+                                                    <div className="w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-primary" />
+                                                ) : (
+                                                    <div className="w-0 h-0 border-t-4 border-b-4 border-l-6 border-transparent border-l-green-500" />
+                                                )}
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${team.statusColor}`}>
+                                                    {team.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

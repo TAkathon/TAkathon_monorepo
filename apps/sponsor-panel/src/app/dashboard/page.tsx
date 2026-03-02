@@ -1,166 +1,133 @@
 "use client";
 
+import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
-import { 
-    Users, 
-    Calendar, 
-    Clock, 
+import {
+    Calendar,
+    DollarSign,
     TrendingUp,
-    ChevronRight,
-    Target
+    ArrowUpRight,
+    Clock,
+    Trophy,
+    Users,
+    CheckCircle2,
+    AlertCircle,
+    ChevronRight
 } from "lucide-react";
+import { useAuthStore } from "@shared/utils";
 
 const stats = [
-    {
-        name: "Total Sponsored Events",
-        value: "12",
-        change: "+2",
-        changeType: "increase",
-        icon: Calendar,
-    },
-    {
-        name: "Active Sponsorships",
-        value: "5",
-        change: "0",
-        changeType: "neutral",
-        icon: Target,
-    },
-    {
-        name: "Pending Requests",
-        value: "8",
-        change: "+3",
-        changeType: "increase",
-        icon: Clock,
-    },
-    {
-        name: "Engagement Metrics",
-        value: "24.5k",
-        change: "+12%",
-        changeType: "increase",
-        icon: TrendingUp,
-    },
+    { name: "Sponsored Events", value: "8", change: "+2", icon: Calendar },
+    { name: "Total Investment", value: "$55K", change: "+15%", icon: DollarSign },
+    { name: "Active Sponsorships", value: "3", change: "0", icon: Trophy },
+    { name: "Brand Impressions", value: "45.2K", change: "+28%", icon: TrendingUp },
 ];
 
-const quickActions = [
-    {
-        title: "Find Events",
-        description: "Browse upcoming hackathons looking for sponsors.",
-        icon: Target,
-        href: "/dashboard/opportunities",
-        color: "bg-primary/10 text-primary",
-    },
-    {
-        title: "Review Requests",
-        description: "Check sponsorship requests from organizers.",
-        icon: Users,
-        href: "/dashboard/requests",
-        color: "bg-blue-500/10 text-blue-500",
-    },
+const recentPerformance = [
+    { event: "TechNova 2024", amount: "$15,000", status: "Completed", roi: "+340%", impressions: "12.4K" },
+    { event: "AI Summit", amount: "$10,000", status: "Active", roi: "+180%", impressions: "8.7K" },
+    { event: "GreenTech Challenge", amount: "$5,000", status: "Processing", roi: "Pending", impressions: "3.2K" },
 ];
 
-export default function SponsorDashboard() {
+export default function SponsorOverview() {
+    const { user } = useAuthStore();
     return (
         <DashboardLayout>
-            <div className="space-y-8">
-                {/* Header */}
+            <div className="space-y-10">
+                {/* Welcome */}
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Sponsor Dashboard</h1>
-                    <p className="text-white/60">Welcome back! Here's an overview of your sponsorship activities.</p>
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                        Welcome back, <span className="text-primary-light">{user?.fullName?.split(' ')[0] || 'Commander'}</span>!
+                    </h1>
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full" />
+                        <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold">
+                            System Online • Sponsor Command Center
+                        </span>
+                    </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {stats.map((stat) => {
                         const Icon = stat.icon;
                         return (
-                            <div key={stat.name} className="glass p-6 rounded-2xl hover:border-primary/30 transition-all duration-300">
-                                <div className="flex items-start justify-between">
-                                    <div className={`p-3 rounded-xl bg-white/5`}>
-                                        <Icon className="w-6 h-6 text-primary" />
-                                    </div>
-                                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                        stat.changeType === "increase" ? "bg-green-500/10 text-green-500" : "bg-white/10 text-white/60"
-                                    }`}>
+                            <div key={stat.name} className="glass rounded-xl p-6 hover:bg-white/10 border border-white/5 hover:border-primary/20 transition-all duration-500 group">
+                                <div className="flex items-center justify-between mb-4">
+                                    <Icon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 bg-green-500/10 text-green-400 rounded-sm">
+                                        <ArrowUpRight className="w-3 h-3 inline mr-0.5" />
                                         {stat.change}
                                     </span>
                                 </div>
-                                <div className="mt-4">
-                                    <p className="text-sm text-white/60">{stat.name}</p>
-                                    <h3 className="text-2xl font-bold text-white mt-1">{stat.value}</h3>
-                                </div>
+                                <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-1">{stat.name}</p>
+                                <p className="text-3xl font-bold text-white tracking-tight">{stat.value}</p>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Recent Activity / Notifications */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="glass rounded-2xl p-6">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-white">Recent Sponsorship Performance</h2>
-                                <button className="text-sm text-primary hover:text-primary-light transition-colors">View All</button>
-                            </div>
-                            <div className="space-y-4">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-all">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                                                T
-                                            </div>
-                                            <div>
-                                                <h4 className="text-white font-medium">TechNova Hackathon 2024</h4>
-                                                <p className="text-xs text-white/40">Sponsorship Tier: Platinum • 2 days ago</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm text-white font-medium">1.2k Reach</p>
-                                            <p className="text-xs text-green-500">+15% vs target</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                {/* Performance Table */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-white uppercase tracking-tight">Sponsorship Intel</h2>
+                        <Link href="/dashboard/budget" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-primary-light transition-colors">
+                            Full Report →
+                        </Link>
                     </div>
+                    <div className="glass rounded-xl overflow-hidden border border-white/5">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-white/5 bg-white/[0.02]">
+                                    <th className="px-6 py-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Event</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Amount</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-white/30 uppercase tracking-widest">ROI</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-white/30 uppercase tracking-widest text-right">Impressions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {recentPerformance.map((item) => (
+                                    <tr key={item.event} className="hover:bg-white/[0.02] transition-colors group">
+                                        <td className="px-6 py-4 text-white font-bold text-xs uppercase tracking-wider group-hover:text-primary-light transition-colors">{item.event}</td>
+                                        <td className="px-6 py-4 text-white text-sm font-bold">{item.amount}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest border ${item.status === "Completed" ? "bg-green-500/10 text-green-400 border-green-500/20" :
+                                                    item.status === "Active" ? "bg-primary/10 text-primary border-primary/20" :
+                                                        "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                                                }`}>
+                                                {item.status === "Completed" ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-green-400 font-bold text-xs uppercase tracking-wider">{item.roi}</td>
+                                        <td className="px-6 py-4 text-white/60 font-bold text-xs text-right uppercase tracking-wider">{item.impressions}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                    {/* Quick Actions */}
-                    <div className="space-y-6">
-                        <h2 className="text-xl font-bold text-white">Quick Actions</h2>
-                        <div className="space-y-4">
-                            {quickActions.map((action) => {
-                                const Icon = action.icon;
-                                return (
-                                    <a
-                                        key={action.title}
-                                        href={action.href}
-                                        className="flex items-center gap-4 p-4 rounded-2xl glass hover:border-primary/30 group transition-all"
-                                    >
-                                        <div className={`p-3 rounded-xl ${action.color}`}>
-                                            <Icon className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="text-white font-medium">{action.title}</h3>
-                                            <p className="text-xs text-white/40">{action.description}</p>
-                                        </div>
-                                        <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-primary transition-colors" />
-                                    </a>
-                                );
-                            })}
-                        </div>
-
-                        {/* Summary Card */}
-                        <div className="glass rounded-2xl p-6 bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-                            <h3 className="text-white font-bold mb-2">Remaining Budget</h3>
-                            <div className="flex items-end gap-2 mb-4">
-                                <span className="text-3xl font-bold text-white">$45,000</span>
-                                <span className="text-sm text-white/40 mb-1">/ $100k</span>
-                            </div>
-                            <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                                <div className="bg-primary h-full rounded-full" style={{ width: "45%" }} />
-                            </div>
-                            <p className="text-xs text-white/40 mt-3">Next budget refresh in 42 days</p>
-                        </div>
+                {/* Quick Actions */}
+                <div className="glass rounded-xl p-8 border border-white/5">
+                    <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-tight">Quick Actions</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <Link href="/dashboard/opportunities" className="p-6 bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-white/5 rounded-xl text-left transition-all duration-300 group">
+                            <Calendar className="w-8 h-8 text-primary mb-4 group-hover:scale-110 transition-all" />
+                            <p className="font-bold text-white mb-1 uppercase text-xs tracking-wider">Discover Ops</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Find events seeking sponsors</p>
+                        </Link>
+                        <Link href="/dashboard/requests" className="p-6 bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-white/5 rounded-xl text-left transition-all duration-300 group">
+                            <Users className="w-8 h-8 text-primary mb-4 group-hover:scale-110 transition-all" />
+                            <p className="font-bold text-white mb-1 uppercase text-xs tracking-wider">View Requests</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Manage sponsorship requests</p>
+                        </Link>
+                        <Link href="/dashboard/talent" className="p-6 bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-white/5 rounded-xl text-left transition-all duration-300 group">
+                            <Trophy className="w-8 h-8 text-primary mb-4 group-hover:scale-110 transition-all" />
+                            <p className="font-bold text-white mb-1 uppercase text-xs tracking-wider">Talent Radar</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Browse top talent CVs</p>
+                        </Link>
                     </div>
                 </div>
             </div>

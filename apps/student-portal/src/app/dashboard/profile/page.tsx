@@ -2,345 +2,164 @@
 
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { User, Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin, Trash2 } from "lucide-react";
+import { UserSquare, Trophy, Plus, Code } from "lucide-react";
 
 export default function ProfilePage() {
-    const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState({
         fullName: "John Doe",
-        email: "john.doe@example.com",
-        bio: "Passionate developer and hackathon enthusiast. Love building innovative solutions with AI and web technologies.",
-        location: "Tunis, Tunisia",
-        university: "INSAT - National Institute of Applied Science and Technology",
-        major: "Computer Science",
-        graduationYear: "2026",
-        github: "johndoe",
-        linkedin: "johndoe",
-        website: "https://johndoe.dev",
+        username: "@johndoe_dev",
+        bio: "Full-stack developer obsessed with clean code and cybernetic interfaces. Building the future of the web one div at a time. Level 5 Takathon veteran.",
     });
 
     const [skills, setSkills] = useState([
-        { name: "React", level: "Advanced" },
-        { name: "Node.js", level: "Intermediate" },
-        { name: "Python", level: "Advanced" },
-        { name: "Machine Learning", level: "Beginner" },
-        { name: "TypeScript", level: "Intermediate" },
-        { name: "UI/UX Design", level: "Beginner" },
+        "Python", "React.js", "TensorFlow", "UI/UX Design", "Rust", "Node.js", "Cybersecurity"
     ]);
-
-    const handleSave = () => {
-        // TODO: Save to backend
-        setIsEditing(false);
-        console.log("Saving profile:", profile);
-    };
 
     return (
         <DashboardLayout>
-            <div className="space-y-6 max-w-4xl">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white mb-2 uppercase tracking-tight">Personal Intel</h1>
-                        <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full" />
-                            <span className="text-xs text-white/40 uppercase tracking-[0.2em] font-bold">
-                                Manage your identity and field expertise
-                            </span>
+            <div className="max-w-6xl mx-auto pb-12">
+                {/* Header section */}
+                <div className="mb-12">
+                    <div className="flex items-center relative mb-2">
+                        <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                            PLAYER <span className="text-white text-glow-sm">PROFILE</span>
+                        </h1>
+                        <div className="flex ml-4 gap-1 opacity-60 mt-4">
+                            <div className="w-12 h-1 bg-primary"></div>
+                            <div className="w-2 h-1 bg-primary"></div>
+                            <div className="w-1 h-1 bg-primary"></div>
                         </div>
                     </div>
-                    <button
-                        onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                        className="px-6 py-2.5 bg-primary/20 hover:bg-primary border border-primary/40 hover:border-primary text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 shadow-glow-primary/10 hover:shadow-glow-primary/20 flex items-center gap-2"
-                    >
-                        {isEditing ? (
-                            <>
-                                <Save className="w-4 h-4" />
-                                Save Profile
-                            </>
-                        ) : (
-                            <>
-                                <Edit2 className="w-4 h-4" />
-                                Edit Bio
-                            </>
-                        )}
-                    </button>
+                    <div className="max-w-3xl mt-4">
+                        <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold leading-relaxed">
+                            MANAGE YOUR IDENTITY, SHOWCASE YOUR SKILLS, AND TRACK YOUR ACHIEVEMENTS IN THE TAKATHON UNIVERSE.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="glass rounded-2xl p-8 border border-white/10 shadow-glow-primary/5">
-                    <div className="flex flex-col sm:flex-row gap-8">
-                        {/* Avatar */}
-                        <div className="flex-shrink-0 text-center">
-                            <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center text-primary text-4xl font-bold border-2 border-primary/20 shadow-glow-primary/10">
-                                JD
-                            </div>
-                            {isEditing && (
-                                <button className="mt-4 text-[10px] font-bold text-primary uppercase tracking-widest hover:text-primary-light transition-colors">
-                                    Refresh Avatar
-                                </button>
-                            )}
+                <div className="space-y-6">
+                    {/* Top Identity Card */}
+                    <div className="relative p-8 bg-[#080808] border border-white/5 rounded-sm overflow-hidden flex flex-col md:flex-row gap-10 items-start">
+                        {/* Corner Accents */}
+                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary"></div>
+
+                        {/* ID Card Watermark */}
+                        <div className="absolute top-8 right-8 text-white/5 pointer-events-none hidden md:block">
+                            <UserSquare className="w-48 h-48" strokeWidth={1} />
                         </div>
 
-                        {/* Basic Info */}
-                        <div className="flex-1 space-y-6">
+                        {/* Avatar Section */}
+                        <div className="flex flex-col items-center gap-6 z-10 shrunk-0">
+                            <div className="relative">
+                                {/* Outer glowing ring */}
+                                <div className="absolute -inset-2 rounded-full border border-primary/40 shadow-[0_0_20px_rgba(255,92,0,0.3)] pointer-events-none"></div>
+                                <div className="w-40 h-40 rounded-full bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center text-4xl font-black text-white/20">
+                                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=John&backgroundColor=transparent" alt="Avatar" className="w-full h-full object-cover" />
+                                </div>
+                                {/* Online Status Dot */}
+                                <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                            </div>
+                            <button className="px-6 py-2.5 bg-transparent border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary/5 hover:border-primary transition-all rounded-sm w-full">
+                                CHANGE AVATAR
+                            </button>
+                        </div>
+
+                        {/* Input Fields Section */}
+                        <div className="flex-1 w-full z-10 space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Full Name */}
                                 <div>
-                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
-                                        Agent Name
+                                    <label className="block text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] mb-2">
+                                        FULL NAME
                                     </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={profile.fullName}
-                                            onChange={(e) =>
-                                                setProfile({ ...profile, fullName: e.target.value })
-                                            }
-                                            className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
-                                        />
-                                    ) : (
-                                        <p className="text-white font-bold text-lg uppercase tracking-tight">{profile.fullName}</p>
-                                    )}
+                                    <input
+                                        type="text"
+                                        value={profile.fullName}
+                                        onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+                                        className="w-full px-4 py-4 bg-black border border-white/5 text-white focus:outline-none focus:border-primary/50 transition-all text-sm font-medium rounded-sm"
+                                    />
                                 </div>
 
-                                {/* Email */}
+                                {/* Username */}
                                 <div>
-                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
-                                        Secure Link
+                                    <label className="block text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] mb-2">
+                                        USERNAME
                                     </label>
-                                    <div className="flex items-center gap-2 text-primary-light font-medium bg-primary/5 px-4 py-3 rounded-xl border border-primary/10">
-                                        <Mail className="w-4 h-4" />
-                                        <span className="text-sm">{profile.email}</span>
-                                    </div>
-                                </div>
-
-                                {/* Location */}
-                                <div>
-                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
-                                        Operational Base
-                                    </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={profile.location}
-                                            onChange={(e) =>
-                                                setProfile({ ...profile, location: e.target.value })
-                                            }
-                                            className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
-                                        />
-                                    ) : (
-                                        <div className="flex items-center gap-2 text-white/60 font-medium bg-white/[0.02] px-4 py-3 rounded-xl border border-white/5">
-                                            <MapPin className="w-4 h-4 text-primary" />
-                                            <span className="text-sm">{profile.location}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Graduation Year */}
-                                <div>
-                                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
-                                        Deployment Year
-                                    </label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={profile.graduationYear}
-                                            onChange={(e) =>
-                                                setProfile({ ...profile, graduationYear: e.target.value })
-                                            }
-                                            className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
-                                        />
-                                    ) : (
-                                        <div className="flex items-center gap-2 text-white/60 font-medium bg-white/[0.02] px-4 py-3 rounded-xl border border-white/5">
-                                            <Calendar className="w-4 h-4 text-primary" />
-                                            <span className="text-sm">{profile.graduationYear}</span>
-                                        </div>
-                                    )}
+                                    <input
+                                        type="text"
+                                        value={profile.username}
+                                        onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                                        className="w-full px-4 py-4 bg-black border border-white/5 text-white/70 focus:outline-none focus:border-primary/50 transition-all text-sm font-medium rounded-sm"
+                                    />
                                 </div>
                             </div>
 
                             {/* Bio */}
                             <div>
-                                <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">Mission Briefing</label>
-                                {isEditing ? (
-                                    <textarea
-                                        value={profile.bio}
-                                        onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                                        rows={3}
-                                        className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm tracking-widest font-medium resize-none leading-relaxed"
-                                    />
-                                ) : (
-                                    <div className="bg-white/[0.02] p-5 rounded-xl border border-white/5">
-                                        <p className="text-white/70 text-sm leading-relaxed">{profile.bio}</p>
-                                    </div>
-                                )}
+                                <label className="block text-[10px] font-bold text-white/50 uppercase tracking-[0.15em] mb-2">
+                                    BIO / MISSION STATEMENT
+                                </label>
+                                <textarea
+                                    value={profile.bio}
+                                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                                    rows={4}
+                                    className="w-full px-4 py-4 bg-black border border-white/5 text-white/80 focus:outline-none focus:border-primary/50 transition-all text-sm font-medium resize-none leading-relaxed rounded-sm"
+                                />
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Education */}
-                <div className="glass rounded-2xl p-8 border border-white/10 shadow-glow-primary/5">
-                    <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
-                        <div className="w-1.5 h-4 bg-primary rounded-full" />
-                        Academic Records
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
-                                Headquarters
-                            </label>
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    value={profile.university}
-                                    onChange={(e) =>
-                                        setProfile({ ...profile, university: e.target.value })
-                                    }
-                                    className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
-                                />
-                            ) : (
-                                <p className="text-white font-bold uppercase tracking-tight">{profile.university}</p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">Field of Op</label>
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    value={profile.major}
-                                    onChange={(e) => setProfile({ ...profile, major: e.target.value })}
-                                    className="w-full px-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
-                                />
-                            ) : (
-                                <p className="text-white font-bold uppercase tracking-tight">{profile.major}</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                    {/* Bottom Row Area */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Skillset Matrix - Takes up 2 cols */}
+                        <div className="lg:col-span-2 relative p-8 bg-[#080808] border border-white/5 rounded-sm">
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-2">
+                                    <Code className="w-5 h-5 text-primary" /> SKILLSET MATRIX
+                                </h2>
+                                <button className="flex items-center gap-1 px-4 py-2 border border-white/10 hover:border-primary text-primary text-[10px] font-bold uppercase tracking-widest transition-all rounded-sm bg-black">
+                                    <Plus className="w-3 h-3" /> ADD SKILL
+                                </button>
+                            </div>
 
-                {/* Skills */}
-                <div className="glass rounded-2xl p-8 border border-white/10 shadow-glow-primary/5">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                            <div className="w-1.5 h-4 bg-primary rounded-full" />
-                            Technical Arsenal
-                        </h2>
-                        {isEditing && (
-                            <button
-                                onClick={() => {
-                                    const name = prompt("Enter skill name:");
-                                    if (name) setSkills([...skills, { name, level: "Beginner" }]);
-                                }}
-                                className="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-primary-light transition-colors"
-                            >
-                                + Add Asset
-                            </button>
-                        )}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {skills.map((skill, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-xl group hover:border-primary/20 transition-all duration-300"
-                            >
-                                <span className="text-white font-bold uppercase tracking-widest text-xs">{skill.name}</span>
-                                <div className="flex items-center gap-3">
-                                    <span
-                                        className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border ${skill.level === "Advanced"
-                                                ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                                : skill.level === "Intermediate"
-                                                    ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                                                    : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                            }`}
+                            <div className="flex flex-wrap gap-3">
+                                {skills.map((skill, index) => (
+                                    <div
+                                        key={index}
+                                        className="px-4 py-2.5 bg-white/[0.03] border border-white/10 hover:border-primary/50 hover:bg-white/[0.05] transition-all cursor-default relative w-fit overflow-hidden"
                                     >
-                                        {skill.level}
-                                    </span>
-                                    {isEditing && (
-                                        <button
-                                            onClick={() => setSkills(skills.filter((_, i) => i !== index))}
-                                            className="p-1 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                    )}
+                                        <div className="absolute top-0 right-0 w-2 h-2 border-b border-l border-black bg-black/50 transform translate-x-1 -translate-y-1 rotate-45"></div>
+                                        <div className="absolute bottom-0 right-0 w-2 h-2 border-t border-l border-black bg-black/50 transform translate-x-1 translate-y-1 rotate-45"></div>
+                                        <span className="text-xs font-medium text-white/80">{skill}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Experience Level - Takes 1 col */}
+                        <div className="relative p-8 bg-[#080808] border border-white/5 rounded-sm">
+                            <h2 className="text-xl font-black text-white italic tracking-tighter uppercase flex items-center gap-3 mb-6">
+                                <Trophy className="w-5 h-5 text-primary" /> EXPERIENCE<br />LEVEL
+                            </h2>
+
+                            <div className="flex justify-between items-baseline mb-2">
+                                <span className="text-4xl font-black text-primary italic tracking-tighter">LVL<br />05</span>
+                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest text-right">3,450 / 5,000<br />XP</span>
+                            </div>
+
+                            <div className="h-4 bg-black border border-white/10 rounded-sm relative mt-4 overflow-hidden p-0.5">
+                                <div className="h-full bg-gradient-to-r from-primary/50 to-primary w-[69%] relative">
+                                    {/* Stripes pattern on progress bar */}
+                                    <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,#000_2px,#000_4px)]"></div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
 
-                {/* Social Links */}
-                <div className="glass rounded-2xl p-8 border border-white/10 shadow-glow-primary/5">
-                    <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
-                        <div className="w-1.5 h-4 bg-primary rounded-full" />
-                        Network Protocols
-                    </h2>
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4 bg-white/[0.02] p-4 rounded-xl border border-white/5">
-                            <Github className="w-5 h-5 text-primary" />
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    value={profile.github}
-                                    onChange={(e) => setProfile({ ...profile, github: e.target.value })}
-                                    placeholder="GitHub username"
-                                    className="bg-transparent border-none text-white focus:outline-none flex-1 text-sm uppercase tracking-widest font-medium"
-                                />
-                            ) : (
-                                <a
-                                    href={`https://github.com/${profile.github}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-white/60 hover:text-primary transition-colors text-sm font-bold uppercase tracking-widest"
-                                >
-                                    github.com/{profile.github}
-                                </a>
-                            )}
-                        </div>
-                        <div className="flex items-center gap-4 bg-white/[0.02] p-4 rounded-xl border border-white/5">
-                            <Linkedin className="w-5 h-5 text-primary" />
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    value={profile.linkedin}
-                                    onChange={(e) =>
-                                        setProfile({ ...profile, linkedin: e.target.value })
-                                    }
-                                    placeholder="LinkedIn username"
-                                    className="bg-transparent border-none text-white focus:outline-none flex-1 text-sm uppercase tracking-widest font-medium"
-                                />
-                            ) : (
-                                <a
-                                    href={`https://linkedin.com/in/${profile.linkedin}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-white/60 hover:text-primary transition-colors text-sm font-bold uppercase tracking-widest"
-                                >
-                                    linkedin.com/in/{profile.linkedin}
-                                </a>
-                            )}
-                        </div>
-                        <div className="flex items-center gap-4 bg-white/[0.02] p-4 rounded-xl border border-white/5">
-                            <LinkIcon className="w-5 h-5 text-primary" />
-                            {isEditing ? (
-                                <input
-                                    type="url"
-                                    value={profile.website}
-                                    onChange={(e) =>
-                                        setProfile({ ...profile, website: e.target.value })
-                                    }
-                                    placeholder="Personal website"
-                                    className="bg-transparent border-none text-white focus:outline-none flex-1 text-sm uppercase tracking-widest font-medium"
-                                />
-                            ) : (
-                                <a
-                                    href={profile.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-white/60 hover:text-primary transition-colors text-sm font-bold uppercase tracking-widest"
-                                >
-                                    {profile.website}
-                                </a>
-                            )}
+                            <div className="flex justify-between mt-3 text-[8px] font-bold uppercase tracking-[0.2em] text-white/30">
+                                <span>ROOKIE</span>
+                                <span>VETERAN</span>
+                                <span>ELITE</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -348,3 +167,4 @@ export default function ProfilePage() {
         </DashboardLayout>
     );
 }
+

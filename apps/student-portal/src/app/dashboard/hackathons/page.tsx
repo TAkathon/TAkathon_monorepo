@@ -2,128 +2,171 @@
 
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Globe } from "lucide-react";
 
 const hackathons = [
     {
         id: 1,
-        name: "AI Innovators Challenge",
-        date: "March 15-17, 2026",
-        location: "Tunis, Tunisia",
+        name: "AI INNOVATORS CHALLENGE",
+        date: "MARCH 15-17, 2026",
+        location: "TUNIS, TUNISIA",
         participants: 120,
         maxParticipants: 150,
-        duration: "48 hours",
+        duration: "48 HOURS",
         prize: "$10,000",
-        status: "Open",
-        tags: ["AI", "Machine Learning", "Innovation"],
-        description: "Build the next generation of AI-powered solutions",
-        organizer: "TechHub Tunisia",
+        status: "IN PROGRESS",
+        statusColor: "text-green-500 border-green-500 bg-green-500/10",
+        tags: ["AI", "MACHINE LEARNING", "HEALTHCARE"],
+        description: "Build the next generation of AI-powered solutions to solve real-world problems. Focus on healthcare, education, and sustainability.",
+        organizer: "TECHHUB TUNISIA",
     },
     {
         id: 2,
-        name: "Web3 Summit Hackathon",
-        date: "March 22-24, 2026",
-        location: "Sfax, Tunisia",
+        name: "WEB3 SUMMIT HACKATHON",
+        date: "MARCH 22-24, 2026",
+        location: "SFAX, TUNISIA",
         participants: 95,
         maxParticipants: 100,
-        duration: "36 hours",
+        duration: "36 HOURS",
         prize: "$5,000",
-        status: "Filling Fast",
-        tags: ["Blockchain", "Web3", "DeFi"],
-        description: "Shape the decentralized future",
-        organizer: "Blockchain Tunisia",
+        status: "FILLING FAST",
+        statusColor: "text-primary border-primary bg-primary/10",
+        tags: ["BLOCKCHAIN", "WEB3", "DEFI"],
+        description: "Shape the decentralized future. Build innovative dApps, smart contracts, and Web3 infrastructure.",
+        organizer: "BLOCKCHAIN TUNISIA",
     },
     {
         id: 3,
-        name: "Climate Tech Solutions",
-        date: "April 5-7, 2026",
-        location: "Sousse, Tunisia",
+        name: "CLIMATE TECH SOLUTIONS",
+        date: "APRIL 5-7, 2026",
+        location: "SOUSSE, TUNISIA",
         participants: 78,
         maxParticipants: 120,
-        duration: "72 hours",
+        duration: "72 HOURS",
         prize: "$8,000",
-        status: "Open",
-        tags: ["Climate", "Sustainability", "Impact"],
-        description: "Create technology to combat climate change",
-        organizer: "GreenTech Alliance",
+        status: "UPCOMING",
+        statusColor: "text-blue-400 border-blue-400 bg-blue-400/10",
+        tags: ["CLIMATE", "SUSTAINABILITY", "IMPACT"],
+        description: "Create technology to combat climate change. Focus on renewable energy, waste management, and sustainable living.",
+        organizer: "GREENTECH ALLIANCE",
     },
     {
         id: 4,
-        name: "HealthTech Innovation",
-        date: "April 12-14, 2026",
-        location: "Monastir, Tunisia",
+        name: "HEALTHTECH INNOVATION",
+        date: "APRIL 12-14, 2026",
+        location: "MONASTIR, TUNISIA",
         participants: 65,
         maxParticipants: 100,
-        duration: "48 hours",
+        duration: "48 HOURS",
         prize: "$7,500",
-        status: "Open",
-        tags: ["Healthcare", "AI", "Mobile"],
-        description: "Revolutionize healthcare with technology",
-        organizer: "MedTech Tunisia",
+        status: "UPCOMING",
+        statusColor: "text-blue-400 border-blue-400 bg-blue-400/10",
+        tags: ["HEALTHCARE", "AI", "MOBILE"],
+        description: "Revolutionize healthcare with technology. Develop solutions for telemedicine, patient care, and medical data.",
+        organizer: "MEDTECH TUNISIA",
     },
 ];
 
 export default function HackathonsPage() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedStatus, setSelectedStatus] = useState("All");
+    const [selectedStatus, setSelectedStatus] = useState("ALL STATUS");
+    const [selectedRegion, setSelectedRegion] = useState("ALL REGIONS");
 
     const filteredHackathons = hackathons.filter((h) => {
         const matchesSearch = h.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             h.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-        const matchesStatus = selectedStatus === "All" || h.status === selectedStatus;
-        return matchesSearch && matchesStatus;
+
+        let matchesStatus = true;
+        if (selectedStatus !== "ALL STATUS") {
+            matchesStatus = h.status === selectedStatus;
+        }
+
+        let matchesRegion = true;
+        if (selectedRegion !== "ALL REGIONS") {
+            matchesRegion = h.location.toLowerCase().includes(selectedRegion.toLowerCase().replace(" ", "")); // simplified matching
+        }
+
+        return matchesSearch && matchesStatus && matchesRegion;
     });
 
     return (
         <DashboardLayout>
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2 uppercase tracking-tight">Active Missions</h1>
-                    <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full" />
-                        <span className="text-xs text-white/40 uppercase tracking-[0.2em] font-bold">
-                            Discover and join exciting hackathons across Tunisia
-                        </span>
+            <div className="max-w-6xl mx-auto pb-12">
+                {/* Header section */}
+                <div className="mb-12">
+                    <div className="flex items-center relative mb-2">
+                        <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                            HACKATHON <span className="text-white text-glow-sm">MISSIONS</span>
+                        </h1>
+                        <div className="flex ml-4 gap-1 opacity-60 mt-4">
+                            <div className="w-12 h-1 bg-primary"></div>
+                            <div className="w-2 h-1 bg-primary"></div>
+                            <div className="w-1 h-1 bg-primary"></div>
+                        </div>
+                    </div>
+                    <div className="max-w-3xl mt-4">
+                        <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold leading-relaxed">
+                            DISCOVER AND JOIN EXCITING HACKATHONS ACROSS TUNISIA AND BEYOND.
+                        </p>
                     </div>
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-col md:flex-row gap-4 mb-8">
+                <div className="flex flex-col md:flex-row gap-4 mb-4">
                     {/* Search */}
                     <div className="flex-1 relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-primary transition-colors" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="SEARCH OPERATIONS..."
-                            className="w-full pl-11 pr-4 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all text-sm uppercase tracking-widest font-medium"
+                            className="w-full pl-12 pr-4 py-3 bg-black border border-white/5 rounded-sm text-white focus:outline-none focus:border-primary/50 transition-all text-xs font-bold uppercase tracking-widest placeholder:text-white/20"
                         />
                     </div>
 
-                    {/* Status Filter */}
-                    <div className="relative min-w-[200px] group">
-                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-primary transition-colors" />
-                        <select
-                            value={selectedStatus}
-                            onChange={(e) => setSelectedStatus(e.target.value)}
-                            className="w-full pl-11 pr-10 py-3 bg-white/[0.02] border border-white/5 rounded-xl text-white focus:outline-none focus:border-primary/50 focus:bg-white/5 transition-all appearance-none cursor-pointer text-sm uppercase tracking-widest font-medium"
-                        >
-                            <option value="All" className="bg-dark text-white">ALL STATUS</option>
-                            <option value="Open" className="bg-dark text-white">OPEN</option>
-                            <option value="Filling Fast" className="bg-dark text-white">FILLING FAST</option>
-                            <option value="Closed" className="bg-dark text-white">CLOSED</option>
-                        </select>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
-                            <ChevronDown className="w-4 h-4" />
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Region Filter */}
+                        <div className="relative min-w-[200px] group">
+                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-primary transition-colors z-10" />
+                            <select
+                                value={selectedRegion}
+                                onChange={(e) => setSelectedRegion(e.target.value)}
+                                className="w-full pl-12 pr-10 py-3 bg-black border border-white/5 rounded-sm text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest relative"
+                            >
+                                <option value="ALL REGIONS" className="bg-dark text-white">ALL REGIONS</option>
+                                <option value="TUNIS" className="bg-dark text-white">TUNIS</option>
+                                <option value="SFAX" className="bg-dark text-white">SFAX</option>
+                                <option value="SOUSSE" className="bg-dark text-white">SOUSSE</option>
+                            </select>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                                <ChevronDown className="w-4 h-4" />
+                            </div>
+                        </div>
+
+                        {/* Status Filter */}
+                        <div className="relative min-w-[200px] group">
+                            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-primary transition-colors z-10" />
+                            <select
+                                value={selectedStatus}
+                                onChange={(e) => setSelectedStatus(e.target.value)}
+                                className="w-full pl-12 pr-10 py-3 bg-black border border-white/5 rounded-sm text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest relative"
+                            >
+                                <option value="ALL STATUS" className="bg-dark text-white">ALL STATUS</option>
+                                <option value="UPCOMING" className="bg-dark text-white">UPCOMING</option>
+                                <option value="IN PROGRESS" className="bg-dark text-white">IN PROGRESS</option>
+                                <option value="FILLING FAST" className="bg-dark text-white">FILLING FAST</option>
+                            </select>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
+                                <ChevronDown className="w-4 h-4" />
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Results count */}
-                <p className="text-white/20 text-[10px] uppercase font-bold tracking-[0.2em]">
-                    Displaying {filteredHackathons.length} of {hackathons.length} Active Operations
+                <p className="text-[10px] text-white/40 uppercase font-bold tracking-[0.2em] mb-8">
+                    DISPLAYING {filteredHackathons.length} OF {hackathons.length} ACTIVE OPERATIONS
                 </p>
 
                 {/* Hackathons Grid */}
@@ -131,37 +174,41 @@ export default function HackathonsPage() {
                     {filteredHackathons.map((hackathon) => (
                         <div
                             key={hackathon.id}
-                            className="glass rounded-2xl p-8 border border-white/5 hover:border-primary/20 hover:bg-white/5 transition-all duration-500 cursor-pointer group"
+                            className="relative p-8 bg-[#080808] border border-white/5 rounded-sm hover:border-primary/30 transition-all duration-300 flex flex-col group overflow-hidden"
                         >
+                            {/* Corner Accents */}
+                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary opacity-50 group-hover:opacity-100 transition-opacity"></div>
+
+                            {/* subtle background glow */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/0 group-hover:bg-primary/5 rounded-full blur-[80px] transition-all duration-700 pointer-events-none"></div>
+
                             {/* Header */}
-                            <div className="flex items-start justify-between mb-6">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-primary-light transition-all tracking-tight">
+                            <div className="flex items-start justify-between mb-6 z-10">
+                                <div className="pr-4">
+                                    <h3 className="text-2xl font-black italic text-white uppercase tracking-tighter mb-1 pb-1">
                                         {hackathon.name}
                                     </h3>
-                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">{hackathon.organizer}</p>
+                                    <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{hackathon.organizer}</p>
                                 </div>
                                 <span
-                                    className={`px-3 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full border ${hackathon.status === "Open"
-                                            ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                            : hackathon.status === "Filling Fast"
-                                                ? "bg-primary/10 text-primary border-primary/20"
-                                                : "bg-white/5 text-white/40 border-white/10"
-                                        }`}
+                                    className={`px-3 py-1 text-[8px] uppercase font-bold tracking-widest border rounded-sm whitespace-nowrap ${hackathon.statusColor}`}
                                 >
                                     {hackathon.status}
                                 </span>
                             </div>
 
                             {/* Description */}
-                            <p className="text-white/70 text-sm mb-4">{hackathon.description}</p>
+                            <p className="text-sm text-white/60 leading-relaxed mb-6 z-10 flex-1">
+                                {hackathon.description}
+                            </p>
 
                             {/* Tags */}
-                            <div className="flex flex-wrap gap-2 mb-6">
+                            <div className="flex flex-wrap gap-2 mb-8 z-10">
                                 {hackathon.tags.map((tag) => (
                                     <span
                                         key={tag}
-                                        className="px-2 py-1 bg-primary/5 border border-primary/10 text-primary-light text-[9px] font-bold uppercase tracking-widest rounded-md"
+                                        className="px-2 py-1 bg-white/[0.03] border border-white/10 text-white/50 text-[9px] font-bold uppercase tracking-widest rounded-sm"
                                     >
                                         {tag}
                                     </span>
@@ -169,35 +216,47 @@ export default function HackathonsPage() {
                             </div>
 
                             {/* Info Grid */}
-                            <div className="grid grid-cols-2 gap-4 mb-6">
-                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
-                                    <Calendar className="w-3.5 h-3.5 text-primary" />
-                                    <span>{hackathon.date}</span>
+                            <div className="grid grid-cols-2 gap-y-4 gap-x-6 mb-8 z-10">
+                                <div>
+                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">DATE</p>
+                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                        <Calendar className="w-3.5 h-3.5 text-primary" />
+                                        <span>{hackathon.date}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
-                                    <MapPin className="w-3.5 h-3.5 text-primary" />
-                                    <span>{hackathon.location}</span>
+                                <div>
+                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">LOCATION</p>
+                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                        <MapPin className="w-3.5 h-3.5 text-primary" />
+                                        <span>{hackathon.location}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
-                                    <Clock className="w-3.5 h-3.5 text-primary" />
-                                    <span>{hackathon.duration}</span>
+                                <div>
+                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">CAPACITY</p>
+                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                        <Users className="w-3.5 h-3.5 text-primary" />
+                                        <span>
+                                            {hackathon.participants} / {hackathon.maxParticipants} OPERATIVES
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-widest font-bold">
-                                    <Users className="w-3.5 h-3.5 text-primary" />
-                                    <span>
-                                        {hackathon.participants}/{hackathon.maxParticipants}
-                                    </span>
+                                <div>
+                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">DURATION</p>
+                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                        <Clock className="w-3.5 h-3.5 text-primary" />
+                                        <span>{hackathon.duration}</span>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Footer */}
-                            <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-6 border-t border-white/10 mt-auto z-10">
                                 <div>
-                                    <p className="text-[10px] text-white/20 uppercase tracking-[0.2em] font-bold mb-1">Prize Pool</p>
-                                    <span className="text-primary-light font-bold text-2xl tracking-tight">{hackathon.prize}</span>
+                                    <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-1">PRIZE POOL</p>
+                                    <span className="text-3xl font-black italic tracking-tighter text-white">{hackathon.prize}</span>
                                 </div>
-                                <button className="px-6 py-2.5 bg-primary/20 hover:bg-primary border border-primary/40 hover:border-primary text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 shadow-glow-primary/10 hover:shadow-glow-primary/20">
-                                    Join Mission
+                                <button className="px-8 py-3 bg-primary/20 border border-primary/40 hover:bg-primary/30 hover:border-primary text-primary text-xs font-bold uppercase tracking-widest transition-all rounded-sm w-full sm:w-auto text-center">
+                                    VIEW INTEL
                                 </button>
                             </div>
                         </div>
@@ -206,10 +265,10 @@ export default function HackathonsPage() {
 
                 {/* Empty State */}
                 {filteredHackathons.length === 0 && (
-                    <div className="text-center py-12 glass rounded-xl">
-                        <Calendar className="w-16 h-16 text-white/20 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-white/60 mb-2">No hackathons found</h3>
-                        <p className="text-white/40">Try adjusting your search or filters</p>
+                    <div className="text-center py-16 bg-[#080808] border border-white/5 rounded-sm flex flex-col items-center justify-center">
+                        <Search className="w-10 h-10 text-white/20 mb-4" />
+                        <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-2">NO MISSIONS FOUND</h3>
+                        <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/40">Adjust your search parameters or filter criteria</p>
                     </div>
                 )}
             </div>
