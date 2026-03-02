@@ -113,18 +113,21 @@ export default function DashboardLayout({
 
                     {/* User section */}
                     <div className="p-4 border-t border-white/5">
-                        <div className="flex items-center gap-3 px-3 py-2 mb-3">
-                            <div className="w-8 h-8 bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black text-xs">
-                                {user?.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
+                        <Link href="/dashboard/profile" className="flex items-center gap-3 px-3 py-3 mb-3 hover:bg-white/5 rounded-sm transition-all group cursor-pointer border border-transparent hover:border-white/10">
+                            <div className="w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-black text-sm group-hover:bg-primary/20 group-hover:border-primary/50 transition-all rounded-sm shadow-glow-sm">
+                                {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'OP'}
                             </div>
-                            <div>
-                                <div className="text-xs font-bold text-white/70 uppercase tracking-wide">{user?.fullName || 'User'}</div>
-                                <div className="text-[8px] text-white/30 font-bold tracking-widest uppercase">Student</div>
+                            <div className="flex-1">
+                                <div className="text-xs font-bold text-white uppercase tracking-widest truncate">{user?.fullName || 'OPERATIVE'}</div>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse shadow-glow-sm"></div>
+                                    <div className="text-[8px] text-primary font-bold tracking-[0.2em] uppercase">ONLINE</div>
+                                </div>
                             </div>
-                        </div>
+                        </Link>
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-3 px-4 py-2.5 text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full group"
+                            className="flex items-center gap-3 px-4 py-2.5 text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full group hidden" /* Hiding this as it's cleaner without, but keeping logic*/
                         >
                             <LogOut className="w-4 h-4 group-hover:text-red-400" />
                             <span className="font-bold text-[10px] uppercase tracking-widest">Log Out</span>
@@ -172,7 +175,19 @@ export default function DashboardLayout({
                                 })}
                             </nav>
                             <div className="p-4 border-t border-white/5">
-                                <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 text-white/40 hover:text-red-400 transition-all w-full">
+                                <Link href="/dashboard/profile" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-3 mb-3 hover:bg-white/5 rounded-sm transition-all group cursor-pointer border border-transparent hover:border-white/10">
+                                    <div className="w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-black text-sm group-hover:bg-primary/20 group-hover:border-primary/50 transition-all rounded-sm shadow-glow-sm">
+                                        {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'OP'}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-xs font-bold text-white uppercase tracking-widest truncate">{user?.fullName || 'OPERATIVE'}</div>
+                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse shadow-glow-sm"></div>
+                                            <div className="text-[8px] text-primary font-bold tracking-[0.2em] uppercase">ONLINE</div>
+                                        </div>
+                                    </div>
+                                </Link>
+                                <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 text-white/40 hover:text-red-400 transition-all w-full hidden">
                                     <LogOut className="w-4 h-4" />
                                     <span className="font-bold text-[10px] uppercase tracking-widest">Log Out</span>
                                 </button>
@@ -218,15 +233,9 @@ export default function DashboardLayout({
                                 <Bell className="w-5 h-5" />
                                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-black" />
                             </button>
-                            <Link href="/dashboard/profile" className="flex items-center gap-3 group cursor-pointer pl-4 border-l border-white/10">
-                                <div className="hidden md:block text-right">
-                                    <div className="text-[10px] font-bold text-white uppercase tracking-widest">{user?.fullName || 'OPERATIVE'}</div>
-                                    <div className="text-[8px] font-bold text-primary uppercase tracking-[0.2em]">ONLINE</div>
-                                </div>
-                                <div className="w-9 h-9 bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-black text-xs group-hover:bg-primary/20 group-hover:border-primary/50 transition-all rounded-sm">
-                                    {user?.fullName?.split(' ').map(n => n[0]).join('') || 'OP'}
-                                </div>
-                            </Link>
+                            <button onClick={handleLogout} className="text-white/50 hover:text-red-400 transition-colors ml-2 pl-4 border-l border-white/10" title="Log Out">
+                                <LogOut className="w-5 h-5" />
+                            </button>
                         </div>
                     </div>
                 </header>
