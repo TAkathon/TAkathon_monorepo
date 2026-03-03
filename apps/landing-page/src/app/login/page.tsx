@@ -27,32 +27,14 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Force logout on component mount to ensure clean state
-    if (useAuthStore.getState().isAuthenticated) {
-       console.log("Forcing logout on Login page load");
-       useAuthStore.getState().logout();
-    }
-  }, []);
-
-  useEffect(() => {
-    // Prevent hydration mismatch by checking for window existence
+    // If already authenticated (hydrated from localStorage), redirect to dashboard
     if (typeof window === "undefined" || !_hasHydrated) return;
-    
-    // Only redirect if explicitly authenticated AFTER the initial logout check
-    // We might need a flag to differentiate "just logged out" from "fresh login"
-    // But typically, successful login sets isAuthenticated=true, triggering this.
     if (isAuthenticated && user?.role) {
-       // ... existing redirect logic
-
       const targetUrl = getRedirectUrl(user.role);
-      
-      // Basic check to ensure we aren't redirecting to the current page (though ports differ)
-      if (window.location.href !== targetUrl) {
-         if (targetUrl.startsWith("http")) {
-           window.location.href = targetUrl;
-         } else {
-           router.replace(targetUrl);
-         }
+      if (targetUrl.startsWith("http")) {
+        window.location.href = targetUrl;
+      } else {
+        router.replace(targetUrl);
       }
     }
   }, [isAuthenticated, user, router, _hasHydrated]);

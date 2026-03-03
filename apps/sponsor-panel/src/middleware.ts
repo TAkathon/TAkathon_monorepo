@@ -4,32 +4,35 @@ import type { NextRequest } from "next/server";
 /**
  * Auth middleware for sponsor-panel.
  * Protects all /dashboard/* routes.
- * The root "/" is public — it handles the auth redirect client-side.
- * Redirects unauthenticated or wrong-role users to the landing page login.
+ * Reads the httpOnly `accessToken` JWT cookie set by the gateway.
+ * The JWT payload (base64-decoded) contains { id, email, role } — no secret
+ * needed here; the API verifies the signature on every protected request.
  */
 
 const LANDING_URL =
   process.env.NEXT_PUBLIC_LANDING_URL || "http://localhost:3000";
 
-export function middleware(request: NextRequest) {
+function decodeJwtRole(token: string): string | null {
   try {
-    const raw = request.cookies.get("auth-storage")?.value;
-    if (!raw) {
-      return NextResponse.redirect(`${LANDING_URL}/login`);
-    }
-
-    const parsed = JSON.parse(decodeURIComponent(raw));
-    const state = parsed?.state;
-
-    if (!state?.isAuthenticated || !state?.user) {
-      return NextResponse.redirect(`${LANDING_URL}/login`);
-    }
-
-    // Ensure the logged-in user is a sponsor
-    if (state.user.role !== "sponsor") {
-      return NextResponse.redirect(`${LANDING_URL}/login`);
-    }
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    // base64url → base64
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(base64));
+    return typeof payload?.role === "string" ? payload.role : null;
   } catch {
+    return null;
+  }
+}
+
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get("accessToken")?.value;
+  if (!token) {
+    return NextResponse.redirect(`${LANDING_URL}/login`);
+  }
+
+  const role = decodeJwtRole(token);
+  if (role !== "sponsor") {
     return NextResponse.redirect(`${LANDING_URL}/login`);
   }
 
