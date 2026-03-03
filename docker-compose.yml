@@ -86,7 +86,7 @@ services:
       dockerfile: apps/landing-page/Dockerfile
     container_name: takathon-landing
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_API_URL: http://localhost:8000
       PORT: "3000"
     ports:
       - "3000:3000"
@@ -106,7 +106,7 @@ services:
       dockerfile: apps/student-portal/Dockerfile
     container_name: takathon-student
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_API_URL: http://localhost:8000
       PORT: "3001"
     ports:
       - "3001:3001"
@@ -126,7 +126,7 @@ services:
       dockerfile: apps/organizer-dashboard/Dockerfile
     container_name: takathon-organizer
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_API_URL: http://localhost:8000
       PORT: "3002"
     ports:
       - "3002:3002"
@@ -146,7 +146,7 @@ services:
       dockerfile: apps/sponsor-panel/Dockerfile
     container_name: takathon-sponsor
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_API_URL: http://localhost:8000
       PORT: "3003"
     ports:
       - "3003:3003"

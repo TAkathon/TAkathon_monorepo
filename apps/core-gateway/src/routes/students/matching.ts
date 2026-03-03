@@ -10,8 +10,9 @@ const router = Router();
 router.use(requireAuth, requireStudent);
 
 /**
- * GET /api/v1/students/teams/:id/matches
+ * GET /api/v1/students/matching/:id/matches
  * Get AI teammate recommendations for a team
+ * NOTE: This router is mounted at /api/v1/students/matching in index.ts
  */
 router.get("/:id/matches", async (req: any, res) => {
   const idSchema = z.string().uuid();
@@ -42,8 +43,9 @@ router.get("/:id/matches", async (req: any, res) => {
 });
 
 /**
- * POST /api/v1/students/teams/:id/matches/:userId
+ * POST /api/v1/students/matching/:id/matches/:userId
  * Invite a matched candidate to the team
+ * NOTE: This router is mounted at /api/v1/students/matching in index.ts
  */
 router.post("/:id/matches/:userId", async (req: any, res) => {
   const idSchema = z.string().uuid();

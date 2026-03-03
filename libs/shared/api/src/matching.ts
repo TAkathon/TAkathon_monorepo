@@ -1,9 +1,9 @@
 /**
  * Typed API functions for AI Teammate Matching (student role).
  *
- * The gateway exposes these on:
- *   GET  /api/v1/students/teams/:teamId/matches          → suggestTeammates
- *   POST /api/v1/students/teams/:teamId/matches/:userId  → inviteMatch
+ * The gateway mounts the matching router at /api/v1/students/matching, so:
+ *   GET  /api/v1/students/matching/:teamId/matches          → suggestTeammates
+ *   POST /api/v1/students/matching/:teamId/matches/:userId  → inviteMatch
  */
 
 import api from "./client";
@@ -50,7 +50,7 @@ export async function suggestTeammates(
   teamId: string,
   limit = 5,
 ): Promise<MatchResult> {
-  const resp = await api.get(`/students/matching/${teamId}/matches`, {
+  const resp = await api.get(`/api/v1/students/matching/${teamId}/matches`, {
     params: { limit },
   });
   // Gateway wraps in { success, data }
@@ -67,6 +67,8 @@ export async function inviteMatch(
   teamId: string,
   userId: string,
 ): Promise<{ id: string; status: string }> {
-  const resp = await api.post(`/students/matching/${teamId}/matches/${userId}`);
+  const resp = await api.post(
+    `/api/v1/students/matching/${teamId}/matches/${userId}`,
+  );
   return resp.data.data;
 }

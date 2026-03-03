@@ -41,9 +41,11 @@ export interface StudentProfile {
   skills: Array<{
     id: string;
     skillId: string;
+    /** Flat name returned by the gateway (server shape: { skillName, category, ... }) */
+    skillName: string;
+    category: string;
     proficiencyLevel: string;
     yearsOfExperience?: number;
-    skill: { id: string; name: string; category: string };
   }>;
 }
 
@@ -95,18 +97,18 @@ export interface AddSkillInput {
 /** Get the authenticated student's full profile */
 export async function getMyProfile(): Promise<StudentProfile> {
   const res = await api.get<ApiResponse<StudentProfile>>(
-    "/api/v1/students/profile"
+    "/api/v1/students/profile",
   );
   return res.data.data!;
 }
 
 /** Update the authenticated student's profile */
 export async function updateMyProfile(
-  data: UpdateProfileInput
+  data: UpdateProfileInput,
 ): Promise<StudentProfile> {
   const res = await api.put<ApiResponse<StudentProfile>>(
     "/api/v1/students/profile",
-    data
+    data,
   );
   return res.data.data!;
 }
@@ -132,15 +134,17 @@ export async function browseHackathons(params?: {
 }): Promise<StudentHackathonSummary[]> {
   const res = await api.get<ApiResponse<StudentHackathonSummary[]>>(
     "/api/v1/students/hackathons",
-    { params }
+    { params },
   );
   return res.data.data ?? [];
 }
 
 /** Get single hackathon detail (student view) */
-export async function getHackathon(id: string): Promise<StudentHackathonSummary> {
+export async function getHackathon(
+  id: string,
+): Promise<StudentHackathonSummary> {
   const res = await api.get<ApiResponse<StudentHackathonSummary>>(
-    `/api/v1/students/hackathons/${id}`
+    `/api/v1/students/hackathons/${id}`,
   );
   return res.data.data!;
 }
@@ -148,20 +152,24 @@ export async function getHackathon(id: string): Promise<StudentHackathonSummary>
 /** List hackathons the student is registered for */
 export async function getMyHackathons(): Promise<StudentHackathonSummary[]> {
   const res = await api.get<ApiResponse<StudentHackathonSummary[]>>(
-    "/api/v1/students/hackathons/mine"
+    "/api/v1/students/hackathons/mine",
   );
   return res.data.data ?? [];
 }
 
 /** Register for a hackathon */
-export async function registerForHackathon(hackathonId: string): Promise<RegistrationResult> {
+export async function registerForHackathon(
+  hackathonId: string,
+): Promise<RegistrationResult> {
   const res = await api.post<ApiResponse<RegistrationResult>>(
-    `/api/v1/students/hackathons/${hackathonId}/register`
+    `/api/v1/students/hackathons/${hackathonId}/register`,
   );
   return res.data.data!;
 }
 
 /** Withdraw from a hackathon */
-export async function withdrawFromHackathon(hackathonId: string): Promise<void> {
+export async function withdrawFromHackathon(
+  hackathonId: string,
+): Promise<void> {
   await api.post(`/api/v1/students/hackathons/${hackathonId}/withdraw`);
 }
