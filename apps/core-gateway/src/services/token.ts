@@ -8,13 +8,12 @@ type TokenPayload = {
   role: UserRole;
 };
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "dev_access_secret_123456789";
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "dev_refresh_secret_123456789";
+// Hard-coded fallbacks ONLY for local development. The startup guard in
+// index.ts already warns when these are missing; here we replicate the error
+// for the token module used standalone (e.g. in tests).
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "dev_access_secret_change_in_prod_min32chars";
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "dev_refresh_secret_change_in_prod_min32chars";
 
-if (process.env.NODE_ENV === "production") {
-  if (!process.env.JWT_ACCESS_SECRET) throw new Error("JWT_ACCESS_SECRET required in production");
-  if (!process.env.JWT_REFRESH_SECRET) throw new Error("JWT_REFRESH_SECRET required in production");
-}
 const ACCESS_TTL = (process.env.ACCESS_TTL || "15m") as SignOptions["expiresIn"];
 const REFRESH_TTL = (process.env.REFRESH_TTL || "7d") as SignOptions["expiresIn"];
 

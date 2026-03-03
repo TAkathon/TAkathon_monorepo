@@ -80,9 +80,8 @@ function SignUpContent() {
         role: selectedRole,
       });
 
-      // result = { success, data: { user, accessToken } }
+      // result = { success, data: { user } } — tokens are httpOnly cookies, never in JS
       const apiUser = result.data?.user;
-      const accessToken = result.data?.accessToken;
 
       const userData = {
         id: apiUser?.id ?? Math.random().toString(36).slice(2),
@@ -90,7 +89,7 @@ function SignUpContent() {
         fullName: apiUser?.fullName ?? formData.fullName,
         role: (apiUser?.role as UserRole) ?? selectedRole,
       };
-      login(userData, accessToken);
+      login(userData);
 
       const url = getRedirectUrl(userData.role);
       if (url.startsWith("http")) {

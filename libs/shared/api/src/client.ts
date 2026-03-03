@@ -5,26 +5,22 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   headers: { "Content-Type": "application/json" },
   timeout: 10000,
+  // Send the httpOnly auth cookies on every request automatically
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  const { accessToken } = useAuthStore.getState() as any;
-  if (accessToken) {
-    config.headers.set("Authorization", `Bearer ${accessToken}`);
-  }
-  return config;
-});
+// No request interceptor needed — the browser attaches the accessToken cookie
+// automatically thanks to withCredentials: true. Tokens are never stored in JS.
 
 let isRefreshing = false;
-let pendingRequests: Array<(token?: string) => void> = [];
+let pendingRequests: Array<(ok: boolean) => void> = [];
 
-function subscribeTokenRefresh(cb: (token?: string) => void) {
+function subscribeTokenRefresh(cb: (ok: boolean) => void) {
   pendingRequests.push(cb);
 }
 
-function onRefreshed(token?: string) {
-  pendingRequests.forEach((cb) => cb(token));
+function onRefreshed(ok: boolean) {
+  pendingRequests.forEach((cb) => cb(ok));
   pendingRequests = [];
 }
 
@@ -32,31 +28,35 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Only attempt a refresh once per failed request, and never on the
+    // refresh endpoint itself (avoid infinite loops).
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/refresh")
+    ) {
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token) => {
-            if (token) {
-              originalRequest.headers.set("Authorization", `Bearer ${token}`);
-            }
-            resolve(api(originalRequest));
+        // Queue the request until the in-flight refresh resolves
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh((ok) => {
+            if (ok) resolve(api(originalRequest));
+            else reject(error);
           });
         });
       }
+
       originalRequest._retry = true;
       isRefreshing = true;
+
       try {
-        const refreshResponse = await api.post("/api/v1/auth/refresh");
-        const newToken = refreshResponse.data?.data?.accessToken;
-        if (newToken) {
-          useAuthStore.getState().setAccessToken(newToken);
-          onRefreshed(newToken);
-          originalRequest.headers.set("Authorization", `Bearer ${newToken}`);
-          return api(originalRequest);
-        }
+        // The refresh endpoint reads the refreshToken cookie and sets a new
+        // accessToken cookie — no token values travel through JS at all.
+        await api.post("/api/v1/auth/refresh");
+        onRefreshed(true);
+        return api(originalRequest);
       } catch {
         useAuthStore.getState().logout();
-        onRefreshed();
+        onRefreshed(false);
         // Redirect to landing page login after session expiry
         if (typeof window !== "undefined") {
           const landingUrl =

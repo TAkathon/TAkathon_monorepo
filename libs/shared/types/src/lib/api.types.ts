@@ -50,9 +50,9 @@ export interface AuthResponse {
     email: string;
     username: string;
     role: UserRole;
+    fullName?: string;
   };
-  accessToken: string;
-  refreshToken: string;
+  // Tokens are issued via httpOnly cookies only — never in the response body.
 }
 
 // Student profile endpoints
