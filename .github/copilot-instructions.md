@@ -55,6 +55,17 @@
   - **Student Portal**: "Find Teammates" button on forming teams with open spots → AI matching modal with ranked candidates, score badge, breakdown (skill/exp/avail %), explanation, Invite button
   - **Docker**: AI engine now starts by default (removed `profiles: [ai]`); `AI_ENGINE_URL=http://ai-engine:8001` injected into core-gateway
   - **Scoring notes**: proficiency map `beginner→1, intermediate→2, advanced→3, expert→4`; experience balance targets mean=2.5 (centre of scale)
+- **Availability Feature** — committed `f3f4c3d` on `feature/phase3-ai-matching`:
+  - `prisma/schema.prisma`: `availability Json? @map("availability") @db.JsonB` added to `StudentProfile` (db push applied)
+  - **Availability data shape**: `{ timezone: "UTC+1", hoursPerWeek: 20, preferredSlots: ["weekday_evening", "weekend_morning"] }`
+  - **Valid slot keys** (6): `weekday_morning`, `weekday_afternoon`, `weekday_evening`, `weekend_morning`, `weekend_afternoon`, `weekend_evening`
+  - `scoring.py`: real `availability_overlap` — Jaccard slot similarity (70%) + hours compatibility (30%); returns neutral 0.5 when either side has no data
+  - `validators.py`: `AvailabilityEntry` Pydantic model; `availability` on `CandidateProfile`; `teamAvailability: list[AvailabilityEntry]` on `MatchRequest`
+  - `engine.py` / `main.py`: `team_availability` threaded through to scorer
+  - `matching.service.ts`: collects `teamAvailability` from DB team members' `studentProfile.availability`
+  - `profile.service.ts` / `profile.ts` route: get + update availability with Zod validation
+  - `libs/shared/api`: `AvailabilitySlot` type + `AvailabilityData` interface exported from barrel
+  - `settings/page.tsx`: Availability section — timezone dropdown (UTC offsets), hours/week input, 6 slot toggle buttons, Save → `studentApi.updateMyProfile({ availability: ... })`
 - **Frontend-Backend Integration** (V1 complete):
   - student-portal: dashboard, profile, teams, hackathons, settings pages — live API data via shared Axios + Zustand
   - organizer-dashboard: hackathons list + create, participants, teams, settings pages
