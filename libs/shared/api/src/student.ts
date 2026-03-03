@@ -61,6 +61,7 @@ export interface StudentHackathonSummary {
   requiredSkills: string[];
   participantCount: number;
   isRegistered?: boolean;
+  isInTeam?: boolean;
 }
 
 export interface RegistrationResult {

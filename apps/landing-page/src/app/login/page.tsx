@@ -19,7 +19,7 @@ export default function LoginPage() {
 
 function LoginContent() {
   const router = useRouter();
-  const { login, isAuthenticated, user, _hasHydrated } = useAuthStore();
+  const { login, logout, isAuthenticated, user, _hasHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.STUDENT);
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -27,17 +27,40 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // If already authenticated (hydrated from localStorage), redirect to dashboard
+    // If the store says we're authenticated, verify the session cookie is still
+    // valid with the backend before redirecting. The middleware redirects here
+    // on cookie expiry without clearing the Zustand store, so we MUST check.
     if (typeof window === "undefined" || !_hasHydrated) return;
-    if (isAuthenticated && user?.role) {
-      const targetUrl = getRedirectUrl(user.role);
-      if (targetUrl.startsWith("http")) {
-        window.location.href = targetUrl;
-      } else {
-        router.replace(targetUrl);
+    if (!isAuthenticated || !user?.role) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const res = await fetch(`${apiUrl}/api/v1/auth/me`, {
+          credentials: "include",
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          // Session is genuinely live — redirect to the right dashboard
+          const targetUrl = getRedirectUrl(user.role);
+          if (targetUrl.startsWith("http")) {
+            window.location.href = targetUrl;
+          } else {
+            router.replace(targetUrl);
+          }
+        } else {
+          // Cookie is expired/invalid — clear the stale store entry and stay on
+          // login so the user can re-authenticate
+          logout();
+        }
+      } catch {
+        // Network error (e.g. gateway down) — clear stale state, show login
+        if (!cancelled) logout();
       }
-    }
-  }, [isAuthenticated, user, router, _hasHydrated]);
+    })();
+    return () => { cancelled = true; };
+  }, [isAuthenticated, user, router, _hasHydrated, logout]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

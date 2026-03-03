@@ -56,12 +56,16 @@ export class StudentHackathonService {
 
     // Fetch the user's registrations in one query to attach isRegistered
     let registeredIds = new Set<string>();
+    let inTeamIds = new Set<string>();
     if (params.userId) {
       const participations = await prisma.hackathonParticipant.findMany({
         where: { userId: params.userId, status: { not: "withdrawn" } },
-        select: { hackathonId: true },
+        select: { hackathonId: true, status: true },
       });
       registeredIds = new Set(participations.map((p) => p.hackathonId));
+      inTeamIds = new Set(
+        participations.filter((p) => p.status === "in_team").map((p) => p.hackathonId)
+      );
     }
 
     return {
@@ -84,6 +88,7 @@ export class StudentHackathonService {
         participantCount: h._count.participants,
         teamCount: h._count.teams,
         isRegistered: registeredIds.has(h.id),
+        isInTeam: inTeamIds.has(h.id),
       })),
       meta: {
         page,

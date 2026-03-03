@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2, CheckCircle, Shield } from "lucide-react";
 import { studentApi } from "@takathon/shared/api";
 import type { StudentHackathonSummary } from "@takathon/shared/api";
 import { toast } from "sonner";
@@ -190,15 +190,27 @@ export default function HackathonsPage() {
                                 </div>
                                 {hackathon.isRegistered ? (
                                     <div className="flex items-center gap-2">
-                                        <span className="flex items-center gap-1 text-green-400 text-sm font-medium">
-                                            <CheckCircle className="w-4 h-4" /> Registered
-                                        </span>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); handleWithdraw(hackathon.id); }}
-                                            className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 text-sm font-medium rounded-lg transition-all duration-200 border border-white/10 hover:border-red-500/30"
-                                        >
-                                            Withdraw
-                                        </button>
+                                        {hackathon.isInTeam ? (
+                                            // Blocked — user is in a team for this hackathon
+                                            <div className="flex items-center gap-1.5" title="Leave your team from My Teams before withdrawing">
+                                                <span className="flex items-center gap-1 text-primary text-sm font-medium">
+                                                    <Shield className="w-4 h-4" /> In Team
+                                                </span>
+                                                <span className="text-white/30 text-xs">(leave team to withdraw)</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <span className="flex items-center gap-1 text-green-400 text-sm font-medium">
+                                                    <CheckCircle className="w-4 h-4" /> Registered
+                                                </span>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleWithdraw(hackathon.id); }}
+                                                    className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 text-sm font-medium rounded-lg transition-all duration-200 border border-white/10 hover:border-red-500/30"
+                                                >
+                                                    Withdraw
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
                                 ) : (
                                     <button

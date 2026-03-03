@@ -184,11 +184,18 @@ export default function TeamsPage() {
 
     const fetchData = async () => {
         try {
-            const [teams, hackathons] = await Promise.all([
+            const [rawTeams, hackathons] = await Promise.all([
                 teamApi.getMyTeams(),
                 studentApi.browseHackathons({ status: "registration_open" }),
             ]);
-            setTeams(teams as any);
+            // Backend returns [{ membershipId, role, joinedAt, team: { id, name, ... } }]
+            // Flatten to the flat TeamData shape the template expects
+            const teams = (rawTeams as any[]).map((m: any) => ({
+                ...(m.team ?? m),
+                myRole: m.role ?? m.myRole,
+                members: (m.team?.members ?? m.members) || [],
+            }));
+            setTeams(teams);
             setHackathons(hackathons.map(h => ({ id: h.id, title: h.title })));
         } catch (error) {
             console.error("Failed to fetch data:", error);
