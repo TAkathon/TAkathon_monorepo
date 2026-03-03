@@ -50,7 +50,7 @@ export async function suggestTeammates(
   teamId: string,
   limit = 5,
 ): Promise<MatchResult> {
-  const resp = await api.get(`/students/teams/${teamId}/matches`, {
+  const resp = await api.get(`/students/matching/${teamId}/matches`, {
     params: { limit },
   });
   // Gateway wraps in { success, data }
@@ -67,6 +67,6 @@ export async function inviteMatch(
   teamId: string,
   userId: string,
 ): Promise<{ id: string; status: string }> {
-  const resp = await api.post(`/students/teams/${teamId}/matches/${userId}`);
+  const resp = await api.post(`/students/matching/${teamId}/matches/${userId}`);
   return resp.data.data;
 }

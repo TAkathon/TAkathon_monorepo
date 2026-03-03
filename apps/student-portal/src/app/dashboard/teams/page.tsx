@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
     Users,
@@ -160,6 +161,7 @@ function SuggestionCard({
 }
 
 export default function TeamsPage() {
+    const router = useRouter();
     const [teams, setTeams] = useState<TeamData[]>([]);
     const [hackathons, setHackathons] = useState<HackathonOption[]>([]);
     const [loading, setLoading] = useState(true);
@@ -437,11 +439,17 @@ export default function TeamsPage() {
 
                                 {/* Team Actions */}
                                 <div className="flex items-center gap-3 mt-6 pt-6 border-t border-white/10">
-                                    <button className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={() => router.push(`/dashboard/teams/${team.id}/messages`)}
+                                        className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                    >
                                         <MessageCircle className="w-4 h-4" />
                                         Team Chat
                                     </button>
-                                    <button className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={() => router.push(`/dashboard/teams/${team.id}/project`)}
+                                        className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                    >
                                         <Target className="w-4 h-4" />
                                         Project Details
                                     </button>
