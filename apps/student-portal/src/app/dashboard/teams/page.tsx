@@ -86,7 +86,7 @@ function SuggestionCard({
         .toUpperCase();
 
     return (
-        <div className="bg-white/5 hover:bg-white/8 border border-white/10 rounded-xl p-4 transition-all">
+        <div className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 transition-all">
             <div className="flex items-start gap-3">
                 {/* Rank + avatar */}
                 <div className="relative flex-shrink-0">
