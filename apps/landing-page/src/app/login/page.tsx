@@ -19,7 +19,7 @@ export default function LoginPage() {
 
 function LoginContent() {
   const router = useRouter();
-  const { login, isAuthenticated, user, _hasHydrated } = useAuthStore();
+  const { login, logout, isAuthenticated, user, _hasHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.STUDENT);
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -27,35 +27,40 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Force logout on component mount to ensure clean state
-    if (useAuthStore.getState().isAuthenticated) {
-       console.log("Forcing logout on Login page load");
-       useAuthStore.getState().logout();
-    }
-  }, []);
-
-  useEffect(() => {
-    // Prevent hydration mismatch by checking for window existence
+    // If the store says we're authenticated, verify the session cookie is still
+    // valid with the backend before redirecting. The middleware redirects here
+    // on cookie expiry without clearing the Zustand store, so we MUST check.
     if (typeof window === "undefined" || !_hasHydrated) return;
-    
-    // Only redirect if explicitly authenticated AFTER the initial logout check
-    // We might need a flag to differentiate "just logged out" from "fresh login"
-    // But typically, successful login sets isAuthenticated=true, triggering this.
-    if (isAuthenticated && user?.role) {
-       // ... existing redirect logic
+    if (!isAuthenticated || !user?.role) return;
 
-      const targetUrl = getRedirectUrl(user.role);
-      
-      // Basic check to ensure we aren't redirecting to the current page (though ports differ)
-      if (window.location.href !== targetUrl) {
-         if (targetUrl.startsWith("http")) {
-           window.location.href = targetUrl;
-         } else {
-           router.replace(targetUrl);
-         }
+    let cancelled = false;
+    (async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const res = await fetch(`${apiUrl}/api/v1/auth/me`, {
+          credentials: "include",
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          // Session is genuinely live — redirect to the right dashboard
+          const targetUrl = getRedirectUrl(user.role);
+          if (targetUrl.startsWith("http")) {
+            window.location.href = targetUrl;
+          } else {
+            router.replace(targetUrl);
+          }
+        } else {
+          // Cookie is expired/invalid — clear the stale store entry and stay on
+          // login so the user can re-authenticate
+          logout();
+        }
+      } catch {
+        // Network error (e.g. gateway down) — clear stale state, show login
+        if (!cancelled) logout();
       }
-    }
-  }, [isAuthenticated, user, router, _hasHydrated]);
+    })();
+    return () => { cancelled = true; };
+  }, [isAuthenticated, user, router, _hasHydrated, logout]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

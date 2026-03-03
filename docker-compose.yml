@@ -38,10 +38,13 @@ services:
       JWT_REFRESH_SECRET: dev_refresh_secret_123456789
       ACCESS_TTL: 15m
       REFRESH_TTL: 7d
+      AI_ENGINE_URL: http://ai-engine:8001
     ports:
       - "8000:8000"
     depends_on:
       postgres:
+        condition: service_healthy
+      ai-engine:
         condition: service_healthy
     networks:
       - takathon-net
@@ -55,7 +58,7 @@ services:
   
 
   # =========================================================
-  # AI Engine (FastAPI) — optional, use: docker-compose --profile ai up
+  # AI Engine (FastAPI)
   # =========================================================
   ai-engine:
     build:
@@ -66,13 +69,13 @@ services:
       - "8001:8001"
     networks:
       - takathon-net
-    profiles:
-      - ai
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8001/health || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 10s
+    restart: unless-stopped
 
   # =========================================================
   # Landing Page (Next.js)

@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2, CheckCircle, Shield } from "lucide-react";
 import { studentApi } from "@takathon/shared/api";
-import type { StudentHackathonSummary } from "@takathon/shared/api/src/student";
+import type { StudentHackathonSummary } from "@takathon/shared/api";
 import { toast } from "sonner";
 
 export default function HackathonsPage() {
@@ -32,10 +32,20 @@ export default function HackathonsPage() {
     const handleJoin = async (hackathonId: string) => {
         try {
             await studentApi.registerForHackathon(hackathonId);
-            toast.success("Successfully registered for hackathon!");
-            fetchHackathons();
+            toast.success("Successfully registered!");
+            setHackathons(prev => prev.map(h => h.id === hackathonId ? { ...h, isRegistered: true, participantCount: h.participantCount + 1 } : h));
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to register");
+        }
+    };
+
+    const handleWithdraw = async (hackathonId: string) => {
+        try {
+            await studentApi.withdrawFromHackathon(hackathonId);
+            toast.success("Withdrawn successfully");
+            setHackathons(prev => prev.map(h => h.id === hackathonId ? { ...h, isRegistered: false, participantCount: Math.max(0, h.participantCount - 1) } : h));
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Failed to withdraw");
         }
     };
 
@@ -117,8 +127,8 @@ export default function HackathonsPage() {
                                     <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
                                         {hackathon.title}
                                     </h3>
-                                    {/* Organizer name would ideally come from backend expansion */}
-                                    <p className="text-sm text-white/60">Organizer ID: {(hackathon.organizerId || '--------').substring(0, 8)}...</p>
+                                    {/* Organizer info */}
+                                    <p className="text-sm text-white/60">{hackathon.isVirtual ? "Virtual Event" : hackathon.location || "TBD"}</p>
                                 </div>
                                 <span
                                     className={`px-3 py-1 text-xs font-semibold rounded-full ${
@@ -175,18 +185,42 @@ export default function HackathonsPage() {
                             {/* Footer */}
                             <div className="flex items-center justify-between pt-4 border-t border-white/10">
                                 <div>
-                                    <span className="text-primary font-bold text-lg">{hackathon.prizePool || "TBD"}</span>
-                                    {hackathon.prizePool && <span className="text-white/40 text-sm ml-1">Prize Pool</span>}
+                                    <span className="text-primary font-bold text-lg">{hackathon.participantCount}</span>
+                                    <span className="text-white/40 text-sm ml-1">Participants</span>
                                 </div>
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleJoin(hackathon.id);
-                                    }}
-                                    className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200"
-                                >
-                                    Join Now
-                                </button>
+                                {hackathon.isRegistered ? (
+                                    <div className="flex items-center gap-2">
+                                        {hackathon.isInTeam ? (
+                                            // Blocked — user is in a team for this hackathon
+                                            <div className="flex items-center gap-1.5" title="Leave your team from My Teams before withdrawing">
+                                                <span className="flex items-center gap-1 text-primary text-sm font-medium">
+                                                    <Shield className="w-4 h-4" /> In Team
+                                                </span>
+                                                <span className="text-white/30 text-xs">(leave team to withdraw)</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <span className="flex items-center gap-1 text-green-400 text-sm font-medium">
+                                                    <CheckCircle className="w-4 h-4" /> Registered
+                                                </span>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleWithdraw(hackathon.id); }}
+                                                    className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 text-sm font-medium rounded-lg transition-all duration-200 border border-white/10 hover:border-red-500/30"
+                                                >
+                                                    Withdraw
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleJoin(hackathon.id); }}
+                                        disabled={hackathon.status !== "registration_open"}
+                                        className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        Join Now
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}

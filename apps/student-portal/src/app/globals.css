@@ -79,3 +79,9 @@ body {
   @apply focus:outline-none focus:border-primary/50 focus:bg-white/10;
   @apply transition-all duration-300;
 }
+
+/* ─── Select Option Dark Theme ─── */
+select option {
+  background-color: #1A0A00;
+  color: #fff;
+}

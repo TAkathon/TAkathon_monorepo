@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuthStore, getRedirectUrl, getLandingUrl } from "@takathon/shared/utils";
+import { usePathname } from "next/navigation";
+import { useAuthStore, getLandingUrl } from "@takathon/shared/utils";
 import {
     Home,
     Calendar,
@@ -32,29 +32,42 @@ export default function DashboardLayout({
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
-    const router = useRouter();
-    const { user, isAuthenticated, logout, _hasHydrated } = useAuthStore();
+    const { user, isAuthenticated, login, logout, _hasHydrated } = useAuthStore();
 
+    // Middleware already guards this route via the httpOnly JWT cookie.
+    // But the Zustand store (localStorage) is per-origin, so after a
+    // cross-origin redirect from :3000 → :3001 the store is empty.
+    // Fetch /auth/me once to populate user info from the existing cookie.
     useEffect(() => {
         if (!_hasHydrated) return;
+        if (isAuthenticated && user) return; // already populated
 
-        // Simple protected route logic
-        if (!isAuthenticated) {
-            window.location.href = `${getLandingUrl()}/login`;
-        } else if (user?.role && user.role !== "student") {
-            const url = getRedirectUrl(user.role);
-            window.location.href = url;
-        }
-    }, [isAuthenticated, user, router, _hasHydrated]);
+        let cancelled = false;
+        (async () => {
+            try {
+                const { default: api } = await import("@takathon/shared/api");
+                const res = await api.get("/api/v1/auth/me");
+                const u = res.data?.data ?? res.data;
+                if (!cancelled && u?.id) {
+                    login({ id: u.id, email: u.email, fullName: u.fullName, role: u.role });
+                }
+            } catch {
+                // 401 → the shared interceptor handles redirect to login
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [_hasHydrated, isAuthenticated, user, login]);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            const { default: api } = await import("@takathon/shared/api");
+            await api.post("/api/v1/auth/logout");
+        } catch { /* best-effort */ }
         logout();
         window.location.href = `${getLandingUrl()}/login`;
     };
 
-    // Middleware already guards this route — render layout immediately to avoid
-    // the double-spinner (hydration wait → API wait). Only defer user-specific
-    // slot content until _hasHydrated is true.
+    // Middleware already guards this route — render layout immediately.
     const initials = _hasHydrated && user?.fullName
         ? user.fullName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
         : null;

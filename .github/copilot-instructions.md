@@ -1,6 +1,6 @@
 # TAkathon Copilot Instructions
 
-## 📊 Current Project Status (March 2026)
+## 📊 Current Project Status (March 2026 — updated after Phase 3 session)
 
 ### ✅ Completed
 
@@ -32,7 +32,7 @@
   - ENV guard at startup: exits in production if `DATABASE_URL`, `JWT_ACCESS_SECRET`, or `JWT_REFRESH_SECRET` are missing
   - Prisma migrate deploy (baseline migration committed, `db push --accept-data-loss` removed)
   - 32 security tests: `token.spec.ts` (13 tests) + `auth.spec.ts` (19 tests) in `apps/core-gateway/test/`
-- **Phase 2 Core Data Flows** — branch `feature/phase2-core-data-flows` (in progress, branched from `dev`):
+- **Phase 2 Core Data Flows** — branch `feature/phase2-core-data-flows` (merged into `dev`):
   - **Typed Shared API Client** — `libs/shared/api/src/` now exports domain modules:
     - `organizerApi` — `listMyHackathons`, `getMyHackathon`, `createHackathon`, `updateHackathon`, `publishHackathon`, `startHackathon`, `completeHackathon`, `cancelHackathon`, `getParticipants`
     - `studentApi` — `getMyProfile`, `updateMyProfile`, `addSkill`, `removeSkill`, `browseHackathons`, `getHackathon`, `getMyHackathons`, `registerForHackathon`, `withdrawFromHackathon`
@@ -42,6 +42,31 @@
   - **Backend additions**: explicit `POST /:id/start`, `POST /:id/complete`, `PATCH /:id` on organizer hackathons router
   - **Frontend refactored**: all organizer-dashboard and student-portal pages use typed domain API functions (no bare `api.get/post`)
   - Lifecycle action buttons (Publish / Start / Complete / Cancel) in organizer hackathons page
+- **Phase 3 AI Matching Engine (V1)** — branch `feature/phase3-ai-matching` (in progress, branched from `dev`):
+  - **AI Engine (FastAPI)** — `apps/ai-engine/app/matching/`:
+    - `scoring.py` — three pure deterministic scorers: `skill_complementarity` (40%), `experience_balance` (30%), `availability_overlap` (30% — neutral 0.5 until schema has availability field)
+    - `engine.py` — `suggest(team_skills, candidates, open_spots, limit)` orchestrates scorers, applies weights, generates human-readable explanations, returns sorted suggestions
+    - `validators.py` — Pydantic v2 request/response models (`MatchRequest`, `MatchResponse`, `MatchSuggestion`)
+    - `main.py` — `POST /api/v1/matching/recommend` FastAPI endpoint
+  - **27 pytest tests**: `tests/test_scoring.py` (individual scorer unit tests) + `tests/test_matching.py` (engine integration tests)
+  - **Core Gateway**: `StudentMatchingService.getMatches()` fetches team + candidate data from Prisma, calls AI engine at `AI_ENGINE_URL`, falls back to local `basicScoring()` if engine unreachable
+    - Route: `GET /api/v1/students/teams/:id/matches` + `POST /api/v1/students/teams/:id/matches/:userId` (invite)
+  - **Shared API**: `matchingApi` module (`libs/shared/api/src/matching.ts`) — `suggestTeammates(teamId, limit)`, `inviteMatch(teamId, userId)` + exported types `MatchSuggestion`, `MatchResult`
+  - **Student Portal**: "Find Teammates" button on forming teams with open spots → AI matching modal with ranked candidates, score badge, breakdown (skill/exp/avail %), explanation, Invite button
+  - **Docker**: AI engine now starts by default (removed `profiles: [ai]`); `AI_ENGINE_URL=http://ai-engine:8001` injected into core-gateway
+  - **Scoring notes**: proficiency map `beginner→1, intermediate→2, advanced→3, expert→4`; experience balance targets mean=2.5 (centre of scale)
+  - **⚠️ Route mount**: matching router is at `/api/v1/students/matching` — shared API client must call `/students/matching/:id/matches`, NOT `/students/teams/:id/matches`
+- **Availability Feature** — committed `f3f4c3d` on `feature/phase3-ai-matching`:
+  - `prisma/schema.prisma`: `availability Json? @map("availability") @db.JsonB` added to `StudentProfile` (db push applied)
+  - **Availability data shape**: `{ timezone: "UTC+1", hoursPerWeek: 20, preferredSlots: ["weekday_evening", "weekend_morning"] }`
+  - **Valid slot keys** (6): `weekday_morning`, `weekday_afternoon`, `weekday_evening`, `weekend_morning`, `weekend_afternoon`, `weekend_evening`
+  - `scoring.py`: real `availability_overlap` — Jaccard slot similarity (70%) + hours compatibility (30%); returns neutral 0.5 when either side has no data
+  - `validators.py`: `AvailabilityEntry` Pydantic model; `availability` on `CandidateProfile`; `teamAvailability: list[AvailabilityEntry]` on `MatchRequest`
+  - `engine.py` / `main.py`: `team_availability` threaded through to scorer
+  - `matching.service.ts`: collects `teamAvailability` from DB team members' `studentProfile.availability`
+  - `profile.service.ts` / `profile.ts` route: get + update availability with Zod validation
+  - `libs/shared/api`: `AvailabilitySlot` type + `AvailabilityData` interface exported from barrel
+  - `settings/page.tsx`: Availability section — timezone dropdown (UTC offsets), hours/week input, 6 slot toggle buttons, Save → `studentApi.updateMyProfile({ availability: ... })`
 - **Frontend-Backend Integration** (V1 complete):
   - student-portal: dashboard, profile, teams, hackathons, settings pages — live API data via shared Axios + Zustand
   - organizer-dashboard: hackathons list + create, participants, teams, settings pages
@@ -58,6 +83,20 @@
   - Empty NestJS scaffold files (`main.ts`, `app.module.ts`, `app.controller.ts`) annotated with disambiguation comments — Express entry at `src/index.ts`
   - Organizer router sub-paths documented and confirmed non-conflicting
   - Full audit report in `docs/code-audit.md`
+- **Phase 3 Bug Fixes & UX Polish** — branch `feature/phase3-ai-matching` (PR #26 → `dev`):
+  - **Login infinite refresh loop** fixed: login page now verifies `/api/v1/auth/me` before trusting Zustand `isAuthenticated`; clears stale store on 4xx
+  - **DashboardLayout auth loop** removed: middleware guards routes via httpOnly cookie; layout calls `GET /auth/me` once on mount to hydrate Zustand from existing cookie (needed after cross-origin redirect where localStorage is empty on the target origin)
+  - **Team API response flatten**: `getMyTeams()` returns `[{ role, joinedAt, team: {...} }]` (nested). Frontend now flattens: `const teams = rawTeams.map(m => ({ ...(m.team ?? m), myRole: m.role ?? m.myRole, members: (m.team?.members ?? m.members) || [] }))`
+  - **Skill add/remove URL**: `addSkill` / `removeSkill` client functions use `/api/v1/students/skills`, NOT `/api/v1/students/profile/skills`
+  - **AI matching URL**: `suggestTeammates` / `inviteMatch` in `libs/shared/api/src/matching.ts` use `/students/matching/:teamId/matches`, NOT `/students/teams/:teamId/matches`
+  - **Profile skills**: replaced `window.prompt()` with inline dropdown form; `addSkill` / `removeSkill` called immediately (no page reload required)
+  - **Hackathon isRegistered + isInTeam**: backend `listHackathons()` now queries participant records and returns `isRegistered` and `isInTeam` flags per hackathon; frontend shows contextual UI ("In Team — leave team to withdraw" / Withdraw / Join Now)
+  - **Leave / Disband team**: non-captains see Leave button; captains see Disband button (only when status is `forming`)
+  - **select option dark theme**: added `select option { background-color: #1A0A00; color: #fff; }` to all three apps' `globals.css`
+  - **Tailwind opacity classes**: `hover:bg-white/8` is not a valid Tailwind class (must be multiples of 5 or explicit config); use `hover:bg-white/10` instead
+  - **Team Messages page**: `/dashboard/teams/[id]/messages` — placeholder chat UI with demo messages; input disabled; "Coming Soon" badge; real-time messaging via WebSockets is out of scope for V1
+  - **Project Details page**: `/dashboard/teams/[id]/project` — milestone tracker, tech stack, submission links (all demo data); "Demo Data" badge; real project editing out of scope for V1
+  - **Team Chat / Project Details buttons** wired: buttons on the team card now use `router.push()` to navigate to the new pages
 
 ### 🚧 In Progress / Remaining for V1
 
@@ -66,8 +105,9 @@
 
 ### ⛔ Out of Scope for V1
 
-- AI Matching Engine (FastAPI scoring logic — Phase 2)
-- AI coaching / chatbot features (Phase 2)
+- AI coaching / chatbot features (Phase 4+)
+- Real-time team messaging (WebSockets / database schema for messages)
+- Editable project details / submission link persistence
 
 ### ✅ Recent Operational Notes
 
@@ -76,11 +116,15 @@
 - **Core Gateway dev**: Requires Prisma client generated (`npx prisma generate`) and JWT secrets available.
 - **CORS in dev**: `CORS_ORIGINS` is optional in development — gateway defaults to `localhost:3000-3003`. Set explicitly in production.
 - **Docker rebuilds**: Frontend changes require `docker compose up --build` (cached `up` can show old assets).
+- **Docker layer cache trap**: `docker compose build` reuses layers even when source files change. If you commit fixes and the running container still shows the old behaviour, always run `docker compose build --no-cache <service>` followed by `docker compose up -d <service>` to force a fresh image.
 - **Docker Hub access**: If builds fail on `node:22-alpine`, check Docker Desktop proxy/DNS or network.
 - **Database setup**: PostgreSQL runs in Docker on port 5432, use `npm run db:start` to initialize, `npm run db:seed` populates test data.
 - **Prisma adapter pattern**: Prisma 7 requires `@prisma/adapter-pg` with `Pool` for connection management.
 - **Test credentials**: alice.student@university.edu / password123 (all test users have same password).
 - **Express entry point**: `apps/core-gateway/src/index.ts` — ignore empty NestJS scaffold files in `src/app/` and `src/main.ts`.
+- **AI Engine**: Now starts by default with `docker compose up` (no `--profile ai` needed). Port 8001. Gateway env var `AI_ENGINE_URL=http://ai-engine:8001` (Docker) or `http://localhost:8001` (local dev). Falls back to local `basicScoring()` if engine is unreachable.
+- **AI matching tests**: Run with `cd apps/ai-engine && python -m pytest tests/ -v` (requires `pip install fastapi pydantic uvicorn` in the ai-engine venv).
+- **Matching route mount point**: The matching router is mounted at `/api/v1/students/matching` in `index.ts`. The shared API client calls `/students/matching/:teamId/matches`. Do NOT confuse with `/students/teams/:id` (teams router) — these are separate routers.
 
 ### 📋 V1 Completion — Next Steps (Priority Order)
 
@@ -91,35 +135,185 @@
    - Ensure responsive layout passes on mobile (375px breakpoint)
 
 2. **Organizer Dashboard — Missing Pages**
-   - Create hack create/edit form page (`/dashboard/hackathons/new`, `/dashboard/hackathons/[id]/edit`)
+   - Create hackathon create/edit form page (`/dashboard/hackathons/new`, `/dashboard/hackathons/[id]/edit`)
    - Wire CSV export button to `GET /api/v1/organizers/hackathons/:id/export`
 
-3. **Student Portal — Missing Pages**
-   - Hackathons list page with register/withdraw actions (`/dashboard/hackathons`)
-   - Team detail page with member list and invite flow (`/dashboard/teams/[id]`)
-
-4. **Sponsor Panel — Missing Pages**
+3. **Sponsor Panel — Missing Pages**
    - Team detail modal/page with project info (`/dashboard/teams/[id]`)
    - Confirmation flow for sponsorship submission
 
-5. **Auth & Session Hardening**
-   - Redirect unauthenticated users from protected routes to `/login`
-   - Implement token refresh on app load (check session validity on mount)
-   - Handle 401 globally → clear store → redirect to login
-
-6. **Response Standardization (Core Gateway)**
+4. **Response Standardization (Core Gateway)**
    - Audit all route handlers: replace ad-hoc `res.json(...)` calls with `ResponseHandler.success/error`
    - Enforce consistent `{ success, data | error }` shape across all endpoints
 
-7. **E2E Testing**
+5. **E2E Testing**
    - Auth flow: register → login → dashboard redirect
    - Team creation flow: create team → invite member → accept invite
    - Hackathon registration flow: browse → register → appear in dashboard
 
-8. **Deployment Prep**
+6. **Deployment Prep**
    - Write `apps/core-gateway/.env.production.example` and `apps/*/next.config.prod.mjs`
    - Set up GitHub Actions CI: lint → type-check → test → build
    - Document Render/DigitalOcean deployment steps in `docs/deployment.md`
+
+7. **Team Features (V2)**
+   - Real-time team messaging (WebSocket backend + DB schema for messages)
+   - Editable project details page with DB persistence (`projectIdea`, submission links)
+   - Inline member invite from the team detail page
+
+---
+
+## 🐛 Known Bugs & Pitfalls — Do NOT Repeat
+
+This section documents bugs we actually hit in development. **Read before starting any new session.**
+
+### 1. Login Page Infinite Refresh Loop
+
+**Symptom**: Login page redirects to `/dashboard`, which middleware immediately bounces back to `/login`, repeating forever.
+
+**Root cause**: Next.js middleware strips the expired/missing httpOnly cookie and redirects to `/login`. But the Zustand store (persisted to `localStorage`) still has `isAuthenticated: true` from the previous session. The login page blindly trusts the store and immediately redirects back — creating an infinite loop.
+
+**Fix** (`apps/landing-page/src/app/login/page.tsx`):
+```typescript
+// BEFORE (wrong)
+useEffect(() => {
+  if (isAuthenticated) router.push("/dashboard");
+}, [isAuthenticated]);
+
+// AFTER (correct) — verify the cookie is actually live
+useEffect(() => {
+  if (!isAuthenticated) return;
+  (async () => {
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/auth/me`, { credentials: "include" });
+      if (res.ok) router.push(authRedirect(user?.role));
+      else logout(); // stale store — clear it and stay on login
+    } catch { logout(); }
+  })();
+}, [isAuthenticated]);
+```
+
+**Rule**: Never redirect from the login page by trusting `isAuthenticated` alone. **Always verify the session with `/auth/me`** before redirecting.
+
+---
+
+### 2. DashboardLayout Auth Redirect Loop
+
+**Symptom**: Protected pages redirect to `/login` even when the user has a valid cookie, because the Zustand store is empty after a cross-origin redirect (e.g., landing-page :3000 → student-portal :3001; `localStorage` is per-origin).
+
+**Fix**: Remove client-side redirect from `DashboardLayout`. Rely on `middleware.ts` for auth guarding (it reads the httpOnly cookie, not localStorage). On mount, call `GET /auth/me` once to hydrate Zustand from the existing cookie:
+```typescript
+useEffect(() => {
+  if (!_hasHydrated) return;
+  if (isAuthenticated && user) return;
+  api.get("/api/v1/auth/me")
+    .then(res => login({ ...res.data.data }))
+    .catch(() => {}); // 401 handled by shared interceptor → redirect to login
+}, [_hasHydrated]);
+```
+
+**Rule**: `DashboardLayout` must NOT redirect to `/login`. Only `middleware.ts` should do that.
+
+---
+
+### 3. Docker Layer Cache — Committed Fixes Not Running
+
+**Symptom**: You fix a bug, commit, run `docker compose up -d`, but the issue persists. The container is still running the old code.
+
+**Root cause**: Docker caches build layers. `docker compose up -d` (without `--build`) uses the cached image. `docker compose build` without `--no-cache` also uses layers cached before your source change.
+
+**Fix**: After committing source changes that affect a service:
+```powershell
+docker compose build --no-cache <service>   # e.g., student-portal core-gateway
+docker compose up -d <service>
+```
+
+**Rule**: Any time a fix "appears committed but still broken in the browser", suspect the Docker cache. Always `--no-cache` when debugging container behaviour.
+
+---
+
+### 4. AI Matching Route Mount Mismatch
+
+**Symptom**: "Failed to fetch suggestions" error when clicking "Find Teammates".
+
+**Root cause**: The matching router is mounted at `/api/v1/students/matching` in `index.ts`. The shared API client (`libs/shared/api/src/matching.ts`) was calling `/students/teams/:id/matches` — a path that belongs to the teams router which has no `/matches` sub-route.
+
+**Correct URLs**:
+- `GET /api/v1/students/matching/:teamId/matches` → `suggestTeammates()`
+- `POST /api/v1/students/matching/:teamId/matches/:userId` → `inviteMatch()`
+
+**Rule**: When adding a new router to `index.ts`, immediately document its mount point here and in the API table above. Never guess the path — open `index.ts` to confirm.
+
+---
+
+### 5. `getMyTeams()` Returns Nested Shape — Always Flatten
+
+**Symptom**: Team cards show empty/undefined name, size, status, members. AI matching button never appears.
+
+**Root cause**: `GET /api/v1/students/teams` returns:
+```json
+[{ "membershipId": "...", "role": "captain", "joinedAt": "...", "team": { "id": "...", "name": "...", ... } }]
+```
+Not a flat `Team[]`. If you store this directly and access `team.name`, you get `undefined`.
+
+**Fix** (teams page `fetchData`):
+```typescript
+const teams = (rawTeams as any[]).map((m: any) => ({
+  ...(m.team ?? m),
+  myRole: m.role ?? m.myRole,
+  members: (m.team?.members ?? m.members) || [],
+}));
+```
+
+**Rule**: Always check the actual API response shape with `console.log` or the Prisma service file before writing frontend template code against it.
+
+---
+
+### 6. Skill Add/Remove URL Mismatch
+
+**Symptom**: Adding or removing a skill from the profile has no effect (or 404 in the network tab). Skills disappear after navigating away.
+
+**Root cause**: The student profile router uses:
+- `POST /api/v1/students/skills` (add)
+- `DELETE /api/v1/students/skills/:id` (remove)
+
+Not `/api/v1/students/profile/skills`.
+
+**Rule**: When in doubt, open `apps/core-gateway/src/routes/students/profile.ts` and read the actual route definitions before writing client-side fetch calls.
+
+---
+
+### 7. Hackathon `isInTeam` Blocks Withdraw Silently
+
+**Symptom**: Clicking "Withdraw" does nothing or shows a generic error. User is registered but in a team.
+
+**Root cause**: Backend `withdraw()` returns `{ error: "IN_TEAM" }` when `participant.status === "in_team"`. The frontend showed a generic toast with no actionable feedback.
+
+**Fix**: Backend now returns `isInTeam: true` per hackathon from `listHackathons()`. Frontend shows a disabled "In Team — leave team to withdraw" badge instead of a clickable Withdraw button.
+
+---
+
+### 8. Tailwind Opacity Classes — Invalid Values
+
+**Symptom**: TypeScript or Tailwind build warnings; the hover colour doesn't apply as expected.
+
+**Rule**: Tailwind's opacity scale by default only includes multiples of 5 (5, 10, 15, 20 … 95, 100) plus 0. `hover:bg-white/8` is **not valid** out of the box. Use `hover:bg-white/10` or extend the theme in `tailwind.config.js`.
+
+---
+
+### 9. `select option` Elements Ignore Dark Background
+
+**Symptom**: Dropdown `<select>` renders correctly, but the individual `<option>` items have a white background in dark mode (browser native rendering overrides Tailwind classes on `<option>`).
+
+**Fix**: Add global CSS to each app's `globals.css`:
+```css
+select option {
+  background-color: #1A0A00;
+  color: #fff;
+}
+```
+
+**Rule**: Tailwind classes on `<option>` elements are ignored by most browsers. Always use a global CSS rule.
 
 ---
 
@@ -203,7 +397,7 @@ apps/core-gateway/src/
   - `GET /teams` - My teams
   - `POST /teams` - Create team
   - `POST /teams/:id/invite` - Invite teammates
-  - `GET /teams/:id/matches` - AI teammate recommendations
+  - `GET /matching/:id/matches` - AI teammate recommendations (matching router, NOT teams router)
 - **Organizers** (`/api/v1/organizers/*`):
   - `GET /profile` - Get organizer profile
   - `POST /hackathons` - Create hackathon
@@ -340,14 +534,16 @@ Scoring criteria for candidate matches:
 
 JWT-based system via Core Gateway (Express).
 
-- **Access Tokens**: Short-lived, passed via `Authorization: Bearer <token>` header.
-- **Refresh Tokens**: Long-lived, stored in `httpOnly` cookies for security.
-- **Auto-Refresh**: Shared Axios client (`libs/shared/api`) handles 401 errors by attempting a token refresh.
+- **Access Tokens**: Short-lived, issued as **`httpOnly` cookies** (`accessToken`). Never sent in response body or stored in JS.
+- **Refresh Tokens**: Long-lived, also issued as **`httpOnly` cookies** (`refreshToken`).
+- **`requireAuth` middleware** reads from `req.cookies.accessToken` — NOT from `Authorization` header.
+- **Auto-Refresh**: Shared Axios client (`libs/shared/api`) handles 401 responses by POSTing `/auth/refresh`; on failure, redirects to `/login`.
+- **Session verification**: Always call `GET /api/v1/auth/me` (with `credentials: "include"`) to confirm a cookie is live before trusting Zustand `isAuthenticated`.
 
 All API routes require role-based access control:
 
 - Public routes: `/api/v1/auth/register`, `/api/v1/auth/login`, `/api/v1/auth/refresh`
-- Protected routes: `/api/v1/me`, `/api/v1/students/*`, etc.
+- Protected routes: `/api/v1/auth/me`, `/api/v1/students/*`, `/api/v1/organizers/*`, `/api/v1/sponsors/*`
 
 ### API Design
 
@@ -358,7 +554,7 @@ RESTful conventions (Core Gateway serves all):
 - `/api/v1/organizers/*` - Organizer operations
 - `/api/v1/hackathons/*` - Event management
 - `/api/v1/teams/*` - Team creation, invitations, management
-- `/api/v1/matching/*` - AI teammate recommendations (proxied to ai-engine)
+- `/api/v1/students/matching/*` - AI teammate recommendations (mounted at `/students/matching` in index.ts)
 - `/api/v1/skills/*` - Skill taxonomy
 
 ## Development Workflows

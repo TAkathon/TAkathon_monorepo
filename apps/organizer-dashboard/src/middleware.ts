@@ -4,7 +4,9 @@ import type { NextRequest } from "next/server";
 /**
  * Auth middleware for organizer-dashboard.
  * Protects all routes except Next.js internals and _next static assets.
- * Redirects unauthenticated or wrong-role users to the landing page login.
+ * Reads the httpOnly `accessToken` JWT cookie set by the gateway.
+ * The JWT payload (base64-decoded) contains { id, email, role } — no secret
+ * needed here; the API verifies the signature on every protected request.
  */
 
 const LANDING_URL =
@@ -12,6 +14,19 @@ const LANDING_URL =
 
 // Public paths that should never be protected (Next.js internals)
 const PUBLIC_PATH_PREFIXES = ["/_next", "/favicon.ico", "/api/"];
+
+function decodeJwtRole(token: string): string | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    // base64url → base64
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(base64));
+    return typeof payload?.role === "string" ? payload.role : null;
+  } catch {
+    return null;
+  }
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -21,24 +36,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  try {
-    const raw = request.cookies.get("auth-storage")?.value;
-    if (!raw) {
-      return NextResponse.redirect(`${LANDING_URL}/login`);
-    }
+  const token = request.cookies.get("accessToken")?.value;
+  if (!token) {
+    return NextResponse.redirect(`${LANDING_URL}/login`);
+  }
 
-    const parsed = JSON.parse(decodeURIComponent(raw));
-    const state = parsed?.state;
-
-    if (!state?.isAuthenticated || !state?.user) {
-      return NextResponse.redirect(`${LANDING_URL}/login`);
-    }
-
-    // Ensure the logged-in user is an organizer
-    if (state.user.role !== "organizer") {
-      return NextResponse.redirect(`${LANDING_URL}/login`);
-    }
-  } catch {
+  const role = decodeJwtRole(token);
+  if (role !== "organizer") {
     return NextResponse.redirect(`${LANDING_URL}/login`);
   }
 

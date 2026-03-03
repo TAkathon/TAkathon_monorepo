@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuthStore, getLandingUrl, getRedirectUrl } from "@shared/utils";
+import { useAuthStore, getLandingUrl } from "@shared/utils";
 import {
     Home,
     Calendar,
@@ -37,22 +37,37 @@ export default function DashboardLayout({
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
-    const { user, isAuthenticated, logout, _hasHydrated } = useAuthStore();
+    const { user, isAuthenticated, login, logout, _hasHydrated } = useAuthStore();
+
+    // Middleware already guards this route via the httpOnly JWT cookie.
+    // Populate Zustand from /auth/me when store is empty (cross-origin redirect).
     useEffect(() => {
         if (!_hasHydrated) return;
-        if (!isAuthenticated) {
-            window.location.href = `${getLandingUrl()}/login`;
-        } else if (user?.role && user.role !== "organizer") {
-            const url = getRedirectUrl(user.role);
-            window.location.href = url;
-        }
-    }, [isAuthenticated, user, _hasHydrated]);
-    const handleLogout = () => {
+        if (isAuthenticated && user) return;
+
+        let cancelled = false;
+        (async () => {
+            try {
+                const { default: api } = await import("@takathon/shared/api");
+                const res = await api.get("/api/v1/auth/me");
+                const u = res.data?.data ?? res.data;
+                if (!cancelled && u?.id) {
+                    login({ id: u.id, email: u.email, fullName: u.fullName, role: u.role });
+                }
+            } catch { /* 401 handled by interceptor */ }
+        })();
+        return () => { cancelled = true; };
+    }, [_hasHydrated, isAuthenticated, user, login]);
+
+    const handleLogout = async () => {
+        try {
+            const { default: api } = await import("@takathon/shared/api");
+            await api.post("/api/v1/auth/logout");
+        } catch { /* best-effort */ }
         logout();
         window.location.href = `${getLandingUrl()}/login`;
     };
 
-    // Middleware already guards this route — render layout shell immediately.
     const initials = _hasHydrated && user?.fullName
         ? user.fullName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
         : null;

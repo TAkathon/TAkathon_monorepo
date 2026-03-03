@@ -17,6 +17,7 @@ router.use(requireAuth, requireStudent);
 router.get("/", async (req: any, res) => {
   const { status, search, page, perPage } = req.query;
   const result = await StudentHackathonService.listHackathons({
+    userId: req.user.id,
     status: typeof status === "string" ? status : undefined,
     search: typeof search === "string" ? search : undefined,
     page: page ? Number(page) : undefined,

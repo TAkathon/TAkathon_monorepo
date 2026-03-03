@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin, Loader2, Trash2 } from "lucide-react";
-import { studentApi } from "@takathon/shared/api";
+import { Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin, Loader2, Trash2, Plus, X } from "lucide-react";
+import { studentApi, hackathonApi } from "@takathon/shared/api";
 import { useAuthStore } from "@takathon/shared/utils";
 import { toast } from "sonner";
 
@@ -21,8 +21,16 @@ interface ProfileData {
 }
 
 interface SkillData {
+    id?: string;      // userSkill id (used for deletion)
+    skillId?: string; // taxonomy skill id
     name: string;
     level: string;
+}
+
+interface TaxonomySkill {
+    id: string;
+    name: string;
+    category: string;
 }
 
 export default function ProfilePage() {
@@ -43,9 +51,15 @@ export default function ProfilePage() {
         website: "",
     });
     const [skills, setSkills] = useState<SkillData[]>([]);
+    const [availableSkills, setAvailableSkills] = useState<TaxonomySkill[]>([]);
+    const [showAddSkill, setShowAddSkill] = useState(false);
+    const [newSkillId, setNewSkillId] = useState("");
+    const [newSkillLevel, setNewSkillLevel] = useState<"beginner" | "intermediate" | "advanced" | "expert">("beginner");
+    const [addingSkill, setAddingSkill] = useState(false);
 
     useEffect(() => {
         fetchProfile();
+        hackathonApi.listSkills().then(setAvailableSkills).catch(() => {});
     }, []);
 
     const fetchProfile = async () => {
@@ -66,6 +80,8 @@ export default function ProfilePage() {
             if (data.skills) {
                 setSkills(
                     data.skills.map((s: any) => ({
+                        id: s.id,
+                        skillId: s.skillId,
                         name: s.skill?.name || s.name,
                         level: s.proficiencyLevel || "beginner",
                     }))
@@ -79,6 +95,41 @@ export default function ProfilePage() {
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAddSkill = async () => {
+        if (!newSkillId) { toast.error("Please select a skill"); return; }
+        setAddingSkill(true);
+        try {
+            await studentApi.addSkill({ skillId: newSkillId, proficiencyLevel: newSkillLevel });
+            const added = availableSkills.find(s => s.id === newSkillId);
+            if (added) {
+                setSkills(prev => [...prev, { skillId: added.id, name: added.name, level: newSkillLevel }]);
+            }
+            setShowAddSkill(false);
+            setNewSkillId("");
+            setNewSkillLevel("beginner");
+            toast.success(`${added?.name} added!`);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to add skill");
+        } finally {
+            setAddingSkill(false);
+        }
+    };
+
+    const handleRemoveSkill = async (skill: SkillData, index: number) => {
+        if (!skill.id) {
+            // Skill not yet saved — just remove from local state
+            setSkills(prev => prev.filter((_, i) => i !== index));
+            return;
+        }
+        try {
+            await studentApi.removeSkill(skill.id);
+            setSkills(prev => prev.filter((_, i) => i !== index));
+            toast.success(`${skill.name} removed`);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to remove skill");
         }
     };
 
@@ -265,18 +316,64 @@ export default function ProfilePage() {
                 <div className="glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold text-white">Skills</h2>
-                        {isEditing && (
+                        {isEditing && !showAddSkill && (
                             <button
-                                onClick={() => {
-                                    const name = prompt("Enter skill name:");
-                                    if (name) setSkills([...skills, { name, level: "beginner" }]);
-                                }}
-                                className="text-sm text-primary hover:text-primary-light"
+                                onClick={() => setShowAddSkill(true)}
+                                className="flex items-center gap-1 text-sm text-primary hover:text-primary-light"
                             >
-                                + Add Skill
+                                <Plus className="w-4 h-4" /> Add Skill
                             </button>
                         )}
                     </div>
+                    {/* Inline Add Skill Form */}
+                    {isEditing && showAddSkill && (
+                        <div className="mb-4 p-4 bg-white/5 border border-white/10 rounded-lg flex flex-col sm:flex-row gap-3 items-end">
+                            <div className="flex-1">
+                                <label className="block text-xs text-white/50 mb-1">Skill</label>
+                                <select
+                                    value={newSkillId}
+                                    onChange={e => setNewSkillId(e.target.value)}
+                                    className="input-field"
+                                >
+                                    <option value="">Select a skill…</option>
+                                    {availableSkills
+                                        .filter(s => !skills.some(existing => existing.skillId === s.id))
+                                        .map(s => (
+                                            <option key={s.id} value={s.id}>{s.name} ({s.category})</option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
+                            <div className="w-full sm:w-48">
+                                <label className="block text-xs text-white/50 mb-1">Level</label>
+                                <select
+                                    value={newSkillLevel}
+                                    onChange={e => setNewSkillLevel(e.target.value as typeof newSkillLevel)}
+                                    className="input-field"
+                                >
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                    <option value="expert">Expert</option>
+                                </select>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleAddSkill}
+                                    disabled={addingSkill || !newSkillId}
+                                    className="px-4 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-lg disabled:opacity-50 transition-all"
+                                >
+                                    {addingSkill ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
+                                </button>
+                                <button
+                                    onClick={() => { setShowAddSkill(false); setNewSkillId(""); }}
+                                    className="px-3 py-3 text-white/50 hover:text-white rounded-lg transition-all"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     {skills.length === 0 ? (
                         <p className="text-white/40 text-sm">No skills added yet</p>
                     ) : (
@@ -303,7 +400,7 @@ export default function ProfilePage() {
                                         </span>
                                         {isEditing && (
                                             <button
-                                                onClick={() => setSkills(skills.filter((_, i) => i !== index))}
+                                                onClick={() => handleRemoveSkill(skill, index)}
                                                 className="p-1 text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                                             >
                                                 <Trash2 className="w-4 h-4" />
