@@ -1,370 +1,352 @@
-# TAkathon Architecture Documentation
+# TAkathon — System Architecture
+
+**Last Updated**: March 3, 2026
+
+---
 
 ## Overview
 
-TAkathon is a **modular monolith** Nx monorepo designed for scalable hackathon team formation with AI-powered matching capabilities.
+TAkathon is a hackathon team formation platform built as a Nx monorepo. It helps students find teammates, organizers manage events, and sponsors discover talent.
 
-## Architecture Principles
-
-- **Modular Monolith**: Clear separation of concerns with potential for future service extraction
-- **Student-Driven Team Building**: Students create teams, invite friends, and request AI suggestions for open spots
-- **Nx Workspace**: Leverages Nx for build optimization, dependency management, and scalability
-- **Type-Safe**: Full TypeScript coverage with shared type definitions
-
-## System Layers
+**Core data flow**:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   Frontend Apps                          │
-│  (student-portal, organizer-dashboard, sponsor-panel)   │
-└────────────────┬────────────────────────────────────────┘
-                 │ HTTP/REST
-┌────────────────┴────────────────────────────────────────┐
-│              Core Gateway (Node.js/NestJS)              │
-│        Auth │ DB Access │ Chat │ API Routing            │
-└────────────────┬────────────────────────────────────────┘
-                 │
-    ┌────────────┴────────────┐
-    │                         │
-┌───┴─────────────┐  ┌───────┴──────────┐
-│  AI Engine      │  │   PostgreSQL     │
-│  (FastAPI)      │  │    Database      │
-│  Matching       │  │                  │
-│  Coaching       │  │                  │
-└─────────────────┘  └──────────────────┘
+Browser (Next.js) → Core Gateway (Express) → PostgreSQL
+                                           → AI Engine (FastAPI)
 ```
 
-## Apps Structure
+All authentication is managed at the gateway. The AI engine is stateless (receives data from gateway, returns recommendations).
 
-### 1. **student-portal** (Next.js)
-Frontend for hackathon participants.
+---
 
-**Key Features:**
-- User registration and profile management
-- Hackathon browsing and registration
-- Team creation and friend invitations
-- AI teammate match requests and reviews
-- Team management dashboard
-
-### 2. **organizer-dashboard** (Next.js)
-Frontend for hackathon organizers.
-
-**Key Features:**
-- Hackathon creation and management
-- Participant overview
-- Team distribution analytics
-- Data export capabilities
-
-### 3. **sponsor-panel** (Next.js)
-Frontend for corporate scouts and sponsors.
-
-**Key Features:**
-- Hackathon browsing
-- Team project viewing
-- Talent discovery
-
-### 4. **core-gateway** (Node.js/NestJS)
-Central backend service handling authentication, database operations, and business logic.
-
-**Responsibilities:**
-- **Auth**: JWT-based authentication and authorization
-- **Database**: SQLAlchemy ORM with PostgreSQL
-- **API**: RESTful endpoints for all client operations
-- **Chat**: Real-time team communication (future)
-
-### 5. **ai-engine** (FastAPI/Python)
-Python service for AI-powered matching and coaching.
-
-**Responsibilities:**
-- **Matching Engine**: Teammate recommendation algorithm
-- **Scoring**: Skill complementarity, experience balance
-- **Validation**: Team composition validation
-- **Coaching** (future): LLM-powered hackathon assistance
-
-## Shared Libraries
-
-### libs/shared/ui
-Reusable React/Tailwind components shared across all frontends.
-
-**Components:**
-- buttons, inputs, cards
-- modals, dropdowns
-- layouts, navigation
-
-### libs/shared/types
-TypeScript type definitions shared between frontend and backend.
-
-**Includes:**
-- Domain models (User, Hackathon, Team)
-- API request/response types
-- Enums and constants
-
-### libs/shared/utils
-Common utility functions.
-
-**Includes:**
-- Validators (email, URL, password)
-- Formatters (date, percentage)
-- Constants (app config, limits)
-
-### libs/python/ai-logic
-Shared Python utilities for AI services.
-
-**Includes:**
-- Embedding utilities
-- Prompt templates
-- ML preprocessing helpers
-
-## Data Flow
-
-### Team Formation Flow (Student-Driven)
+## High-Level Architecture Diagram
 
 ```
-1. Student creates team
-   → POST /api/v1/teams
-   → core-gateway creates team record
-   → Student is captain
-
-2. Student invites friends
-   → POST /api/v1/teams/{id}/invite
-   → core-gateway creates invitations
-   → Invitees receive notifications
-
-3. Student requests AI matches for open spots
-   → POST /api/v1/matching/suggest
-   → core-gateway → ai-engine
-   → AI engine scores candidates based on:
-     - Skill gaps in current team
-     - Experience level balance
-     - Availability overlap
-   → Returns ranked suggestions
-
-4. Student reviews matches and sends invites
-   → POST /api/v1/teams/{id}/invite (to AI suggestions)
-
-5. Invitees accept/reject
-   → PATCH /api/v1/invitations/{id}
-   → Team membership updated
-```
-
-## Matching Engine (V1 Algorithm)
-
-**Located**: `apps/ai-engine/app/matching/`
-
-**Design Principle**: Deterministic and replaceable (designed for future ML swap)
-
-### Scoring Criteria
-
-1. **Skill Complementarity** (40%)
-   - Fill gaps in team's skill set
-   - Avoid redundancy
-   - Balance frontend/backend/design/PM
-
-2. **Experience Level Balance** (30%)
-   - Mix of skill proficiencies
-   - Avoid all-beginners or all-experts
-
-3. **Availability Overlap** (30%)
-   - Time zone compatibility
-   - Commitment level match
-
-### Candidate Scoring
-
-```python
-def score_candidate(team, candidate):
-    skill_score = calculate_skill_fit(team.skills, candidate.skills)
-    experience_score = calculate_experience_balance(team, candidate)
-    availability_score = calculate_availability_overlap(team, candidate)
-    
-    total = (
-        skill_score * 0.4 +
-        experience_score * 0.3 +
-        availability_score * 0.3
-    )
-    
-    return total, generate_reasons(skill_score, experience_score)
-```
-
-## Database Schema
-
-See `database/schema.sql` for complete PostgreSQL schema.
-
-### Core Tables
-
-- **users**: Student and organizer accounts
-- **skills**: Skill taxonomy
-- **user_skills**: Many-to-many with proficiency levels
-- **hackathons**: Event metadata
-- **hackathon_participants**: Registration data
-- **teams**: Student-created teams
-- **team_members**: Team membership
-- **team_invitations**: Pending invites and requests
-
-### Key Relationships
-
-```
-users (1) ─── (∞) hackathon_participants ─── (1) hackathons
+┌─────────────────────────────────────────────────────────────────┐
+│                         Browser Clients                          │
+│                                                                  │
+│  ┌─────────────┐ ┌──────────────────┐ ┌──────────────────────┐  │
+│  │ landing-page│ │  student-portal  │ │ organizer-dashboard  │  │
+│  │ :3000       │ │  :3001           │ │ :3002                │  │
+│  └──────┬──────┘ └────────┬─────────┘ └──────────┬───────────┘  │
+│         │                 │                       │              │
+│         │          ┌──────┴───────┐               │              │
+│         │          │ sponsor-panel│               │              │
+│         │          │ :3003        │               │              │
+│         │          └──────┬───────┘               │              │
+└─────────┼─────────────────┼───────────────────────┼─────────────┘
+          │  httpOnly cookies (withCredentials: true)│
+          └─────────────────┬───────────────────────┘
+                            ▼
+              ┌─────────────────────────┐
+              │  Core Gateway (Express) │   :8000
+              │  apps/core-gateway/     │
+              │  src/index.ts           │
+              │                         │
+              │  ┌──────────────────┐   │
+              │  │  Auth Routes     │   │
+              │  │  /api/v1/auth/*  │   │
+              │  └──────────────────┘   │
+              │  ┌──────────────────┐   │
+              │  │  Student Routes  │   │
+              │  │  /api/v1/students│   │
+              │  └──────────────────┘   │
+              │  ┌──────────────────┐   │
+              │  │ Organizer Routes │   │
+              │  │ /api/v1/organiz. │   │
+              │  └──────────────────┘   │
+              │  ┌──────────────────┐   │
+              │  │  Sponsor Routes  │   │
+              │  │  /api/v1/sponsors│   │
+              │  └──────────────────┘   │
+              └─────────┬───────────────┘
                         │
-                        │ (∞)
-                        │
-teams (1) ─── (∞) team_members ─── (1) users
-  │
-  └─── (∞) team_invitations
+           ┌────────────┼────────────┐
+           ▼                         ▼
+┌─────────────────┐     ┌────────────────────────┐
+│  PostgreSQL 16  │     │  AI Engine (FastAPI)   │
+│  :5432          │     │  :8001                 │
+│  via Prisma 7   │     │  /api/v1/matching/     │
+│  (PrismaPg)     │     │  recommend             │
+└─────────────────┘     └────────────────────────┘
 ```
 
-## Authentication & Authorization
+---
 
-### JWT-Based Auth
+## Application Layer (Next.js 15)
 
-- **Access Token**: 7 days expiry
-- **Refresh Token**: 30 days expiry
-- **Storage**: httpOnly cookies (frontend)
+### Apps
 
-### Role-Based Access Control (RBAC)
+| App                    | Port | Audience   | Key Features                              |
+|------------------------|------|------------|-------------------------------------------|
+| `landing-page`         | 3000 | Public     | Home, login, signup                       |
+| `student-portal`       | 3001 | Students   | Teams, hackathons, AI matching, settings  |
+| `organizer-dashboard`  | 3002 | Organizers | Hackathon CRUD, participants, analytics   |
+| `sponsor-panel`        | 3003 | Sponsors   | Opportunities, team browsing, budgeting   |
 
-**Student Routes:**
-- `POST /api/v1/students/profile`
-- `POST /api/v1/teams`
-- `POST /api/v1/teams/{id}/invite`
-- `GET /api/v1/matching/suggest`
+### Design System
 
-**Organizer Routes:**
-- `POST /api/v1/hackathons`
-- `GET /api/v1/hackathons/{id}/participants`
-- `GET /api/v1/hackathons/{id}/teams`
+- **Theme**: Dark mode only — base `#1A0A00`
+- **Primary color**: `#D94C1A` (orange/rust)
+- **Pattern**: Glassmorphism via `.glass` CSS class
+- **Standard classes**: `.btn-primary`, `.btn-secondary`, `.input-field`, `.glass`
+- **Icons**: Lucide React
 
-## API Conventions
+> ⚠️ `select option` elements ignore Tailwind dark mode classes. Use global CSS: `select option { background-color: #1A0A00; color: #fff; }`
 
-### RESTful Endpoints
+### Route Protection
 
-```
-/api/v1/auth/*           - Authentication
-/api/v1/students/*       - Student operations
-/api/v1/organizers/*     - Organizer operations
-/api/v1/hackathons/*     - Hackathon management
-/api/v1/teams/*          - Team CRUD and invitations
-/api/v1/matching/*       - AI teammate suggestions
-/api/v1/skills/*         - Skill taxonomy
-```
-
-### Response Format
+Each app (except `landing-page`) has `src/middleware.ts` that reads the `accessToken` httpOnly cookie. If absent, redirects to `/login`.
 
 ```typescript
-{
-  "success": boolean,
-  "data": T,
-  "error": {
-    "code": string,
-    "message": string,
-    "details": object
-  },
-  "meta": {
-    "page": number,
-    "total": number
+// apps/student-portal/src/middleware.ts — pattern
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get("accessToken");
+  if (!token && req.nextUrl.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 }
 ```
 
-## Development Workflow
-
-### Nx Commands
-
-```bash
-# Build specific app
-nx build student-portal
-
-# Run app in dev mode
-nx serve student-portal
-
-# Run tests
-nx test ai-engine
-
-# Lint
-nx lint shared-types
-
-# Dependency graph
-nx graph
-
-# Affected apps (for CI)
-nx affected:build
-```
-
-### Local Development
-
-```bash
-# Start all services
-docker-compose up
-
-# Core gateway
-cd apps/core-gateway && npm run dev
-
-# AI engine
-cd apps/ai-engine && uvicorn app.main:app --reload
-
-# Frontend
-cd apps/student-portal && npm run dev
-```
-
-## Deployment Strategy
-
-### Containerization
-
-Each app has its own Dockerfile:
-- `apps/student-portal/Dockerfile`
-- `apps/core-gateway/Dockerfile`
-- `apps/ai-engine/Dockerfile`
-
-### Target Platforms
-
-- **Render** or **DigitalOcean** for production
-- **Vercel** for Next.js frontends (optional)
-
-### CI/CD Pipeline
-
-GitHub Actions:
-1. Lint and test on PR
-2. Build Docker images on merge to main
-3. Deploy to staging/production
-
-## Future Considerations
-
-### Microservices Extraction
-
-The matching engine is designed for extraction:
-- Clear input/output interfaces (JSON)
-- No tight coupling to core-gateway
-- Separate when: multiple platforms need matching
-
-### ML Replacement
-
-V1 is rule-based. Future ML improvements:
-- Replace `scoring.py` with ML model
-- A/B test different algorithms
-- Collect metrics: match acceptance rate, team success
-
-### Scalability
-
-- Horizontal scaling of core-gateway
-- Separate database reads/writes
-- Caching layer (Redis) for API responses
-- CDN for static assets
-
-## Security Considerations
-
-- Input validation on all endpoints
-- SQL injection prevention (ORM usage)
-- Rate limiting on auth endpoints
-- CORS configuration for frontend domains
-- Secrets management (environment variables)
-
-## Monitoring & Observability
-
-- Structured logging (JSON format)
-- Error tracking (Sentry)
-- Performance metrics (API latency)
-- User analytics (team formation success rate)
+`DashboardLayout` does **not** redirect. It hydrates Zustand from `GET /auth/me` on mount to restore user state after cross-origin navigation (where `localStorage` is empty on the new origin).
 
 ---
 
-**Last Updated**: February 11, 2026  
-**Version**: 1.0.0
+## API Gateway (Express)
+
+**Location**: `apps/core-gateway/src/`
+**Entry point**: `src/index.ts` — all route mounts defined here
+
+> ⚠️ **Not NestJS**. There are empty NestJS scaffold files (`src/main.ts`, `src/app/`) — ignore them. The real Express server is at `src/index.ts`.
+
+### Middleware Stack (in order)
+
+```
+cors()           → allows all Next.js origins (dev: localhost:3000-3003)
+express.json()   → body parser
+cookieParser()   → parses httpOnly cookies
+rateLimiter      → applied per-route (auth only)
+requireAuth      → reads req.cookies.accessToken, verifies JWT
+requireRole      → checks user.role matches route segment
+```
+
+### Route Organization
+
+```
+/api/v1/auth/*                 → auth.ts (public)
+/api/v1/students/*             → students/profile.ts, hackathons.ts, teams.ts
+/api/v1/students/matching/*    → students/matching.ts  ← mounted BEFORE /teams
+/api/v1/students/skills        → students/profile.ts
+/api/v1/organizers/*           → organizers/profile.ts, hackathons.ts
+/api/v1/sponsors/*             → sponsors/profile.ts, hackathons.ts, teams.ts
+/api/v1/hackathons/*           → shared/hackathons.ts (public)
+/api/v1/skills                 → shared/skills.ts (public)
+/api/v1/health                 → health check
+```
+
+> ⚠️ **Route mount order matters**: The matching router (`/api/v1/students/matching`) must be mounted before the teams router in `index.ts` to avoid path conflicts.
+
+### Authentication Flow
+
+```
+1. Client: POST /auth/login { email, password }
+2. Gateway: validates, signs JWT tokens, calls res.cookie("accessToken", ..., { httpOnly: true, secure: true })
+3. Client: subsequent requests carry cookies automatically
+4. Gateway middleware: reads req.cookies.accessToken → verifies → attaches req.user
+5. On expiry: Axios interceptor → POST /auth/refresh → gateway rotates accessToken cookie
+6. On refresh failure: interceptor redirects to /login
+```
+
+### Database Access
+
+Prisma 7 requires the adapter pattern (not direct instantiation):
+
+```typescript
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+export const prisma = new PrismaClient({ adapter });
+```
+
+---
+
+## AI Engine (FastAPI)
+
+**Location**: `apps/ai-engine/`
+**Port**: 8001
+**Status**: V1 complete — deterministic scoring, no ML yet
+
+### Key Design Principles
+
+- **Stateless**: receives all data from core-gateway; never connects to the database
+- **Deterministic**: same inputs always produce same output (designed for ML swap in V2)
+- **Resilient**: core-gateway has `basicScoring()` fallback if AI engine is unreachable
+
+### Service Responsibilities
+
+```
+Core Gateway                           AI Engine
+     │                                      │
+     │  POST /api/v1/matching/recommend      │
+     │  { teamSkills, candidates,            │
+     │    openSpots, teamAvailability }      │
+     │ ──────────────────────────────────►  │
+     │                                      │ scoring.py
+     │                                      │   skill_complementarity (40%)
+     │                                      │   experience_balance (30%)
+     │                                      │   availability_overlap (30%)
+     │                                      │ engine.py
+     │                                      │   combine scores, generate explanations
+     │ ◄──────────────────────────────────  │
+     │  { suggestions: [                    │
+     │      { userId, score, breakdown,     │
+     │        explanation }                 │
+     │    ], fallback: false }              │
+```
+
+### Scoring Algorithm
+
+| Scorer                  | Weight | Notes                                      |
+|-------------------------|--------|--------------------------------------------|
+| `skill_complementarity` | 40%    | Skills unique to candidate / team skill gaps |
+| `experience_balance`    | 30%    | Target: mean proficiency = 2.5 (scale 1–4) |
+| `availability_overlap`  | 30%    | Jaccard slot similarity (70%) + hours compat (30%) |
+
+**Proficiency map**: `beginner→1`, `intermediate→2`, `advanced→3`, `expert→4`  
+**Availability neutral**: returns 0.5 if either side has no availability data
+
+### Testing
+
+```bash
+cd apps/ai-engine
+python -m pytest tests/ -v
+```
+
+---
+
+## Database (PostgreSQL 16)
+
+**Location**: Docker container `takathon-db` / connection via Prisma at `prisma/schema.prisma`
+
+### Schema Overview
+
+```
+users ─┬─ student_profiles ── user_skills ── skills
+       ├─ organizer_profiles
+       └─ sponsor_profiles
+
+hackathons ── hackathon_participants
+           └─ teams ── team_members
+                    └─ team_invitations
+                    └─ team_sponsorships
+```
+
+### Key Schema Decisions
+
+- `StudentProfile.availability` is `Json? @db.JsonB` — flexible shape, not normalized
+- `UserSkill` has a `proficiency` enum (BEGINNER / INTERMEDIATE / ADVANCED / EXPERT)
+- `TeamInvitation` has `status` enum (PENDING / ACCEPTED / DECLINED)
+- `Hackathon` has full lifecycle: (DRAFT / PUBLISHED / ACTIVE / COMPLETED / CANCELLED)
+
+### Migrations
+
+- **Development**: `npx prisma db push` (schema sync, no migration files)
+- **Production**: `npx prisma migrate deploy` (applies committed migration files)
+
+---
+
+## Shared Libraries (`libs/shared/`)
+
+### `@takathon/shared/api`
+
+Axios client + typed domain API modules. Always use these in frontend — never raw `fetch` or `axios.get()`.
+
+```typescript
+import { studentApi, teamApi, matchingApi, organizerApi, hackathonApi } from "@takathon/shared/api";
+
+// Examples
+const profile = await studentApi.getMyProfile();
+const teams = await teamApi.getMyTeams();           // returns nested shape — must flatten
+const suggestions = await matchingApi.suggestTeammates(teamId, 10);
+```
+
+**Axios client config** (`client.ts`):
+- `baseURL` = `NEXT_PUBLIC_GATEWAY_URL` (e.g. `http://localhost:8000`)
+- `withCredentials: true` — sends httpOnly cookies cross-origin
+- Response interceptor: on 401 → `POST /auth/refresh` → retry; on failure → `window.location = "/login"`
+
+### `@takathon/shared/utils`
+
+```typescript
+import { useAuthStore } from "@takathon/shared/utils";
+import { authRedirect } from "@takathon/shared/utils";
+
+const { user, isAuthenticated, login, logout } = useAuthStore();
+// authRedirect(role) → "/dashboard" on login-page origin; role-specific path on portal origin
+```
+
+### `@takathon/shared/types`
+
+```typescript
+import { UserRole, Team, Hackathon, MatchSuggestion } from "@takathon/shared/types";
+
+enum UserRole { STUDENT = "STUDENT", ORGANIZER = "ORGANIZER", SPONSOR = "SPONSOR" }
+```
+
+### `@takathon/shared/ui`
+
+Basic reusable React components (partial). Prefer building page-specific components inline for now.
+
+---
+
+## Service Communication
+
+| From                | To              | Protocol    | Auth                    |
+|---------------------|-----------------|-------------|-------------------------|
+| Browser             | Core Gateway    | HTTPS/REST  | httpOnly cookies        |
+| Core Gateway        | PostgreSQL      | TCP/Prisma  | `DATABASE_URL` env var  |
+| Core Gateway        | AI Engine       | HTTP/REST   | Internal network only   |
+| AI Engine           | (nothing)       | —           | Stateless computation   |
+
+---
+
+## Build & Deployment Architecture
+
+### Development (Docker Compose)
+
+All 7 services run in Docker. Frontend apps use Next.js dev server with hot reload via volume mounts.
+
+### Production Build
+
+- **Core Gateway**: esbuild bundles `src/index.ts` → single `dist/index.js`
+- **Next.js Apps**: `output: "standalone"` mode — self-contained Node.js server
+- **AI Engine**: uvicorn in production mode
+
+### Nx Build Commands
+
+```bash
+nx build core-gateway  # esbuild output → dist/apps/core-gateway/
+nx build student-portal # Next.js standalone → dist/apps/student-portal/
+nx affected:build       # only changed apps
+```
+
+---
+
+## Security Architecture
+
+| Concern            | Implementation                                          |
+|--------------------|----------------------------------------------------------|
+| Auth tokens        | httpOnly cookies (XSS-safe, CSRF needs SameSite)       |
+| Cookie settings    | `httpOnly: true`, `secure: true` (prod), `SameSite: Lax` |
+| Rate limiting      | `express-rate-limit` on `/auth/login` and `/register`  |
+| Input validation   | Zod schemas on all gateway route handlers              |
+| Role enforcement   | RBAC middleware after `requireAuth`                    |
+| Secrets            | ENV vars only; startup guard exits if missing in prod  |
+| CORS               | Allowlist of Next.js origins (`CORS_ORIGINS` env var)  |
+
+---
+
+*See `docs/REPO_STATE.md` for current implementation status. See `docs/docker-setup.md` for running locally.*

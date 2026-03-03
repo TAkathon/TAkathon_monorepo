@@ -1,662 +1,464 @@
 # TAkathon API Specification
 
-**Base URL**: `/api/v1`  
-**Version**: 1.0.0  
-**Authentication**: JWT Bearer Token (except auth endpoints)
-
-## Table of Contents
-
-- [Authentication](#authentication)
-- [Students](#students)
-- [Organizers](#organizers)
-- [Hackathons](#hackathons)
-- [Teams](#teams)
-- [Matching](#matching)
-- [Skills](#skills)
-
----
-
-## Common Response Format
-
-### Success Response
-```json
-{
-  "success": true,
-  "data": { ... },
-  "meta": {
-    "page": 1,
-    "perPage": 20,
-    "total": 100,
-    "hasMore": true
-  }
-}
-```
-
-### Error Response
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input data",
-    "details": {
-      "field": "email",
-      "reason": "Invalid email format"
-    }
-  }
-}
-```
-
-### Error Codes
-- `VALIDATION_ERROR` - Invalid request data
-- `UNAUTHORIZED` - Missing or invalid authentication
-- `FORBIDDEN` - Insufficient permissions
-- `NOT_FOUND` - Resource not found
-- `CONFLICT` - Resource already exists
-- `INTERNAL_ERROR` - Server error
+**Last Updated**: March 3, 2026
+**Base URL**: `http://localhost:8000` (development)
+**Version**: v1
 
 ---
 
 ## Authentication
 
-### Register User
-**POST** `/auth/register`
+All communication uses **httpOnly cookies**. There is no `Authorization: Bearer` header.
 
-**Public**: Yes
+### Cookie Names
 
-**Request Body**:
+| Cookie          | Lifetime | Description                     |
+|-----------------|----------|---------------------------------|
+| `accessToken`   | 15 min   | JWT — used for all API calls    |
+| `refreshToken`  | 7 days   | JWT — used to refresh access    |
+
+### Client Requirements
+
+- All fetch/XHR requests must include `credentials: "include"`
+- Axios clients must have `withCredentials: true`
+- On 401 response: POST `/api/v1/auth/refresh` then retry original request
+- On refresh failure: redirect user to `/login`
+
+### Response Shape
+
+All endpoints return:
+
 ```json
-{
-  "email": "student@example.com",
-  "password": "SecurePass123",
-  "username": "johndoe",
-  "fullName": "John Doe",
-  "role": "student"
-}
+// Success
+{ "success": true, "data": { ... } }
+
+// Error
+{ "success": false, "error": "ERROR_CODE", "message": "Human-readable message" }
 ```
 
-**Response** `201 Created`:
+---
+
+## Auth Endpoints
+
+`/api/v1/auth/*` — No authentication required
+
+### `POST /api/v1/auth/register`
+
+**Rate Limited**: 10 req / 15 min
+
 ```json
+// Request
+{
+  "email": "alice@example.com",
+  "password": "password123",
+  "firstName": "Alice",
+  "lastName": "Smith",
+  "role": "STUDENT"  // STUDENT | ORGANIZER | SPONSOR
+}
+
+// Response 201 — sets accessToken + refreshToken cookies
 {
   "success": true,
   "data": {
-    "user": {
-      "id": "uuid",
-      "email": "student@example.com",
-      "username": "johndoe",
-      "role": "student"
-    },
-    "accessToken": "jwt-token",
-    "refreshToken": "refresh-token"
+    "user": { "id": "...", "email": "...", "role": "STUDENT" }
   }
-}
-```
-
-### Login
-**POST** `/auth/login`
-
-**Public**: Yes
-
-**Request Body**:
-```json
-{
-  "email": "student@example.com",
-  "password": "SecurePass123"
-}
-```
-
-**Response** `200 OK`: Same as register
-
-### Refresh Token
-**POST** `/auth/refresh`
-
-**Request Body**:
-```json
-{
-  "refreshToken": "refresh-token"
-}
-```
-
-**Response** `200 OK`:
-```json
-{
-  "success": true,
-  "data": {
-    "accessToken": "new-jwt-token"
-  }
-}
-```
-
-### Logout
-**POST** `/auth/logout`
-
-**Auth Required**: Yes
-
-**Response** `200 OK`:
-```json
-{
-  "success": true,
-  "data": null
 }
 ```
 
 ---
 
-## Students
+### `POST /api/v1/auth/login`
 
-### Get My Profile
-**GET** `/students/profile`
+**Rate Limited**: 10 req / 15 min
 
-**Auth Required**: Yes (Student only)
-
-**Response** `200 OK`:
 ```json
+// Request
+{ "email": "alice@example.com", "password": "password123" }
+
+// Response 200 — sets accessToken + refreshToken cookies
 {
   "success": true,
   "data": {
-    "id": "uuid",
-    "email": "student@example.com",
-    "username": "johndoe",
-    "fullName": "John Doe",
+    "user": { "id": "...", "email": "...", "role": "STUDENT", "firstName": "Alice" }
+  }
+}
+```
+
+---
+
+### `POST /api/v1/auth/refresh`
+
+Rotates the `accessToken` cookie using the `refreshToken` cookie.
+
+```
+// Response 200 — sets new accessToken cookie
+{ "success": true, "data": {} }
+
+// Response 401 — refreshToken expired or invalid
+{ "success": false, "error": "INVALID_REFRESH_TOKEN" }
+```
+
+---
+
+### `POST /api/v1/auth/logout`
+
+Clears both cookies.
+
+```
+// Response 200
+{ "success": true, "data": {} }
+```
+
+---
+
+### `GET /api/v1/auth/me`
+
+Returns the currently authenticated user. Use this to verify a session is live (not just the Zustand store).
+
+```json
+// Response 200
+{
+  "success": true,
+  "data": {
+    "id": "...",
+    "email": "alice@example.com",
+    "role": "STUDENT",
+    "firstName": "Alice",
+    "lastName": "Smith"
+  }
+}
+
+// Response 401 — no valid cookie
+{ "success": false, "error": "UNAUTHORIZED" }
+```
+
+---
+
+## Student Endpoints
+
+`/api/v1/students/*` — Requires `STUDENT` role
+
+### Profile
+
+#### `GET /api/v1/students/profile`
+
+```json
+// Response 200
+{
+  "success": true,
+  "data": {
+    "id": "...",
     "bio": "Full-stack developer",
-    "githubUrl": "https://github.com/johndoe",
-    "linkedinUrl": "https://linkedin.com/in/johndoe",
+    "university": "MIT",
+    "graduationYear": 2026,
     "skills": [
-      {
-        "skillId": "uuid",
-        "name": "React",
-        "category": "frontend",
-        "proficiencyLevel": "advanced",
-        "yearsOfExperience": 2
-      }
+      { "id": "skill-id", "name": "JavaScript", "category": "...", "proficiency": "ADVANCED" }
     ],
-    "createdAt": "2026-01-15T10:00:00Z"
+    "availability": {
+      "timezone": "UTC+1",
+      "hoursPerWeek": 20,
+      "preferredSlots": ["weekday_evening", "weekend_morning"]
+    }
   }
 }
 ```
 
-### Update Profile
-**PUT** `/students/profile`
+#### `PUT /api/v1/students/profile`
 
-**Auth Required**: Yes (Student only)
-
-**Request Body**:
 ```json
+// Request (all fields optional)
 {
-  "fullName": "John Doe",
-  "bio": "Full-stack developer passionate about AI",
-  "githubUrl": "https://github.com/johndoe",
-  "linkedinUrl": "https://linkedin.com/in/johndoe"
+  "bio": "...",
+  "university": "...",
+  "graduationYear": 2026,
+  "availability": {
+    "timezone": "UTC+0",
+    "hoursPerWeek": 15,
+    "preferredSlots": ["weekday_morning", "weekend_afternoon"]
+  }
 }
 ```
-
-**Response** `200 OK`: Updated profile
-
-### Add Skill
-**POST** `/students/skills`
-
-**Auth Required**: Yes (Student only)
-
-**Request Body**:
-```json
-{
-  "skillId": "uuid",
-  "proficiencyLevel": "advanced",
-  "yearsOfExperience": 2
-}
-```
-
-**Response** `201 Created`
-
-### Remove Skill
-**DELETE** `/students/skills/{skillId}`
-
-**Auth Required**: Yes (Student only)
-
-**Response** `204 No Content`
 
 ---
 
-## Hackathons
+### Skills
 
-### Create Hackathon
-**POST** `/hackathons`
+#### `POST /api/v1/students/skills`
 
-**Auth Required**: Yes (Organizer only)
-
-**Request Body**:
 ```json
-{
-  "title": "AI Innovation Hackathon 2026",
-  "description": "48-hour hackathon focused on AI solutions",
-  "startDate": "2026-03-15T09:00:00Z",
-  "endDate": "2026-03-17T18:00:00Z",
-  "registrationDeadline": "2026-03-10T23:59:59Z",
-  "location": "San Francisco, CA",
-  "isVirtual": false,
-  "maxParticipants": 200,
-  "maxTeamSize": 5,
-  "minTeamSize": 2,
-  "requiredSkills": ["uuid1", "uuid2"],
-  "prizePool": "$50,000"
-}
+// Request
+{ "skillId": "skill-uuid", "proficiency": "INTERMEDIATE" }
+
+// Response 200
+{ "success": true, "data": { "id": "...", "skillId": "...", "proficiency": "INTERMEDIATE" } }
 ```
 
-**Response** `201 Created`:
-```json
-{
-  "success": true,
-  "data": {
-    "id": "uuid",
-    "title": "AI Innovation Hackathon 2026",
-    "status": "draft",
-    ...
-  }
-}
+#### `DELETE /api/v1/students/skills/:userSkillId`
+
+```
+// Response 200
+{ "success": true, "data": {} }
 ```
 
-### List Hackathons
-**GET** `/hackathons?status=registration_open&page=1&perPage=20`
+---
 
-**Public**: Yes
+### Hackathons
 
-**Query Parameters**:
-- `status` - Filter by status (optional)
-- `page` - Page number (default: 1)
-- `perPage` - Items per page (default: 20, max: 100)
+#### `GET /api/v1/students/hackathons`
 
-**Response** `200 OK`:
+Returns public hackathons with per-hackathon flags for the current student.
+
 ```json
+// Response 200
 {
   "success": true,
   "data": [
     {
-      "id": "uuid",
-      "title": "AI Innovation Hackathon 2026",
-      "description": "...",
-      "startDate": "2026-03-15T09:00:00Z",
-      "status": "registration_open",
-      "participantCount": 87,
-      "teamCount": 18
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "perPage": 20,
-    "total": 45,
-    "hasMore": true
-  }
-}
-```
-
-### Get Hackathon Details
-**GET** `/hackathons/{id}`
-
-**Public**: Yes
-
-**Response** `200 OK`: Full hackathon object with stats
-
-### Update Hackathon
-**PUT** `/hackathons/{id}`
-
-**Auth Required**: Yes (Organizer, owner only)
-
-**Request Body**: Partial hackathon object
-
-**Response** `200 OK`: Updated hackathon
-
-### Join Hackathon
-**POST** `/hackathons/{id}/join`
-
-**Auth Required**: Yes (Student only)
-
-**Response** `201 Created`:
-```json
-{
-  "success": true,
-  "data": {
-    "participantId": "uuid",
-    "hackathonId": "uuid",
-    "userId": "uuid",
-    "status": "registered",
-    "registeredAt": "2026-02-11T14:00:00Z"
-  }
-}
-```
-
-### Leave Hackathon
-**DELETE** `/hackathons/{id}/leave`
-
-**Auth Required**: Yes (Student only)
-
-**Response** `204 No Content`
-
-### Get Hackathon Participants
-**GET** `/hackathons/{id}/participants`
-
-**Auth Required**: Yes (Organizer, owner only)
-
-**Response** `200 OK`:
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "uuid",
-      "user": {
-        "id": "uuid",
-        "username": "johndoe",
-        "fullName": "John Doe"
-      },
-      "status": "in_team",
-      "teamId": "uuid",
-      "teamName": "Code Warriors"
+      "id": "...",
+      "title": "Spring Innovation",
+      "status": "PUBLISHED",
+      "registrationDeadline": "2026-03-15T00:00:00Z",
+      "isRegistered": true,
+      "isInTeam": false
     }
   ]
 }
 ```
 
-### Get Hackathon Teams
-**GET** `/hackathons/{id}/teams`
+**`isInTeam: true`** blocks withdrawal — UI should show "In Team — leave team to withdraw" instead of a Withdraw button.
 
-**Auth Required**: Yes (Organizer, owner only)
+#### `POST /api/v1/students/hackathons/:id/register`
 
-**Response** `200 OK`: Array of teams with members
+```
+// Response 200
+{ "success": true, "data": { "participantId": "..." } }
 
-### Get Hackathon Stats
-**GET** `/hackathons/{id}/stats`
+// Response 409 — already registered
+{ "success": false, "error": "ALREADY_REGISTERED" }
+```
 
-**Auth Required**: Yes (Organizer, owner only)
+#### `DELETE /api/v1/students/hackathons/:id/withdraw`
 
-**Response** `200 OK`:
-```json
-{
-  "success": true,
-  "data": {
-    "totalParticipants": 150,
-    "totalTeams": 32,
-    "participantsWithoutTeam": 12,
-    "averageTeamSize": 4.3,
-    "skillDistribution": {
-      "frontend": 45,
-      "backend": 52,
-      "design": 23
-    }
-  }
-}
+```
+// Response 200
+{ "success": true, "data": {} }
+
+// Response 400 — student is in a team for this hackathon
+{ "success": false, "error": "IN_TEAM", "message": "Leave your team before withdrawing." }
 ```
 
 ---
 
-## Teams
+### Teams
 
-### Create Team
-**POST** `/teams`
+> ⚠️ **Response shape is nested** — see Issue #11 in `docs/code-audit.md` for the flatten pattern.
 
-**Auth Required**: Yes (Student only)
+#### `GET /api/v1/students/teams`
 
-**Request Body**:
 ```json
-{
-  "hackathonId": "uuid",
-  "name": "Code Warriors",
-  "description": "Building an AI-powered task manager",
-  "maxSize": 5,
-  "isPublic": true,
-  "projectIdea": "AI task prioritization app"
-}
-```
-
-**Response** `201 Created`:
-```json
+// Response 200
 {
   "success": true,
-  "data": {
-    "id": "uuid",
-    "name": "Code Warriors",
-    "hackathonId": "uuid",
-    "creatorId": "uuid",
-    "status": "forming",
-    "currentSize": 1,
-    "maxSize": 5,
-    "members": [
-      {
-        "userId": "uuid",
-        "username": "johndoe",
-        "role": "captain"
+  "data": [
+    {
+      "membershipId": "...",
+      "role": "captain",
+      "joinedAt": "2026-02-01T00:00:00Z",
+      "team": {
+        "id": "...",
+        "name": "Code Warriors",
+        "hackathonId": "...",
+        "status": "forming",
+        "maxSize": 4,
+        "openSpots": 2,
+        "members": [
+          { "userId": "...", "firstName": "Alice", "role": "captain" }
+        ]
       }
-    ]
-  }
-}
-```
-
-### Get My Teams
-**GET** `/teams/my`
-
-**Auth Required**: Yes (Student only)
-
-**Response** `200 OK`: Array of teams user is in
-
-### Get Team Details
-**GET** `/teams/{id}`
-
-**Auth Required**: Yes
-
-**Response** `200 OK`:
-```json
-{
-  "success": true,
-  "data": {
-    "id": "uuid",
-    "name": "Code Warriors",
-    "hackathonId": "uuid",
-    "status": "forming",
-    "currentSize": 3,
-    "maxSize": 5,
-    "openSpots": 2,
-    "members": [
-      {
-        "userId": "uuid",
-        "username": "johndoe",
-        "fullName": "John Doe",
-        "role": "captain",
-        "skills": ["React", "Node.js"]
-      }
-    ],
-    "skillCoverage": {
-      "frontend": 2,
-      "backend": 1,
-      "design": 0
     }
-  }
+  ]
 }
 ```
 
-### Update Team
-**PUT** `/teams/{id}`
+#### `GET /api/v1/students/teams/:id`
 
-**Auth Required**: Yes (Team captain only)
+Returns single team (same nested structure, unwrapped).
 
-**Request Body**:
+#### `POST /api/v1/students/teams`
+
 ```json
+// Request
 {
-  "name": "AI Warriors",
-  "description": "Updated description",
-  "projectIdea": "Refined project idea"
+  "name": "Team Name",
+  "hackathonId": "hackathon-uuid",
+  "description": "Optional description",
+  "maxSize": 4
 }
 ```
 
-**Response** `200 OK`: Updated team
+#### `POST /api/v1/students/teams/:id/invite`
 
-### Invite to Team
-**POST** `/teams/{id}/invite`
-
-**Auth Required**: Yes (Team member)
-
-**Request Body**:
 ```json
-{
-  "userId": "uuid",
-  "message": "Would love to have you on our team!"
-}
+// Request
+{ "userId": "user-uuid-to-invite" }
 ```
 
-**Response** `201 Created`:
-```json
-{
-  "success": true,
-  "data": {
-    "invitationId": "uuid",
-    "teamId": "uuid",
-    "inviteeId": "uuid",
-    "status": "pending",
-    "expiresAt": "2026-02-18T14:00:00Z"
-  }
-}
-```
+#### `DELETE /api/v1/students/teams/:id/leave`
 
-### Get Team Invitations
-**GET** `/teams/invitations/received`
+Non-captain leaves team.
 
-**Auth Required**: Yes (Student only)
+#### `DELETE /api/v1/students/teams/:id`
 
-**Response** `200 OK`: Array of pending invitations
-
-### Respond to Invitation
-**PATCH** `/teams/invitations/{id}`
-
-**Auth Required**: Yes (Student, invitee only)
-
-**Request Body**:
-```json
-{
-  "accept": true
-}
-```
-
-**Response** `200 OK`:
-```json
-{
-  "success": true,
-  "data": {
-    "invitationId": "uuid",
-    "status": "accepted",
-    "teamId": "uuid"
-  }
-}
-```
-
-### Leave Team
-**DELETE** `/teams/{id}/leave`
-
-**Auth Required**: Yes (Team member, not captain)
-
-**Response** `204 No Content`
-
-### Remove Team Member
-**DELETE** `/teams/{id}/members/{userId}`
-
-**Auth Required**: Yes (Team captain only)
-
-**Response** `204 No Content`
+Captain disbands team (only when `status === "forming"`).
 
 ---
 
-## Matching
+### AI Matching
 
-### Get Teammate Suggestions
-**POST** `/matching/suggest`
+> ⚠️ **Route**: `/api/v1/students/matching/:teamId/matches` — NOT `/students/teams/:teamId/matches`
 
-**Auth Required**: Yes (Team captain only)
+#### `GET /api/v1/students/matching/:teamId/matches`
 
-**Request Body**:
+Returns AI-ranked teammate suggestions for the given team.
+
 ```json
-{
-  "teamId": "uuid",
-  "limit": 10
-}
-```
+// Request query params (optional)
+?limit=10
 
-**Response** `200 OK`:
-```json
+// Response 200
 {
   "success": true,
   "data": {
     "suggestions": [
       {
-        "candidateId": "uuid",
-        "username": "janedoe",
-        "fullName": "Jane Doe",
-        "avatarUrl": "https://...",
-        "score": 0.89,
-        "reasons": [
-          "Fills frontend skill gap",
-          "Advanced React experience",
-          "Good team size balance"
-        ],
-        "skills": [
-          {
-            "name": "React",
-            "proficiency": "expert",
-            "category": "frontend"
-          }
-        ],
-        "skillGaps": ["frontend", "design"],
-        "commonSkills": ["JavaScript"]
+        "userId": "...",
+        "firstName": "Bob",
+        "score": 0.87,
+        "breakdown": {
+          "skillScore": 0.9,
+          "experienceScore": 0.8,
+          "availabilityScore": 0.6
+        },
+        "explanation": "Bob brings React and Node.js skills your team lacks...",
+        "skills": [ { "name": "React", "proficiency": "ADVANCED" } ]
       }
-    ]
+    ],
+    "fallback": false
   }
 }
 ```
 
+`fallback: true` means the AI engine was unreachable and the gateway used local `basicScoring()`.
+
+#### `POST /api/v1/students/matching/:teamId/matches/:userId`
+
+Sends a team invitation to the matched user.
+
+```
+// Response 200
+{ "success": true, "data": { "invitationId": "..." } }
+```
+
 ---
 
-## Skills
+## Organizer Endpoints
 
-### List All Skills
-**GET** `/skills?category=frontend`
+`/api/v1/organizers/*` — Requires `ORGANIZER` role
 
-**Public**: Yes
+### Hackathons
 
-**Query Parameters**:
-- `category` - Filter by category (optional)
+#### Lifecycle Transitions
 
-**Response** `200 OK`:
+```
+DRAFT → [publish] → PUBLISHED → [start] → ACTIVE → [complete] → COMPLETED
+                 ↘ [cancel] → CANCELLED        ↘ [cancel] → CANCELLED
+```
+
+```
+POST /api/v1/organizers/hackathons/:id/publish   → DRAFT → PUBLISHED
+POST /api/v1/organizers/hackathons/:id/start     → PUBLISHED → ACTIVE
+POST /api/v1/organizers/hackathons/:id/complete  → ACTIVE → COMPLETED
+POST /api/v1/organizers/hackathons/:id/cancel    → any → CANCELLED
+```
+
+#### `GET /api/v1/organizers/hackathons/:id/export`
+
+Returns CSV of all participants. `Content-Type: text/csv`, `Content-Disposition: attachment; filename=participants-{id}.csv`.
+
+---
+
+## Sponsor Endpoints
+
+`/api/v1/sponsors/*` — Requires `SPONSOR` role
+
+Standard CRUD for profile, hackathon browsing, sponsoring events, viewing teams and projects. See `docs/architecture.md` for the full endpoint table.
+
+---
+
+## Public / Shared Endpoints
+
+No authentication required.
+
+### `GET /api/v1/hackathons`
+
+Public list of PUBLISHED hackathons.
+
+### `GET /api/v1/hackathons/:id`
+
+Single hackathon detail (must be PUBLISHED).
+
+### `GET /api/v1/skills`
+
+Full skill taxonomy (36 skills in 8 categories).
+
 ```json
+// Response 200
 {
   "success": true,
   "data": [
     {
-      "id": "uuid",
-      "name": "React",
-      "category": "frontend",
-      "description": "JavaScript library for building UIs"
+      "id": "...",
+      "name": "JavaScript",
+      "category": "Frontend",
+      "description": "..."
     }
   ]
 }
 ```
 
-### Search Skills
-**GET** `/skills/search?q=react`
+### `GET /api/v1/health`
 
-**Public**: Yes
-
-**Response** `200 OK`: Array of matching skills
-
----
-
-## Rate Limiting
-
-- **Authentication endpoints**: 5 requests per minute
-- **Standard endpoints**: 100 requests per minute
-- **Search/List endpoints**: 50 requests per minute
+```json
+{ "status": "ok", "timestamp": "2026-03-03T..." }
+```
 
 ---
 
-## Versioning
+## Error Codes Reference
 
-API version is specified in the URL path (`/api/v1`). Breaking changes will increment the version number.
+| Code                  | Status | Description                                  |
+|-----------------------|--------|----------------------------------------------|
+| `UNAUTHORIZED`        | 401    | No valid session / cookie                    |
+| `FORBIDDEN`           | 403    | Wrong role for this endpoint                 |
+| `NOT_FOUND`           | 404    | Resource not found                           |
+| `ALREADY_REGISTERED`  | 409    | Student already registered for hackathon     |
+| `IN_TEAM`             | 400    | Cannot withdraw while in a team              |
+| `INVALID_REFRESH_TOKEN` | 401  | Refresh token expired or tampered            |
+| `VALIDATION_ERROR`    | 422    | Zod validation failed (see `details` field)  |
+| `RATE_LIMITED`        | 429    | Too many requests (auth endpoints)           |
+| `INTERNAL_ERROR`      | 500    | Unexpected server error                     |
 
 ---
 
-**Last Updated**: February 11, 2026
+## Availability Slots Reference
+
+Valid values for `studentProfile.availability.preferredSlots`:
+
+| Slot Key              | Description                |
+|-----------------------|----------------------------|
+| `weekday_morning`     | Mon–Fri, 6am–12pm          |
+| `weekday_afternoon`   | Mon–Fri, 12pm–6pm          |
+| `weekday_evening`     | Mon–Fri, 6pm–midnight      |
+| `weekend_morning`     | Sat–Sun, 6am–12pm          |
+| `weekend_afternoon`   | Sat–Sun, 12pm–6pm          |
+| `weekend_evening`     | Sat–Sun, 6pm–midnight      |

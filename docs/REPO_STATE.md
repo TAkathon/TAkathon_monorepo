@@ -1,8 +1,9 @@
-# TAkathon Monorepo - Repository State Summary
+# TAkathon Monorepo — Repository State
 
-**Last Updated**: February 28, 2026  
-**Version**: 1.0.0  
-**Status**: Development Phase — Full Backend API Complete, Frontend Integration In Progress
+**Last Updated**: March 3, 2026
+**Version**: 1.0.0
+**Branch**: `dev` (active development)
+**Overall Status**: Phase 3 Complete — AI Matching V1 + Full Frontend Integration
 
 ---
 
@@ -11,42 +12,59 @@
 ```
 TAkathon_monorepo/
 ├── apps/
-│   ├── core-gateway/          ✅ Express + Prisma 7, Dockerized
-│   │   ├── src/
-│   │   │   ├── routes/
-│   │   │   │   ├── auth.ts       ✅ JWT auth complete
-│   │   │   │   ├── students/     ✅ profile, hackathons, teams, matching
-│   │   │   │   ├── organizers/   ✅ profile, hackathons, participants, analytics
-│   │   │   │   ├── sponsors/     ✅ profile, hackathons, teams
-│   │   │   │   └── shared/       ✅ public hackathons, skills
-│   │   │   ├── services/     ✅ all role-specific services
-│   │   │   ├── middleware/
-│   │   │   │   ├── auth.ts       ✅ JWT validation
-│   │   │   │   └── rbac.ts       ✅ requireStudent/Organizer/Sponsor
-│   │   │   └── lib/prisma.ts ✅ Prisma adapter pattern
-│   │   └── Dockerfile         ✅ Multi-stage build
-│   ├── student-portal/        ✅ Next.js 15, Dockerized (UI static only)
-│   ├── organizer-dashboard/   ✅ Next.js 15, Dockerized (UI static only)
-│   ├── sponsor-panel/         ✅ Next.js 15, Dockerized (UI static only)
-│   ├── landing-page/          ✅ Next.js 15, Dockerized
-│   └── ai-engine/             ✅ FastAPI stub, Dockerized
-├── libs/
-│   ├── shared/
-│   │   ├── types/             ✅ TypeScript definitions
-│   │   ├── ui/                🟡 Partial - needs components
-│   │   ├── utils/             ✅ authStore (Zustand) present
-│   │   └── api/               🟡 Partial - needs typed service modules
-│   └── python/
-│       └── ai-logic/          ⬜ Empty - needs AI utilities
+│   ├── core-gateway/          ✅ Express + Prisma 7, esbuild-bundled, Dockerized
+│   │   ├── src/index.ts          ✅ Entry point — all route mounts live here
+│   │   ├── src/routes/
+│   │   │   ├── auth.ts           ✅ JWT auth (httpOnly cookies only)
+│   │   │   ├── students/         ✅ profile, hackathons, teams, matching, skills
+│   │   │   ├── organizers/       ✅ profile, hackathons CRUD + lifecycle, participants, analytics
+│   │   │   ├── sponsors/         ✅ profile, hackathons, teams, favorites
+│   │   │   └── shared/           ✅ public hackathons, skills taxonomy
+│   │   ├── src/services/         ✅ all role-specific + matching services
+│   │   ├── src/middleware/
+│   │   │   ├── auth.ts           ✅ requireAuth reads req.cookies.accessToken
+│   │   │   └── rbac.ts           ✅ requireStudent / requireOrganizer / requireSponsor
+│   │   └── src/lib/prisma.ts     ✅ Prisma 7 adapter pattern (PrismaPg + Pool)
+│   │
+│   ├── ai-engine/             ✅ FastAPI V1 — always on, no profile flag needed
+│   │   ├── app/matching/
+│   │   │   ├── scoring.py        ✅ skill_complementarity, experience_balance, availability_overlap
+│   │   │   ├── engine.py         ✅ orchestrates scorers, generates explanations
+│   │   │   └── validators.py     ✅ Pydantic v2 MatchRequest / MatchResponse
+│   │   └── tests/                ✅ 27 pytest tests
+│   │
+│   ├── student-portal/        ✅ Next.js 15 — full API integration
+│   │   └── src/app/dashboard/
+│   │       ├── page.tsx          ✅ live stats from API
+│   │       ├── profile/          ✅ skills inline add/remove (dropdown, no page reload)
+│   │       ├── hackathons/       ✅ browse with isRegistered + isInTeam flags
+│   │       ├── teams/            ✅ create, leave, disband, AI matching modal
+│   │       │   └── [id]/
+│   │       │       ├── messages/ ✅ placeholder chat ("Coming Soon" — WebSockets V2)
+│   │       │       └── project/  ✅ milestone tracker, tech stack, submission links (demo data)
+│   │       └── settings/         ✅ availability: timezone, hours/week, slot toggles
+│   │
+│   ├── organizer-dashboard/   ✅ Next.js 15 — hackathons list, participants, teams, settings
+│   ├── sponsor-panel/         ✅ Next.js 15 — dashboard, opportunities, requests, profile
+│   └── landing-page/          ✅ Next.js 15 — home, login, signup wired to /api/v1/auth/*
+│
+├── libs/shared/
+│   ├── api/src/               ✅ Typed domain API modules
+│   │   ├── client.ts          ✅ Axios + withCredentials + auto-refresh interceptors
+│   │   ├── student.ts         ✅ studentApi, teamApi, invitationApi
+│   │   ├── organizer.ts       ✅ organizerApi
+│   │   ├── hackathon.ts       ✅ hackathonApi (public)
+│   │   ├── matching.ts        ✅ matchingApi — suggestTeammates, inviteMatch
+│   │   └── index.ts           ✅ barrel export
+│   ├── types/src/             ✅ UserRole enum (STUDENT, ORGANIZER, SPONSOR), domain models
+│   ├── utils/src/             ✅ Zustand authStore, authRedirect, AvailabilitySlot types
+│   └── ui/src/                🟡 basic shared components only
+│
 ├── prisma/
-│   ├── schema.prisma          ✅ Complete schema (18 models, 9 enums)
-│   └── seed.ts                ✅ 36 skills, 8 users, 2 hackathons, teams
-├── docs/
-│   ├── architecture.md        ✅ Complete
-│   ├── api-specification.md   🟡 Partial - needs full API docs
-│   └── DEVELOPMENT_ROADMAP.md ✅ Up to date
-├── docker-compose.yml         ✅ All services configured
-└── tsconfig.base.json         ✅ Path aliases configured
+│   ├── schema.prisma          ✅ 18 models, 9 enums, availability JsonB on StudentProfile
+│   └── seed.ts                ✅ 36 skills, 8 users, 2 hackathons, 1 team, 2 sponsorships
+│
+└── docker-compose.yml         ✅ 7 services, all with healthchecks
 ```
 
 **Legend**: ✅ Complete | 🟡 Partial | ⬜ Not Started
@@ -55,385 +73,218 @@ TAkathon_monorepo/
 
 ## 🔧 Technology Stack
 
-| Layer          | Technology   | Version | Status          |
-| -------------- | ------------ | ------- | --------------- |
-| **Frontend**   | Next.js      | 15.5.12 | ✅ Running      |
-| **Backend**    | Express      | 4.x     | ✅ Running      |
-| **ORM**        | Prisma       | 7.4.0   | ✅ Configured   |
-| **Database**   | PostgreSQL   | 16      | ✅ Running      |
-| **AI Service** | FastAPI      | 0.109.2 | ✅ Stub         |
-| **Build Tool** | esbuild      | 0.27.3  | ✅ Configured   |
-| **Monorepo**   | Nx           | 20.4.4  | ✅ Configured   |
-| **Runtime**    | Node.js      | 22      | ✅ Alpine       |
-| **Container**  | Docker       | Latest  | ✅ All services |
-| **Styling**    | Tailwind CSS | 3.x     | ✅ Configured   |
+| Layer           | Technology           | Version   | Status                         |
+|-----------------|----------------------|-----------|--------------------------------|
+| **Frontend**    | Next.js              | 15.5.12   | ✅ Running — App Router        |
+| **Backend**     | Express              | 4.x       | ✅ Running — NOT NestJS        |
+| **ORM**         | Prisma               | 7.4.0     | ✅ Adapter pattern required    |
+| **DB Adapter**  | @prisma/adapter-pg   | 7.4.0     | ✅ PrismaPg + pg.Pool          |
+| **Database**    | PostgreSQL           | 16-alpine | ✅ Volume-persisted            |
+| **AI Service**  | FastAPI + Python     | 3.11+     | ✅ V1 deterministic matching   |
+| **Build Tool**  | esbuild              | 0.27.3    | ✅ Bundles core-gateway        |
+| **Monorepo**    | Nx                   | 20.4.4    | ✅ Build cache + graph         |
+| **State**       | Zustand              | 4.5+      | ✅ Auth store only (minimal)   |
+| **HTTP**        | Axios                | 1.6+      | ✅ Shared client + interceptors|
+| **Styling**     | Tailwind CSS         | 3.x       | ✅ Glassmorphism design system |
+| **Validation**  | Zod (gateway) + Pydantic (AI) | — | ✅ Schema validation all routes |
+| **Auth**        | JWT (httpOnly cookies only) | — | ✅ No bearer token / response body |
 
 ---
 
 ## 🌐 Service Ports
 
-| Service             | Port | Status               | URL                   |
-| ------------------- | ---- | -------------------- | --------------------- |
-| Landing Page        | 3000 | ✅ Running           | http://localhost:3000 |
-| Student Portal      | 3001 | ✅ Running           | http://localhost:3001 |
-| Organizer Dashboard | 3002 | ✅ Running           | http://localhost:3002 |
-| Sponsor Panel       | 3003 | ✅ Running           | http://localhost:3003 |
-| Core Gateway (API)  | 8000 | ✅ Running           | http://localhost:8000 |
-| AI Engine           | 8001 | ✅ Running (profile) | http://localhost:8001 |
-| PostgreSQL          | 5432 | ✅ Running           | localhost:5432        |
+| Service             | Port | Docker Container      | Dev URL                 |
+|---------------------|------|-----------------------|-------------------------|
+| Landing Page        | 3000 | `takathon-landing`    | http://localhost:3000   |
+| Student Portal      | 3001 | `takathon-student`    | http://localhost:3001   |
+| Organizer Dashboard | 3002 | `takathon-organizer`  | http://localhost:3002   |
+| Sponsor Panel       | 3003 | `takathon-sponsor`    | http://localhost:3003   |
+| Core Gateway (API)  | 8000 | `takathon-gateway`    | http://localhost:8000   |
+| AI Engine           | 8001 | `takathon-ai`         | http://localhost:8001   |
+| PostgreSQL          | 5432 | `takathon-db`         | localhost:5432          |
 
-**Database Credentials**:
-
-- Host: `localhost`
-- Port: `5432`
-- Database: `takathon`
-- Username: `postgres`
-- Password: `postgrespassword`
-
----
-
-## 📊 Database Schema
-
-### Tables (Prisma Schema)
-
-```
-users                    ✅ Defined
-├── student_profiles     ✅ Defined
-├── organizer_profiles   ✅ Defined
-└── sponsor_profiles     ✅ Defined
-
-skills                   ✅ Defined
-user_skills              ✅ Defined (many-to-many)
-
-hackathons               ✅ Defined
-hackathon_participants   ✅ Defined
-
-teams                    ✅ Defined
-team_members             ✅ Defined
-team_invitations         ✅ Defined
-
-applications             ✅ Defined
-sponsorships             ✅ Defined
-```
-
-### Enums
-
-- `UserRole`: student, organizer, sponsor
-- `SkillCategory`: frontend, backend, design, data_science, mobile, devops, product_management, other
-- `ProficiencyLevel`: beginner, intermediate, advanced, expert
-- `HackathonStatus`: draft, registration_open, registration_closed, in_progress, completed, cancelled
-- `ParticipantStatus`: registered, in_team, withdrawn
+> **AI Engine**: Starts by default with `docker compose up`. No `--profile ai` flag required.
 
 ---
 
 ## 🔐 Authentication System
 
-**Status**: ✅ Complete  
-**Type**: JWT-based with refresh tokens
+**Status**: ✅ Security Phase Complete
 
-### Implemented Endpoints
+### Token Strategy (IMPORTANT — common source of confusion)
 
-- ✅ `POST /api/v1/auth/register` - User registration
-- ✅ `POST /api/v1/auth/login` - Login (returns access + refresh tokens)
-- ✅ `POST /api/v1/auth/refresh` - Refresh access token
-- ✅ `POST /api/v1/auth/logout` - Logout
+| Token          | Storage          | Lifetime | Cookie Name      |
+|----------------|------------------|----------|------------------|
+| Access Token   | httpOnly cookie  | 15 min   | `accessToken`    |
+| Refresh Token  | httpOnly cookie  | 7 days   | `refreshToken`   |
 
-### Token Strategy
+**Tokens are NEVER**:
+- Returned in response body
+- Stored in `localStorage` or `sessionStorage`
+- Sent via `Authorization: Bearer` header
 
-- **Access Token**: 15min expiry, in response body
-- **Refresh Token**: 7 day expiry, httpOnly cookie
-- **Validation**: JWT middleware on protected routes
+**How it works**:
+1. Login → gateway sets both cookies via `res.cookie()`
+2. All subsequent requests include cookies automatically (`withCredentials: true`)
+3. `requireAuth` middleware reads `req.cookies.accessToken`
+4. On 401 → Axios interceptor calls `POST /auth/refresh` → new `accessToken` cookie set
+5. If refresh fails → interceptor redirects browser to `/login`
 
----
+### Rate Limiting
 
-## 🚧 API Endpoints Status
+- `/auth/login`: 10 requests / 15 minutes
+- `/auth/register`: 10 requests / 15 minutes
+- `express-rate-limit` middleware
 
-### Implemented ✅
+### Route Guards
 
-```
-GET  /                      - Welcome message
-GET  /api/v1/health         - Health check
-POST /api/v1/auth/register  - User registration
-POST /api/v1/auth/login     - Login
-POST /api/v1/auth/refresh   - Token refresh
-POST /api/v1/auth/logout    - Logout
-```
-
-### To Implement ⬜
-
-**Student Routes** (`/api/v1/students/*`):
-
-- Profile: GET, PUT
-- Hackathons: GET (browse), GET /:id, POST /:id/register, DELETE /:id/withdraw
-- Teams: GET (my teams), POST (create), PUT /:id, DELETE /:id, POST /:id/invite
-- Matching: GET /teams/:id/matches
-
-**Organizer Routes** (`/api/v1/organizers/*`):
-
-- Profile: GET, PUT
-- Hackathons: POST (create), GET (my events), PUT /:id, DELETE /:id
-- Participants: GET /hackathons/:id/participants, GET /hackathons/:id/teams
-- Analytics: GET /hackathons/:id/analytics, GET /hackathons/:id/export
-
-**Sponsor Routes** (`/api/v1/sponsors/*`):
-
-- Profile: GET, PUT
-- Hackathons: GET (browse), POST /:id/sponsor
-- Teams: GET /hackathons/:id/teams, GET /teams/:id, POST /teams/:id/favorite
-
-**Shared Routes** (`/api/v1/*`):
-
-- Hackathons: GET /hackathons (public listings)
-- Skills: GET /skills, GET /skills/categories
+- **Backend**: `requireAuth` → then `requireStudent` / `requireOrganizer` / `requireSponsor`
+- **Frontend**: `middleware.ts` in each Next.js app (reads httpOnly cookie, redirects to `/login` if absent)
+- **`DashboardLayout`**: does NOT redirect — only hydrates Zustand from `/auth/me` on mount
 
 ---
 
-## 🐳 Docker Status
+## 🚀 API Endpoints Status
 
-### Services Running
+### Students (`/api/v1/students/*`)
 
-```bash
-$ docker-compose ps
+| Method | Path                              | Status | Notes                            |
+|--------|-----------------------------------|--------|----------------------------------|
+| GET    | /profile                          | ✅     | includes skills array            |
+| PUT    | /profile                          | ✅     | accepts `availability` JsonB     |
+| GET    | /hackathons                       | ✅     | returns `isRegistered`, `isInTeam` per hackathon |
+| POST   | /hackathons/:id/register          | ✅     |                                  |
+| DELETE | /hackathons/:id/withdraw          | ✅     | blocked if `isInTeam`            |
+| GET    | /teams                            | ✅     | **nested shape — must flatten** (see Known Pitfalls) |
+| GET    | /teams/:id                        | ✅     |                                  |
+| POST   | /teams                            | ✅     |                                  |
+| POST   | /teams/:id/invite                 | ✅     |                                  |
+| DELETE | /teams/:id/leave                  | ✅     | non-captain members              |
+| DELETE | /teams/:id                        | ✅     | captain only, forming status     |
+| GET    | /matching/:id/matches             | ✅     | ← AI suggestions (mounted at /students/matching) |
+| POST   | /matching/:id/matches/:userId     | ✅     | ← invite matched user            |
+| POST   | /skills                           | ✅     | add skill (NOT /profile/skills)  |
+| DELETE | /skills/:id                       | ✅     | remove by userSkill ID           |
 
-NAME                 STATUS                  PORTS
-takathon-db          Up (healthy)            5432:5432
-takathon-gateway     Up (healthy)            8000:8000
-takathon-landing     Up                      3000:3000
-takathon-student     Up                      3001:3001
-takathon-organizer   Up                      3002:3002
-takathon-sponsor     Up                      3003:3003
-takathon-ai          Up (profile: ai)        8001:8001
-```
+### Organizers (`/api/v1/organizers/*`) — ✅ All implemented
 
-### Docker Commands
+Hackathon CRUD + lifecycle (publish → start → complete / cancel), participants, analytics, CSV export.
 
-```bash
+### Sponsors (`/api/v1/sponsors/*`) — ✅ All implemented
+
+Browse hackathons, sponsor events, view teams, project details, bookmark teams.
+
+### Shared / Public — ✅ All implemented
+
+`GET /api/v1/hackathons`, `GET /api/v1/hackathons/:id`, `GET /api/v1/skills`, `GET /api/v1/health`
+
+---
+
+## 🤖 AI Matching Engine (V1)
+
+**Status**: ✅ Complete — deterministic, tested, fallback-safe
+
+**Route mount in `index.ts`**: `/api/v1/students/matching` (separate from `/api/v1/students/teams`)
+
+| Scorer                  | Weight | Algorithm                                      |
+|-------------------------|--------|------------------------------------------------|
+| `skill_complementarity` | 40%    | unique new skills / team open skill slots      |
+| `experience_balance`    | 30%    | targets mean proficiency of 2.5 (scale 1–4)   |
+| `availability_overlap`  | 30%    | Jaccard slot similarity (70%) + hours compat (30%) |
+
+**Proficiency map**: `beginner→1`, `intermediate→2`, `advanced→3`, `expert→4`
+
+**Fallback**: If AI engine unreachable, `core-gateway` uses local `basicScoring()` (skill complementarity only). Returns `fallback: true` flag to frontend.
+
+---
+
+## 🐳 Docker Services
+
+| Container           | Image Built From              | Depends On      |
+|---------------------|-------------------------------|-----------------|
+| `takathon-db`       | `postgres:16-alpine`          | —               |
+| `takathon-gateway`  | `apps/core-gateway/Dockerfile`| db (healthy)    |
+| `takathon-ai`       | `apps/ai-engine/Dockerfile`   | db (healthy)    |
+| `takathon-landing`  | `apps/landing-page/Dockerfile`| gateway (healthy)|
+| `takathon-student`  | `apps/student-portal/Dockerfile`| gateway (healthy)|
+| `takathon-organizer`| `apps/organizer-dashboard/Dockerfile`| gateway (healthy)|
+| `takathon-sponsor`  | `apps/sponsor-panel/Dockerfile`| gateway (healthy)|
+
+### Critical Docker Commands
+
+```powershell
 # Start all services
-docker-compose up -d
+docker compose up -d
 
-# Start with AI engine
-docker-compose --profile ai up -d
-
-# Rebuild and start
-docker-compose up -d --build
+# Rebuild after source changes (ALWAYS use --no-cache)
+docker compose build --no-cache <service>
+docker compose up -d <service>
 
 # View logs
-docker-compose logs -f core-gateway
+docker compose logs -f core-gateway
 
-# Stop all services
-docker-compose down
-
-# Stop and remove volumes
-docker-compose down -v
+# Stop all
+docker compose down
 ```
 
----
-
-## 📦 Dependencies
-
-### Core Gateway (Node.js)
-
-```json
-{
-  "express": "^4.18.2",
-  "prisma": "^7.4.0",
-  "@prisma/client": "^7.4.0",
-  "@prisma/adapter-pg": "^7.4.0",
-  "pg": "^8.11.3",
-  "jsonwebtoken": "^9.0.0",
-  "bcryptjs": "^2.4.3",
-  "zod": "^3.22.4",
-  "cors": "^2.8.5",
-  "cookie-parser": "^1.4.6",
-  "dotenv": "^16.0.3"
-}
-```
-
-### Frontend (Next.js)
-
-```json
-{
-  "next": "15.5.12",
-  "react": "^19.0.0",
-  "tailwindcss": "^3.4.1",
-  "framer-motion": "^11.0.0",
-  "lucide-react": "^0.263.1",
-  "zustand": "^4.5.0",
-  "axios": "^1.6.0"
-}
-```
-
-### AI Engine (Python)
-
-```txt
-fastapi==0.109.2
-uvicorn==0.27.1
-pydantic==2.5.3
-```
+> ⚠️ **Cache Trap**: `docker compose build` reuses layers from before your source change. Always use `--no-cache` when debugging container behavior after a commit.
 
 ---
 
-## 🏗️ Build Configuration
+## 🧪 Seed / Test Data
 
-### TypeScript Path Aliases
+All seed users share password: `password123`
 
-```json
-// tsconfig.base.json
-{
-  "paths": {
-    "@takathon/shared/types": ["libs/shared/types/src/index.ts"],
-    "@takathon/shared/ui": ["libs/shared/ui/src/index.ts"],
-    "@takathon/shared/utils": ["libs/shared/utils/src/index.ts"],
-    "@takathon/shared/api": ["libs/shared/api/src/index.ts"]
-  }
-}
-```
-
-### Core Gateway Build
-
-- **Type Check**: `tsc --noEmit`
-- **Bundler**: `esbuild` (bundles to single file)
-- **Output**: `dist/index.js` (2.0 MB)
-- **Externals**: `@prisma/client`, `@prisma/adapter-pg`, `pg`
-
-### Frontend Build
-
-- **Mode**: `standalone` (Next.js)
-- **Output**: `.next/standalone` + `.next/static`
-- **Server**: `apps/{app}/server.js`
+| Role       | Email                          | Data                          |
+|------------|--------------------------------|-------------------------------|
+| Student    | alice.student@university.edu   | captain of "Code Warriors"    |
+| Student    | bob.student@university.edu     | member of "Code Warriors"     |
+| Student    | carol.student@university.edu   | registered participant        |
+| Student    | david.student@university.edu   | registered participant        |
+| Organizer  | emma.organizer@company.com     | created "Spring Innovation"   |
+| Organizer  | frank.organizer@company.com    |                               |
+| Sponsor    | grace.sponsor@corp.com         | Microsoft sponsorship         |
+| Sponsor    | henry.sponsor@corp.com         | Google sponsorship            |
 
 ---
 
-## 🔍 Current Gaps
+## ⚠️ Known Pitfalls (Do Not Repeat)
 
-### High Priority ⚠️
+See `.github/copilot-instructions.md` **"Known Bugs & Pitfalls"** section for full detail with code fixes for:
 
-1. **No frontend-backend integration** — All three dashboards use static/mock data
-2. **AI matching engine incomplete** — Stub only, scoring logic not implemented
-
-### Medium Priority
-
-1. No E2E test coverage
-2. No CI/CD pipeline
-3. API documentation (Swagger/OpenAPI) not generated
-4. Production-grade migrations not set up (dev uses `prisma db push`)
-
-### Low Priority
-
-1. No production deployment
-2. No monitoring/logging
-3. `libs/shared/ui` needs reusable component library
+1. Login page infinite refresh loop — verify `/auth/me` before trusting Zustand store
+2. DashboardLayout auth redirect loop — middleware guards, layout only hydrates
+3. Docker layer cache — always `--no-cache` after source change
+4. AI matching route mount mismatch — `/students/matching/:id` NOT `/students/teams/:id`
+5. `getMyTeams()` nested response shape — must flatten on frontend
+6. Skill add/remove URL — `/students/skills` NOT `/students/profile/skills`
+7. `isInTeam` blocks withdraw silently — frontend shows contextual badge
+8. Tailwind opacity classes — only multiples of 5 valid
+9. `select option` dark mode — requires global CSS, not Tailwind classes
 
 ---
 
-## 📝 Environment Variables
+## 🎯 V1 Remaining Work
 
-### Core Gateway (.env)
+| Priority | Item                                              | Owner    |
+|----------|---------------------------------------------------|----------|
+| High     | Loading skeletons on all dashboard pages          | Frontend |
+| High     | Toast / inline error feedback on API failures     | Frontend |
+| High     | Organizer: `new` + `[id]/edit` hackathon pages    | Frontend |
+| Medium   | CSV export button wired (organizer)               | Frontend |
+| Medium   | Sponsor team detail modal                         | Frontend |
+| Medium   | ResponseHandler audit across all gateway routes   | Backend  |
+| Medium   | E2E tests: auth flow, team creation, registration | QA       |
+| Low      | Mobile responsive audit (375px)                   | Frontend |
+| Low      | Deployment guide (Render/DigitalOcean)            | DevOps   |
 
-```bash
-DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/takathon?schema=public
-PORT=8000
-CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003
-JWT_ACCESS_SECRET=dev_access_secret_123456789
-JWT_REFRESH_SECRET=dev_refresh_secret_123456789
-ACCESS_TTL=15m
-REFRESH_TTL=7d
-```
+### Out of Scope for V1
 
-### Frontends (.env.local)
-
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-```
-
----
-
-## 🎯 Immediate Next Steps (Priority Order)
-
-1. **Connect student-portal to API** (Current Focus)
-   - Wire `libs/shared/api` client into student dashboard pages
-   - Auth flows using Zustand `authStore`
-
-2. **Connect organizer-dashboard to API**
-   - Hackathon CRUD, analytics pages
-
-3. **Connect sponsor-panel to API**
-   - Hackathon browsing + team discovery
-
-4. **AI Matching Engine**
-   - Implement scoring in `apps/ai-engine/app/matching/scoring.py`
-
-5. **Testing**
-   - E2E tests for auth + team creation flows
-   - Unit tests for critical services
-
-6. **CI/CD**
-   - GitHub Actions pipeline (lint, test, build on PR)
+- Real-time team messaging (WebSockets + DB messages schema)
+- Editable project details with DB persistence
+- AI coaching / chatbot (Phase 4+)
+- ML-based matching (replaces current deterministic scorer)
 
 ---
 
-## 📚 Key Files Reference
-
-| File                                   | Purpose                | Status          |
-| -------------------------------------- | ---------------------- | --------------- |
-| `.github/copilot-instructions.md`      | Development guidelines | ✅ Updated      |
-| `docs/DEVELOPMENT_ROADMAP.md`          | Detailed roadmap       | ✅ Up to date   |
-| `docs/REPO_STATE.md`                   | This file              | ✅ Current      |
-| `prisma/schema.prisma`                 | Database schema        | ✅ Complete     |
-| `prisma/seed.ts`                       | Seed data              | ✅ Complete     |
-| `docker-compose.yml`                   | Service orchestration  | ✅ Complete     |
-| `tsconfig.base.json`                   | TypeScript config      | ✅ Complete     |
-| `apps/core-gateway/src/index.ts`       | API entry with all routes | ✅ Complete  |
-| `apps/core-gateway/src/routes/auth.ts` | Auth routes            | ✅ Complete     |
-| `apps/core-gateway/src/routes/students/` | Student API          | ✅ Complete     |
-| `apps/core-gateway/src/routes/organizers/` | Organizer API      | ✅ Complete     |
-| `apps/core-gateway/src/routes/sponsors/` | Sponsor API          | ✅ Complete     |
-| `apps/core-gateway/src/routes/shared/` | Shared API            | ✅ Complete     |
-| `apps/core-gateway/src/middleware/rbac.ts` | RBAC guards       | ✅ Complete     |
-
----
-
-## 🤝 Contributing
-
-See `DEVELOPMENT_ROADMAP.md` for detailed implementation tasks and `copilot-instructions.md` for coding guidelines.
-
-**Current Branch**: `dev`  
-**Workflow**: Feature branches → PR to `dev` → Test → Merge to `main`
-
----
-
-## 📞 Quick Commands Cheatsheet
-
-```bash
-# Docker
-docker-compose up -d              # Start all services
-docker-compose ps                 # Check service status
-docker-compose logs -f gateway    # View gateway logs
-docker-compose down               # Stop all services
-
-# Database
-npx prisma db push                # Sync schema to DB
-npx prisma db seed                # Seed database
-npx prisma studio                 # Open Prisma Studio GUI
-
-# Development
-nx serve core-gateway             # Start backend locally
-nx serve student-portal           # Start frontend locally
-nx build core-gateway             # Build backend
-nx graph                          # View dependency graph
-
-# Testing
-nx test core-gateway              # Run backend tests
-nx lint core-gateway              # Lint backend code
-
-# Database Access (DBeaver/psql)
-Host: localhost
-Port: 5432
-Database: takathon
-User: postgres
-Password: postgrespassword
-```
-
----
-
-**End of Summary** - See `DEVELOPMENT_ROADMAP.md` for detailed next steps.
+*For architecture details see `docs/architecture.md`. For coding standards see `docs/NAMING_CONVENTIONS.md`.*

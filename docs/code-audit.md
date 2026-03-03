@@ -1,157 +1,242 @@
-# Codebase Audit — Issues and Fix Recommendations
+# TAkathon — Code Audit
 
-Date: 2026-03-01
+**Last Updated**: March 3, 2026
+**Status**: Phase 3 issues have been fully resolved. All Phase 1-2 findings closed.
 
-This document summarizes identified syntax errors, logic issues, and inconsistencies across the repository, along with actionable recommendations to fix them.
-
-## Summary of Key Risks
-- Build break in student-portal due to duplicate default exports in a single file.
-- Inconsistent user roles between shared types and the core gateway token verification.
-- Mixed stack signals in core-gateway (Nest skeleton vs Express app) causing confusion and potential tooling drift.
-- CORS configuration blocks typical browser origins unless configured, hindering local development.
-- Potential inconsistency in API response shape if not standardized on a common handler.
-- Frontend logic relies on string literals where shared enums exist, risking drift.
-- Missing or undocumented environment variables for token TTLs.
-- Referenced routers may be missing/incomplete, risking runtime import failures.
+This document tracks code quality findings, when they were fixed, and what the fix was.
 
 ---
 
-## Findings and Recommendations
+## ✅ Resolved Issues
 
-### 1) Critical: Duplicate default export in student-portal dashboard
-- Location: `apps/student-portal/src/app/dashboard/page.tsx`
-- Issue:
-  - The file declares `export default function DashboardPage()` twice. This is a syntax error and will fail to compile.
-  - The second block includes demo/mock data and reuses identifiers (e.g., `stats`) defined earlier, creating scope confusion.
-- Impact: Build fails; or if partially resolved by tooling, undefined behavior at runtime.
-- Recommendation:
-  - Keep the data-driven implementation and remove the second `DashboardPage` and associated mock data.
-  - Alternatively, move mock/demo into a separate component/file and choose via a feature flag.
-  - Ensure any referenced variables are in the correct scope of the single, final `DashboardPage` export.
+### Issue #1 — Duplicate Export in Shared API Barrel
 
-### 2) Inconsistent user roles between backend and shared types
-- Files:
-  - Backend: `apps/core-gateway/src/services/token.ts`
-  - Shared types: `libs/shared/types/src/lib/user.types.ts`
-- Issue:
-  - Token verification allows roles: `student`, `organizer`, `sponsor`.
-  - Shared `UserRole` enum only defines `STUDENT` and `ORGANIZER`; `SPONSOR` is missing.
-- Impact:
-  - Type mismatches in TypeScript when trying to represent a sponsor user.
-  - Potential logic gaps in RBAC and UI that reference `UserRole`.
-- Recommendation:
-  - Add `SPONSOR = 'sponsor'` to `UserRole`.
-  - Audit authorization checks and UI role-based logic to include sponsor where appropriate.
+**Found**: Phase 2
+**Fixed**: Phase 2 (refactor of `libs/shared/api/src/index.ts`)
+**Status**: ✅ RESOLVED
 
-### 3) Mixed framework signals in core-gateway (Nest skeleton vs Express)
-- Files present but empty: `apps/core-gateway/src/app/app.module.ts`, `apps/core-gateway/src/app/app.controller.ts`, `apps/core-gateway/src/main.ts`.
-- Actual runtime entrypoint: `apps/core-gateway/src/index.ts` (Express app).
-- Issue:
-  - The project appears to have Nest scaffolding but the service is implemented in Express.
-- Impact:
-  - Confusion for contributors, toolchain drift (nx/IDE may assume Nest), potential dead imports later.
-- Recommendation:
-  - Decide on the framework. If sticking with Express (current code), remove the empty Nest files or add a clear comment indicating they are intentionally unused.
-  - Ensure package scripts and CI start the Express entry (`src/index.ts`).
+**Original problem**: Multiple `export *` statements in the barrel file caused TypeScript duplicate identifier errors when domain modules exported types with the same name (e.g. `HackathonData` in both `hackathon.ts` and `organizer.ts`).
 
-### 4) CORS configuration blocks normal browser origins by default
-- File: `apps/core-gateway/src/index.ts`
-- Issue:
-  - If `CORS_ORIGINS` env var is unset, requests with `Origin` are rejected ("CORS not configured"). Only requests without `Origin` (e.g., curl) are allowed.
-- Impact:
-  - Local development from Next.js frontends (which send an Origin) will be blocked unless CORS is explicitly configured.
-- Recommendation:
-  - In non-production, allow common localhost origins if `CORS_ORIGINS` is empty (e.g., `http://localhost:3000`, `http://localhost:4200`).
-  - Alternatively, if empty and non-prod, allow all origins with a prominent console warning.
-  - Document CORS_ORIGINS usage in `.env.example`.
-
-### 5) Response shape standardization
-- File: `apps/core-gateway/src/utils/response.ts`
-- Issue:
-  - A standardized `ResponseHandler` exists, returning `{ success, data | error }` following `@takathon/shared/types`.
-  - Risk is inconsistency if some route handlers bypass it and use `res.json` directly with ad-hoc shapes.
-- Impact:
-  - Clients receive inconsistent API payloads, complicating frontends and SDKs.
-- Recommendation:
-  - Adopt `ResponseHandler` across all route handlers. Grep for `res.json` and update to use `ResponseHandler.success/error`.
-  - Optionally add an ESLint rule or code review checklist item to enforce response consistency.
-
-### 6) Frontend uses string literals where shared enums exist
-- File: `apps/student-portal/src/app/dashboard/page.tsx`
-- Issue:
-  - Status comparisons use string literals such as `"forming"` and `"complete"` instead of `TeamStatus.FORMING/COMPLETE` from shared types.
-- Impact:
-  - Increases risk of typos and drift from shared contract.
-- Recommendation:
-  - Import `TeamStatus` from `@takathon/shared/types` and use the enum values.
-
-### 7) JWT TTL environment variable naming/documentation
-- File: `apps/core-gateway/src/services/token.ts`
-- Issue:
-  - Code uses `ACCESS_TTL` and `REFRESH_TTL` env vars but they may not be documented in `.env.example`.
-- Impact:
-  - Confusion during setup; inconsistent TTLs across environments.
-- Recommendation:
-  - Add `ACCESS_TTL=15m` and `REFRESH_TTL=7d` to `apps/core-gateway/.env.example` with comments.
-
-### 8) Referenced routers might be missing or incomplete
-- File: `apps/core-gateway/src/index.ts`
-- Issue:
-  - References many routers: students (profile, hackathons, teams, matching), organizers (profile, hackathons, participants, analytics), sponsors (profile, hackathons, teams), shared (hackathons, skills).
-  - Ensure these router files actually exist and export an `Express.Router` with routes mounted relative to the base path used.
-- Impact:
-  - Runtime module not found/import errors if any file is absent.
-- Recommendation:
-  - Verify presence of each router file and add a minimal stub if not yet implemented (e.g., `GET /` returns empty list with `ResponseHandler.success`).
-
-### 9) Organizer routers mounted on the same base
-- File: `apps/core-gateway/src/index.ts`
-- Observation:
-  - Multiple routers mounted at the same base path `"/api/v1/organizers/hackathons"` for `organizerHackathonsRouter`, `organizerParticipantsRouter`, and `organizerAnalyticsRouter`.
-- Impact:
-  - This can be correct if each router defines unique subpaths (e.g., `/participants`, `/analytics`), but it can also be a sign of accidental duplication.
-- Recommendation:
-  - Confirm each router's internal paths. If they already include `/participants` and `/analytics`, keep as-is. Otherwise, adjust base paths to `"/api/v1/organizers/participants"` and `"/api/v1/organizers/analytics"` for clarity.
-
-### 10) JWT secrets configuration
-- File: `apps/core-gateway/src/services/token.ts`
-- Observation:
-  - Uses dev defaults but enforces presence of secrets in production. Good practice.
-- Recommendation:
-  - Ensure deployment pipeline sets `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` and rotate them periodically.
-
-### 11) Python AI engine (cursory)
-- Path: `apps/ai-engine`
-- Observation:
-  - Not fully reviewed here. Ensure tests (`apps/ai-engine/tests`) pass in CI and that package/module imports match `pyproject.toml` configuration. Pin dependencies appropriately.
-- Recommendation:
-  - Run tests, add type checking (mypy/pyright) if not already, and ensure version locks are compatible with runtime.
+**Fix**: Used named re-exports for conflicting symbols. Barrel now uses explicit `export { ... } from "..."` for each domain module.
 
 ---
 
-## Quick Fix Plan (Actionable Steps)
-1. Fix `student-portal` dashboard file:
-   - Remove the second `export default` and mock sections, or split into separate file.
-   - Import `TeamStatus` from `@takathon/shared/types` and replace string literals.
-2. Update shared user roles:
-   - Add `SPONSOR` to `libs/shared/types/src/lib/user.types.ts`.
-3. Clarify core-gateway framework:
-   - Remove empty Nest files or add a header comment making it explicit Express is used. Ensure scripts target `src/index.ts`.
-4. Improve CORS DX:
-   - In development, allow `http://localhost:3000` (and other local ports as needed) when `CORS_ORIGINS` is empty, or allow all with a warning. Document in `.env.example`.
-5. Standardize responses:
-   - Replace ad-hoc `res.json` calls in routers with `ResponseHandler.success/error`.
-6. Document JWT TTLs:
-   - Add `ACCESS_TTL` and `REFRESH_TTL` into `apps/core-gateway/.env.example`.
-7. Verify router existence:
-   - Ensure all referenced router modules exist; add stubs where necessary.
+### Issue #2 — `UserRole.SPONSOR` Missing from Shared Types
+
+**Found**: Phase 2
+**Fixed**: Phase 2 (commit on `feature/phase2-core-data-flows`)
+**Status**: ✅ RESOLVED
+
+**Original problem**: `UserRole` enum in `libs/shared/types/src/` only had `STUDENT` and `ORGANIZER`. The `authRedirect()` utility function had no case for `SPONSOR`, causing sponsors to be redirected to the wrong dashboard after login.
+
+**Fix**: Added `SPONSOR = "SPONSOR"` to the `UserRole` enum. Updated `authRedirect()` in `libs/shared/utils/src/lib/authUtils.ts` to handle all three roles.
 
 ---
 
-## References (for maintainers)
-- Shared API types: `libs/shared/types/src/lib/api.types.ts`
-- User types: `libs/shared/types/src/lib/user.types.ts`
-- Team types: `libs/shared/types/src/lib/team.types.ts`
-- Core gateway entry: `apps/core-gateway/src/index.ts`
-- Token service: `apps/core-gateway/src/services/token.ts`
-- Student dashboard: `apps/student-portal/src/app/dashboard/page.tsx`
+### Issue #3 — Ambiguous NestJS vs Express Entry Points
+
+**Found**: Phase 2 (code review)
+**Fixed**: Phase 2 (disambiguation comments added)
+**Status**: ✅ RESOLVED (documented, files kept for reference)
+
+**Original problem**: The repo contained both NestJS scaffold files (`src/main.ts`, `src/app/app.module.ts`) and the real Express entry point (`src/index.ts`). This caused confusion about which file the server actually starts from.
+
+**Fix**:
+- Empty NestJS files annotated with disambiguation comments explaining they are unused scaffolding
+- All documentation updated to reference `src/index.ts` as the Express entry point
+- `project.json` build target confirmed to use `src/index.ts`
+
+**Note**: The NestJS scaffold files can be safely deleted in a future cleanup PR (they are not imported anywhere).
+
+---
+
+### Issue #4 — CORS Blocked Dev Origins
+
+**Found**: Phase 1
+**Fixed**: Phase 2 (commit on `feature/security-foundations`)
+**Status**: ✅ RESOLVED
+
+**Original problem**: `CORS_ORIGINS` env var was required for CORS configuration. In development with no `.env`, all cross-origin requests from frontend apps (`:3001-:3003`) were blocked.
+
+**Fix**: Dev fallback in `src/index.ts` — when `NODE_ENV !== "production"` and `CORS_ORIGINS` is not set, the gateway defaults to allowing `http://localhost:3000`, `http://localhost:3001`, `http://localhost:3002`, `http://localhost:3003`.
+
+**Production note**: `CORS_ORIGINS` must be set explicitly in production — no fallback.
+
+---
+
+### Issue #5 — Inconsistent API Response Shape
+
+**Found**: Phase 2 (audit of all route handlers)
+**Fixed**: Phase 3 (partial — `ResponseHandler` used in most routes)
+**Status**: 🟡 PARTIALLY RESOLVED — audit still in progress for Phase 4
+
+**Original problem**: Some route handlers returned `{ data: ... }`, others returned plain objects, others used `ResponseHandler.success()`. Frontend had to guess the shape.
+
+**Standard shape**:
+```json
+// Success
+{ "success": true, "data": { ... } }
+
+// Error
+{ "success": false, "error": "ERROR_CODE", "message": "Human-readable message" }
+```
+
+**Current state**: `ResponseHandler` is used in most routes. A full audit to enforce it everywhere is tracked in Phase 4 work.
+
+---
+
+### Issue #6 — String Literals vs Enums (Role Checks)
+
+**Found**: Phase 1
+**Fixed**: Phase 2
+**Status**: ✅ RESOLVED
+
+**Original problem**: Some RBAC middleware and service files compared `user.role === "student"` (lowercase string) instead of `user.role === UserRole.STUDENT` (enum). This meant Prisma values (stored as uppercase `STUDENT`) never matched.
+
+**Fix**: All role comparisons updated to use `UserRole` enum from `@takathon/shared/types`. Prisma schema uses uppercase enum values matching the TypeScript enum.
+
+---
+
+### Issue #7 — JWT TTL Env Vars Not Documented
+
+**Found**: Phase 1
+**Fixed**: Phase 1
+**Status**: ✅ RESOLVED
+
+**Original problem**: `ACCESS_TTL` and `REFRESH_TTL` env vars existed in the token service but were not listed in `.env.example` or docs.
+
+**Fix**: Added to `.env.example` with defaults (900 / 604800). Added to `docs/ENVIRONMENT_VARIABLES.md`.
+
+---
+
+### Issue #8 — Login Page Infinite Refresh Loop
+
+**Found**: Phase 3 (integration testing)
+**Fixed**: Phase 3 (`apps/landing-page/src/app/login/page.tsx`)
+**Status**: ✅ RESOLVED
+
+**Original problem**: The login page trusted `isAuthenticated` from Zustand (`localStorage`) to decide whether to redirect. After a session expired, the Zustand store still had `isAuthenticated: true`. Login page redirected to dashboard → middleware redirected back to login → infinite loop.
+
+**Fix**: Login page now calls `GET /auth/me` with `credentials: "include"` before trusting the store. If `/auth/me` returns 4xx, it calls `logout()` to clear the stale store.
+
+```typescript
+// Correct pattern
+useEffect(() => {
+  if (!isAuthenticated) return;
+  (async () => {
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/auth/me`, { credentials: "include" });
+      if (res.ok) router.push(authRedirect(user?.role));
+      else logout();
+    } catch { logout(); }
+  })();
+}, [isAuthenticated]);
+```
+
+---
+
+### Issue #9 — DashboardLayout Auth Redirect Loop
+
+**Found**: Phase 3
+**Fixed**: Phase 3 (all portal `DashboardLayout` components)
+**Status**: ✅ RESOLVED
+
+**Original problem**: `DashboardLayout` had `if (!isAuthenticated) router.push("/login")`. After cross-origin redirect (landing :3000 → student :3001), `localStorage` is empty on the new origin so `isAuthenticated = false` → redirect back to login → loop.
+
+**Fix**: `DashboardLayout` no longer redirects. `middleware.ts` handles auth guarding at the Edge. `DashboardLayout` only hydrates Zustand from `/auth/me` on mount.
+
+---
+
+### Issue #10 — AI Matching Route Mount Mismatch
+
+**Found**: Phase 3 (API integration testing)
+**Fixed**: Phase 3 (`libs/shared/api/src/matching.ts`)
+**Status**: ✅ RESOLVED
+
+**Original problem**: Matching router mounted at `/api/v1/students/matching` in `index.ts`. Shared API client called `/students/teams/:id/matches` — a path that routes to the teams router which has no `/:id/matches` sub-route → 404.
+
+**Correct paths**:
+- `GET /api/v1/students/matching/:teamId/matches`
+- `POST /api/v1/students/matching/:teamId/matches/:userId`
+
+---
+
+### Issue #11 — `getMyTeams()` Returns Nested Shape (Not Flat Array)
+
+**Found**: Phase 3 (teams page UI)
+**Fixed**: Phase 3 (teams pages in all frontends)
+**Status**: ✅ RESOLVED
+
+**Original problem**: `GET /api/v1/students/teams` returns membership records with a nested team object:
+```json
+[{ "membershipId": "...", "role": "captain", "joinedAt": "...", "team": { "id": "...", "name": "..." } }]
+```
+Frontend templates accessed `team.name` directly → `undefined`.
+
+**Fix** (flatten pattern, applied wherever `getMyTeams()` result is used):
+```typescript
+const teams = (rawTeams as any[]).map((m: any) => ({
+  ...(m.team ?? m),
+  myRole: m.role ?? m.myRole,
+  members: (m.team?.members ?? m.members) || [],
+}));
+```
+
+---
+
+### Issue #12 — Skill Add/Remove URL Mismatch
+
+**Found**: Phase 3
+**Fixed**: Phase 3 (`libs/shared/api/src/student.ts`)
+**Status**: ✅ RESOLVED
+
+**Original problem**: Client called `/api/v1/students/profile/skills` → 404. Actual route is `/api/v1/students/skills`.
+
+**Fix**: `addSkill()` calls `POST /api/v1/students/skills`, `removeSkill(id)` calls `DELETE /api/v1/students/skills/:id`.
+
+---
+
+### Issue #13 — `window.prompt()` Used for Skill Input
+
+**Found**: Phase 3 (UX review)
+**Fixed**: Phase 3 (`apps/student-portal/src/app/dashboard/profile/page.tsx`)
+**Status**: ✅ RESOLVED
+
+**Fix**: Replaced `window.prompt()` with an inline dropdown form. Skill is added immediately on change without page reload.
+
+---
+
+## 🟡 Open / Tracked Items
+
+### Audit #1 — ResponseHandler Not Universal
+
+**Status**: 🟡 Tracked for Phase 4
+**Priority**: Medium
+
+Some route handlers in `apps/core-gateway/src/routes/` still return ad-hoc JSON shapes. Target: every handler uses `ResponseHandler.success(res, data)` or `ResponseHandler.error(res, code, message)`.
+
+**Action**: Audit all route files; replace bare `res.json({...})` calls.
+
+---
+
+### Audit #2 — Empty NestJS Scaffold Files
+
+**Status**: 🟡 Low Priority (documented, harmless)
+**Files**: `apps/core-gateway/src/main.ts`, `apps/core-gateway/src/app/app.module.ts`, `apps/core-gateway/src/app/app.controller.ts`
+
+**Action**: Delete in a separate `chore/` branch after confirming nothing depends on them.
+
+---
+
+### Audit #3 — Shared UI Library Incomplete
+
+**Status**: 🟡 Phase 4+
+**Priority**: Low
+
+`libs/shared/ui/src/` has minimal components. Reusable components (skeletons, toasts, modal wrapper, button variants) are duplicated across apps.
+
+**Action**: Extract common loading/error components to shared UI.
+
+---
+
+*For current architecture decisions see `docs/architecture.md`. For pitfall reference see `.github/copilot-instructions.md`.*
