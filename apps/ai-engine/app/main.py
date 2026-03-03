@@ -12,6 +12,20 @@ app = FastAPI(title="Takathon AI Engine", version="1.0.0")
 # ---------------------------------------------------------------------------
 
 
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+
+from .matching.engine import suggest
+from .matching.validators import MatchRequest, MatchResponse
+
+app = FastAPI(title="Takathon AI Engine", version="1.0.0")
+
+
+# ---------------------------------------------------------------------------
+# Health / root
+# ---------------------------------------------------------------------------
+
+
 @app.get("/")
 async def root():
     return {"message": "AI Engine is running"}
@@ -19,7 +33,40 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """
+    Real health check: runs a minimal dummy scoring call to verify the
+    engine is functional, not just reachable.
+
+    Scoring a single candidate against an empty team exercises the full
+    skill_complementarity → experience_balance → availability_overlap
+    pipeline. If suggest() raises, the container is marked unhealthy.
+    """
+    try:
+        result = suggest(
+            team_skills=[],
+            candidates=[
+                {
+                    "userId": "__health_check__",
+                    "skills": [
+                        {"skillId": "hc", "skillName": "Python", "proficiencyLevel": "intermediate"}
+                    ],
+                    "availability": {"preferredSlots": ["weekday_evening"], "hoursPerWeek": 10},
+                }
+            ],
+            open_spots=1,
+            limit=1,
+            team_availability=[],
+        )
+        suggestions = result.get("suggestions", [])
+        return {
+            "status": "healthy",
+            "engine": "ok",
+            "scored": len(suggestions),
+        }
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(
+            status_code=503, detail=f"Engine scoring pipeline unhealthy: {exc}"
+        ) from exc
 
 
 # ---------------------------------------------------------------------------

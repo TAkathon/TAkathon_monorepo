@@ -1,3 +1,7 @@
+// Sentry must be initialised before any other import so it can patch Node internals.
+import { initSentry, Sentry } from "./lib/sentry";
+initSentry();
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -103,8 +107,17 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.get("/api/v1/health", (_req, res) => {
-  ResponseHandler.success(res, { ok: true, service: "core-gateway" });
+app.get("/api/v1/health", async (_req, res) => {
+  // Verify DB connectivity so container orchestration health probes actually
+  // catch "gateway up but DB unreachable" failures.
+  try {
+    const { prisma } = await import("./lib/prisma");
+    await (prisma as any).$queryRaw`SELECT 1`;
+    ResponseHandler.success(res, { ok: true, service: "core-gateway", db: "connected" });
+  } catch {
+    // Return 503 so load-balancers / orchestrators stop routing to this instance.
+    res.status(503).json({ success: false, error: "DB_UNAVAILABLE", service: "core-gateway" });
+  }
 });
 
 // --- Auth ---
@@ -135,6 +148,18 @@ app.use("/api/v1/sponsors/teams", sponsorTeamsRouter);
 // --- Shared/public routes ---
 app.use("/api/v1/hackathons", sharedHackathonsRouter);
 app.use("/api/v1/skills", sharedSkillsRouter);
+
+// Sentry error handler must be registered AFTER all routes and BEFORE any
+// other error-handling middleware so it captures unhandled exceptions and
+// rejected promises with full request context.
+Sentry.setupExpressErrorHandler(app);
+
+// Generic 500 catch-all — runs after Sentry so the error is already reported.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const status = (err as any).status ?? 500;
+  res.status(status).json({ success: false, error: "INTERNAL_ERROR", message: err.message });
+});
 
 app.listen(PORT);
 logStartup(PORT, allowedOrigins);
