@@ -49,13 +49,13 @@ services:
     networks:
       - takathon-net
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/api/v1/health || exit 1"]
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:8000/api/v1/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
     restart: unless-stopped
-  
 
   # =========================================================
   # AI Engine (FastAPI)

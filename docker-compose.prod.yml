@@ -20,7 +20,6 @@
 # =============================================================================
 
 services:
-
   # ----- PostgreSQL -----------------------------------------------------------
   postgres:
     restart: always
@@ -50,7 +49,8 @@ services:
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
       SENTRY_RELEASE: ${SENTRY_RELEASE:-}
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/api/v1/health || exit 1"]
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:8000/api/v1/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
