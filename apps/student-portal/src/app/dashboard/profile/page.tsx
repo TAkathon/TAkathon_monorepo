@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Mail, MapPin, Calendar, Link as LinkIcon, Save, Edit2, Github, Linkedin, Loader2, Trash2 } from "lucide-react";
-import api from "@takathon/shared/api";
+import { studentApi } from "@takathon/shared/api";
 import { useAuthStore } from "@takathon/shared/utils";
 import { toast } from "sonner";
 
@@ -50,16 +50,15 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
         try {
-            const res = await api.get("/api/v1/students/profile");
-            const data = res.data.data;
+            const data = await studentApi.getMyProfile();
             setProfile({
-                fullName: data.fullName || data.user?.fullName || user?.fullName || "",
-                email: data.email || data.user?.email || user?.email || "",
+                fullName: data.fullName || user?.fullName || "",
+                email: data.email || user?.email || "",
                 bio: data.bio || "",
-                location: data.location || "",
-                university: data.university || "",
-                major: data.major || "",
-                graduationYear: data.graduationYear?.toString() || "",
+                location: "",
+                university: data.studentProfile?.university || "",
+                major: "",
+                graduationYear: data.studentProfile?.graduationYear?.toString() || "",
                 github: data.githubUrl || "",
                 linkedin: data.linkedinUrl || "",
                 website: data.portfolioUrl || "",
@@ -86,11 +85,9 @@ export default function ProfilePage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            await api.put("/api/v1/students/profile", {
+            await studentApi.updateMyProfile({
                 bio: profile.bio,
-                location: profile.location,
                 university: profile.university,
-                major: profile.major,
                 graduationYear: profile.graduationYear ? parseInt(profile.graduationYear) : undefined,
                 githubUrl: profile.github || undefined,
                 linkedinUrl: profile.linkedin || undefined,

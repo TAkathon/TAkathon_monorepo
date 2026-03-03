@@ -15,7 +15,7 @@ import {
     Loader2,
     Trash2,
 } from "lucide-react";
-import api from "@takathon/shared/api";
+import { teamApi, studentApi } from "@takathon/shared/api";
 import { toast } from "sonner";
 
 interface TeamMemberData {
@@ -66,12 +66,12 @@ export default function TeamsPage() {
 
     const fetchData = async () => {
         try {
-            const [teamsRes, hackathonsRes] = await Promise.all([
-                api.get("/api/v1/students/teams"),
-                api.get("/api/v1/students/hackathons"),
+            const [teams, hackathons] = await Promise.all([
+                teamApi.getMyTeams(),
+                studentApi.browseHackathons({ status: "registration_open" }),
             ]);
-            setTeams(teamsRes.data.data || []);
-            setHackathons(hackathonsRes.data.data || []);
+            setTeams(teams as any);
+            setHackathons(hackathons.map(h => ({ id: h.id, title: h.title })));
         } catch (error) {
             console.error("Failed to fetch data:", error);
             toast.error("Failed to load teams");
@@ -91,7 +91,7 @@ export default function TeamsPage() {
         }
         setCreating(true);
         try {
-            await api.post("/api/v1/students/teams", {
+            await teamApi.createTeam({
                 hackathonId: newTeam.hackathonId,
                 name: newTeam.name,
                 description: newTeam.description || undefined,
@@ -111,7 +111,7 @@ export default function TeamsPage() {
     const handleLeaveTeam = async (teamId: string) => {
         if (!confirm("Are you sure you want to leave this team?")) return;
         try {
-            await api.delete(`/api/v1/students/teams/${teamId}/leave`);
+            await teamApi.leaveTeam(teamId);
             toast.success("Left team successfully");
             fetchData();
         } catch (error: any) {

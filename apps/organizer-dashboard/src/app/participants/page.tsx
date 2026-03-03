@@ -16,6 +16,7 @@ import {
     Loader2,
     Users
 } from "lucide-react";
+import { organizerApi } from "@takathon/shared/api";
 import api from "@takathon/shared/api";
 import { toast } from "sonner";
 
@@ -40,8 +41,7 @@ export default function ParticipantsPage() {
 
     const fetchHackathons = async () => {
         try {
-            const res = await api.get("/api/v1/organizers/hackathons");
-            const data = res.data.data || [];
+            const data = await organizerApi.listMyHackathons();
             setHackathons(data);
             if (data.length > 0) {
                 setSelectedHackathonId(data[0].id);
@@ -56,10 +56,8 @@ export default function ParticipantsPage() {
     const fetchParticipants = async (hackathonId: string) => {
         setParticipantsLoading(true);
         try {
-            const params = new URLSearchParams();
-            if (selectedStatus) params.append("status", selectedStatus);
-            const res = await api.get(`/api/v1/organizers/hackathons/${hackathonId}/participants?${params}`);
-            setParticipants(res.data.data || res.data.participants || []);
+            const data = await organizerApi.getParticipants(hackathonId);
+            setParticipants(data);
         } catch (error) {
             toast.error("Failed to load participants");
             setParticipants([]);

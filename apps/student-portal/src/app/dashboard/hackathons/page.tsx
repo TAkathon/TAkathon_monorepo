@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2 } from "lucide-react";
-import api from "@takathon/shared/api";
-import { Hackathon } from "@takathon/shared/types";
+import { studentApi } from "@takathon/shared/api";
+import type { StudentHackathonSummary } from "@takathon/shared/api/src/student";
 import { toast } from "sonner";
 
 export default function HackathonsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("All");
-    const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+    const [hackathons, setHackathons] = useState<StudentHackathonSummary[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -19,8 +19,8 @@ export default function HackathonsPage() {
 
     const fetchHackathons = async () => {
         try {
-            const response = await api.get("/api/v1/students/hackathons");
-            setHackathons(response.data.data || []);
+            const data = await studentApi.browseHackathons();
+            setHackathons(data);
         } catch (error) {
             console.error("Failed to fetch hackathons:", error);
             toast.error("Failed to load hackathons");
@@ -31,9 +31,9 @@ export default function HackathonsPage() {
 
     const handleJoin = async (hackathonId: string) => {
         try {
-            await api.post(`/api/v1/students/hackathons/${hackathonId}/register`);
+            await studentApi.registerForHackathon(hackathonId);
             toast.success("Successfully registered for hackathon!");
-            fetchHackathons(); // Refresh list to update status if needed
+            fetchHackathons();
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to register");
         }
