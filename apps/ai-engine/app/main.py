@@ -12,20 +12,6 @@ app = FastAPI(title="Takathon AI Engine", version="1.0.0")
 # ---------------------------------------------------------------------------
 
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
-
-from .matching.engine import suggest
-from .matching.validators import MatchRequest, MatchResponse
-
-app = FastAPI(title="Takathon AI Engine", version="1.0.0")
-
-
-# ---------------------------------------------------------------------------
-# Health / root
-# ---------------------------------------------------------------------------
-
-
 @app.get("/")
 async def root():
     return {"message": "AI Engine is running"}
@@ -48,7 +34,7 @@ async def health_check():
                 {
                     "userId": "__health_check__",
                     "skills": [
-                        {"skillId": "hc", "skillName": "Python", "proficiencyLevel": "intermediate"}
+                        {"name": "Python", "proficiency": "intermediate"}
                     ],
                     "availability": {"preferredSlots": ["weekday_evening"], "hoursPerWeek": 10},
                 }
