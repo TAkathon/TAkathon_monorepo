@@ -39,23 +39,35 @@ export default function DashboardPage() {
     return (
         <DashboardLayout>
             <div className="max-w-6xl mx-auto space-y-8 pb-12">
+                {/* Background Floating Objects */}
+                <div className="absolute top-20 right-10 w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none"></div>
+                <div className="absolute top-40 left-10 w-24 h-24 bg-blue-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+                <div className="absolute -top-10 right-1/3 w-40 h-40 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+
                 {/* Header section */}
-                <div>
-                    <div className="flex items-center relative mb-1">
-                        <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
-                            WELCOME BACK, <span className="text-primary text-glow">JOHN!</span>
-                        </h1>
-                        <div className="flex ml-4 gap-1 opacity-60">
-                            <div className="w-8 h-1 bg-primary"></div>
-                            <div className="w-2 h-1 bg-primary"></div>
-                            <div className="w-1 h-1 bg-primary"></div>
+                <div className="flex items-start justify-between">
+                    <div>
+                        <div className="flex items-center relative mb-1">
+                            <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                                WELCOME BACK, <span className="text-primary">{user?.fullName?.split(' ')[0] || 'JOHN'}!</span>
+                            </h1>
+                            <div className="flex ml-4 gap-1 opacity-60">
+                                <div className="w-8 h-1 bg-primary"></div>
+                                <div className="w-2 h-1 bg-primary"></div>
+                                <div className="w-1 h-1 bg-primary"></div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-4 mb-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-sm" />
+                            <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold">
+                                SYSTEM ONLINE • READY TO HACK
+                            </span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-4 mb-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-sm" />
-                        <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold">
-                            SYSTEM ONLINE • READY TO HACK
-                        </span>
+                    {/* Waving Image */}
+                    <div className="hidden md:block w-32 h-32 relative shrink-0">
+                        <img src="/waving.png" alt="Waving Hand" className="w-full h-full object-contain -scale-x-100" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none"></div>
                     </div>
                 </div>
 

@@ -169,95 +169,109 @@ export default function HackathonsPage() {
                     DISPLAYING {filteredHackathons.length} OF {hackathons.length} ACTIVE OPERATIONS
                 </p>
 
-                {/* Hackathons Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Hackathons List */}
+                <div className="flex flex-col gap-6">
                     {filteredHackathons.map((hackathon) => (
                         <div
                             key={hackathon.id}
-                            className="relative p-8 bg-[#080808] border border-white/5 rounded-sm hover:border-primary/30 transition-all duration-300 flex flex-col group overflow-hidden"
+                            className="relative bg-[#080808] border border-white/5 rounded-sm hover:border-primary/30 transition-all duration-300 flex flex-col md:flex-row group overflow-hidden"
                         >
                             {/* Corner Accents */}
-                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary opacity-50 group-hover:opacity-100 transition-opacity z-20"></div>
+                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary opacity-50 group-hover:opacity-100 transition-opacity z-20"></div>
 
                             {/* subtle background glow */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/0 group-hover:bg-primary/5 rounded-full blur-[80px] transition-all duration-700 pointer-events-none"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/0 group-hover:bg-primary/5 rounded-full blur-[80px] transition-all duration-700 pointer-events-none z-0"></div>
 
-                            {/* Header */}
-                            <div className="flex items-start justify-between mb-6 z-10">
-                                <div className="pr-4">
-                                    <h3 className="text-2xl font-black italic text-white uppercase tracking-tighter mb-1 pb-1">
-                                        {hackathon.name}
-                                    </h3>
-                                    <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{hackathon.organizer}</p>
-                                </div>
-                                <span
-                                    className={`px-3 py-1 text-[8px] uppercase font-bold tracking-widest border rounded-sm whitespace-nowrap ${hackathon.statusColor}`}
-                                >
-                                    {hackathon.status}
-                                </span>
-                            </div>
-
-                            {/* Description */}
-                            <p className="text-sm text-white/60 leading-relaxed mb-6 z-10 flex-1">
-                                {hackathon.description}
-                            </p>
-
-                            {/* Tags */}
-                            <div className="flex flex-wrap gap-2 mb-8 z-10">
-                                {hackathon.tags.map((tag) => (
+                            {/* Left Content Area */}
+                            <div className="p-8 flex flex-col flex-1 z-10">
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-6">
+                                    <div className="pr-4">
+                                        <h3 className="text-2xl font-black italic text-white uppercase tracking-tighter mb-1 pb-1">
+                                            {hackathon.name}
+                                        </h3>
+                                        <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{hackathon.organizer}</p>
+                                    </div>
                                     <span
-                                        key={tag}
-                                        className="px-2 py-1 bg-white/[0.03] border border-white/10 text-white/50 text-[9px] font-bold uppercase tracking-widest rounded-sm"
+                                        className={`px-3 py-1 text-[8px] uppercase font-bold tracking-widest border rounded-sm whitespace-nowrap ${hackathon.statusColor}`}
                                     >
-                                        {tag}
+                                        {hackathon.status}
                                     </span>
-                                ))}
-                            </div>
+                                </div>
 
-                            {/* Info Grid */}
-                            <div className="grid grid-cols-2 gap-y-4 gap-x-6 mb-8 z-10">
-                                <div>
-                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">DATE</p>
-                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
-                                        <Calendar className="w-3.5 h-3.5 text-primary" />
-                                        <span>{hackathon.date}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">LOCATION</p>
-                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
-                                        <MapPin className="w-3.5 h-3.5 text-primary" />
-                                        <span>{hackathon.location}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">CAPACITY</p>
-                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
-                                        <Users className="w-3.5 h-3.5 text-primary" />
-                                        <span>
-                                            {hackathon.participants} / {hackathon.maxParticipants} OPERATIVES
+                                {/* Description */}
+                                <p className="text-sm text-white/60 leading-relaxed mb-6 flex-1">
+                                    {hackathon.description}
+                                </p>
+
+                                {/* Tags */}
+                                <div className="flex flex-wrap gap-2 mb-8">
+                                    {hackathon.tags.map((tag) => (
+                                        <span
+                                            key={tag}
+                                            className="px-2 py-1 bg-white/[0.03] border border-white/10 text-white/50 text-[9px] font-bold uppercase tracking-widest rounded-sm"
+                                        >
+                                            {tag}
                                         </span>
+                                    ))}
+                                </div>
+
+                                {/* Info Grid */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-4 gap-x-6 mb-8">
+                                    <div>
+                                        <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">DATE</p>
+                                        <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                            <Calendar className="w-3.5 h-3.5 text-primary" />
+                                            <span>{hackathon.date}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">LOCATION</p>
+                                        <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                            <MapPin className="w-3.5 h-3.5 text-primary" />
+                                            <span>{hackathon.location}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">CAPACITY</p>
+                                        <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                            <Users className="w-3.5 h-3.5 text-primary" />
+                                            <span>
+                                                {hackathon.participants} / {hackathon.maxParticipants} OPs
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">DURATION</p>
+                                        <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
+                                            <Clock className="w-3.5 h-3.5 text-primary" />
+                                            <span>{hackathon.duration}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <p className="text-[9px] text-white/40 uppercase tracking-widest font-bold mb-1">DURATION</p>
-                                    <div className="flex items-center gap-2 text-xs text-white font-medium uppercase tracking-widest">
-                                        <Clock className="w-3.5 h-3.5 text-primary" />
-                                        <span>{hackathon.duration}</span>
+
+                                {/* Footer */}
+                                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-6 border-t border-white/10 mt-auto">
+                                    <div>
+                                        <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-1">PRIZE POOL</p>
+                                        <span className="text-3xl font-black italic tracking-tighter text-white">{hackathon.prize}</span>
                                     </div>
+                                    <button className="px-8 py-3 bg-primary/20 border border-primary/40 hover:bg-primary/30 hover:border-primary text-primary text-xs font-bold uppercase tracking-widest transition-all rounded-sm w-full sm:w-auto text-center">
+                                        VIEW INTEL
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Footer */}
-                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-6 border-t border-white/10 mt-auto z-10">
-                                <div>
-                                    <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-1">PRIZE POOL</p>
-                                    <span className="text-3xl font-black italic tracking-tighter text-white">{hackathon.prize}</span>
-                                </div>
-                                <button className="px-8 py-3 bg-primary/20 border border-primary/40 hover:bg-primary/30 hover:border-primary text-primary text-xs font-bold uppercase tracking-widest transition-all rounded-sm w-full sm:w-auto text-center">
-                                    VIEW INTEL
-                                </button>
+                            {/* Right Image Area */}
+                            <div className="w-full md:w-1/3 min-h-[200px] md:min-h-full relative border-l border-white/5 shrink-0 bg-[#050505]">
+                                <img
+                                    src={`https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&seed=${hackathon.id}`}
+                                    alt={`${hackathon.name} visual`}
+                                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay grayscale group-hover:grayscale-0"
+                                />
+                                {/* Overlay Gradient to fade into content on desktop*/}
+                                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#080808] to-transparent pointer-events-none w-full md:w-1/2"></div>
                             </div>
                         </div>
                     ))}
