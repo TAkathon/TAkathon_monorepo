@@ -64,11 +64,17 @@ export class StudentMatchingService {
       })),
     );
 
+    // Collect team member availability for the overlap scorer
+    const teamAvailability = team.members
+      .map((m) => (m.user as any).studentProfile?.availability)
+      .filter(Boolean);
+
     const candidateProfiles = candidates.map((c) => ({
       userId: c.user.id,
       username: c.user.username,
       fullName: c.user.fullName,
       avatarUrl: c.user.avatarUrl,
+      availability: (c.user as any).studentProfile?.availability ?? null,
       skills: c.user.skills.map((us) => ({
         name: us.skill.name,
         category: us.skill.category,
@@ -84,6 +90,7 @@ export class StudentMatchingService {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           teamSkills,
+          teamAvailability,
           candidates: candidateProfiles,
           openSpots: team.maxSize - team.currentSize,
           limit,

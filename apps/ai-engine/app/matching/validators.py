@@ -16,6 +16,12 @@ from pydantic import BaseModel, field_validator, model_validator
 # ---------------------------------------------------------------------------
 
 
+class AvailabilityEntry(BaseModel):
+    timezone: str = "UTC"
+    hoursPerWeek: int = 10
+    preferredSlots: list[str] = []
+
+
 class SkillEntry(BaseModel):
     name: str
     category: Optional[str] = None
@@ -43,6 +49,7 @@ class CandidateProfile(BaseModel):
     fullName: Optional[str] = ""
     avatarUrl: Optional[str] = None
     skills: list[SkillEntry] = []
+    availability: Optional[AvailabilityEntry] = None
 
     @field_validator("userId")
     @classmethod
@@ -59,6 +66,7 @@ class CandidateProfile(BaseModel):
 
 class MatchRequest(BaseModel):
     teamSkills: list[SkillEntry] = []
+    teamAvailability: list[AvailabilityEntry] = []
     candidates: list[CandidateProfile]
     openSpots: int = 1
     limit: int = 5

@@ -74,6 +74,7 @@ def suggest(
     candidates: list[dict],
     open_spots: int = 1,
     limit: int = 5,
+    team_availability: list[dict] | None = None,
 ) -> dict:
     """Rank candidates by composite match score.
 
@@ -81,14 +82,19 @@ def suggest(
         team_skills: List of ``{"name": str, "proficiency": str}`` dicts for
             all current team members' skills (may be empty for a new team).
         candidates: List of candidate profile dicts, each containing at least
-            ``userId`` and ``skills`` (list of skill dicts).
+            ``userId``, ``skills`` (list of skill dicts) and optionally
+            ``availability`` (a dict with timezone, hoursPerWeek, preferredSlots).
         open_spots: Number of open roster spots (unused in scoring but passed
             through so future algorithms can weight it).
         limit: Maximum number of suggestions to return.
+        team_availability: List of availability dicts from current team members.
 
     Returns:
         ``{"suggestions": [...], "totalCandidates": int}``
     """
+    if team_availability is None:
+        team_availability = []
+
     # Build team context once
     team_skill_names: set[str] = {s["name"] for s in team_skills}
     team_proficiencies: list[int] = [
@@ -110,10 +116,14 @@ def suggest(
             sum(cand_proficiencies) / len(cand_proficiencies) if cand_proficiencies else 2.0
         )
 
+        # Build per-candidate availability list (single-element list for the scorer)
+        cand_avail_raw = candidate.get("availability")
+        cand_avail: list[dict] = [cand_avail_raw] if cand_avail_raw else []
+
         # --- individual scores ---
         s_skill = skill_complementarity(team_skill_names, cand_skill_names)
         s_exp = experience_balance(team_proficiencies, cand_avg_prof)
-        s_avail = availability_overlap([], [])  # neutral until data is available
+        s_avail = availability_overlap(team_availability, cand_avail)
 
         # --- composite score ---
         final = (

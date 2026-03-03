@@ -11,3 +11,6 @@ export * as matchingApi from "./matching";
 
 // Re-export matching types for convenience
 export type { MatchSuggestion, MatchResult, ScoreBreakdown } from "./matching";
+
+// Re-export student availability types
+export type { AvailabilityData, AvailabilitySlot } from "./student";

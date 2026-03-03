@@ -44,6 +44,7 @@ async def recommend_teammates(payload: MatchRequest):
             candidates=[c.model_dump() for c in payload.candidates],
             open_spots=payload.openSpots,
             limit=payload.limit,
+            team_availability=[a.model_dump() for a in payload.teamAvailability],
         )
         return result
     except Exception as exc:  # pragma: no cover

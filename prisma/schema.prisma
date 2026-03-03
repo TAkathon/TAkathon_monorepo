@@ -134,6 +134,7 @@ model StudentProfile {
   degree         String?   @db.VarChar(255)
   graduationYear Int?      @map("graduation_year")
   resumeUrl      String?   @map("resume_url")
+  availability   Json?     @map("availability") @db.JsonB
   createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

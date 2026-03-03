@@ -102,28 +102,77 @@ def experience_balance(
 # Scorer 3 — Availability Overlap  (weight 0.30)
 # ---------------------------------------------------------------------------
 
+# Canonical time-slot keys stored in DB / frontend
+VALID_SLOTS: frozenset[str] = frozenset(
+    [
+        "weekday_morning",    # Mon–Fri  06:00–12:00
+        "weekday_afternoon",  # Mon–Fri  12:00–18:00
+        "weekday_evening",    # Mon–Fri  18:00–23:00
+        "weekend_morning",    # Sat–Sun  06:00–12:00
+        "weekend_afternoon",  # Sat–Sun  12:00–18:00
+        "weekend_evening",    # Sat–Sun  18:00–23:00
+    ]
+)
+
 
 def availability_overlap(
     team_availability: list[dict],
     candidate_availability: list[dict],
 ) -> float:
-    """Score the overlap between the candidate's availability and the team's.
+    """Score how well the candidate's availability aligns with the team's.
 
-    NOTE: The current data model does not persist availability windows.
-    Until the student profile is extended with an ``availability`` field this
-    function returns 0.5 (a neutral score that does not advantage or
-    disadvantage any candidate).  The interface is intentionally preserved so
-    the scorer can be upgraded without touching the engine or the gateway.
+    Uses the structure produced by the student-portal settings form:
+    ``{"timezone": str, "hoursPerWeek": int, "preferredSlots": list[str]}``
 
-    Args:
-        team_availability: List of availability window dicts for team members.
-        candidate_availability: Availability window dicts for the candidate.
+    Two sub-scores are combined:
+    - **Slot score (70 %)** — Jaccard similarity between the candidate's
+      preferred slots and the *union* of all team members' slots.
+    - **Hours score (30 %)** — how close the candidate's weekly hours
+      commitment is to the team average (capped at 1.0 when equal or higher).
 
-    Returns:
-        0.5 (neutral) until availability data is available in the schema.
+    Returns 0.5 (neutral) when either side has no data so candidates without
+    availability set are not unfairly penalised.
     """
-    # Future implementation — compute jaccard overlap of time windows.
-    # For now all candidates receive the same neutral score so the ranking
-    # is driven purely by skill complementarity and experience balance.
-    _ = team_availability, candidate_availability
-    return 0.5
+    if not candidate_availability or not team_availability:
+        return 0.5
+
+    cand_data = candidate_availability[0] if candidate_availability else {}
+    cand_slots: set[str] = set(cand_data.get("preferredSlots", [])) & VALID_SLOTS
+    cand_hours: float = float(cand_data.get("hoursPerWeek", 0) or 0)
+
+    if not cand_slots and cand_hours == 0:
+        return 0.5  # no data from candidate — neutral
+
+    # Aggregate team slots (union) and average hours
+    team_slots: set[str] = set()
+    team_hours_list: list[float] = []
+    for member in team_availability:
+        team_slots.update(set(member.get("preferredSlots", [])) & VALID_SLOTS)
+        h = float(member.get("hoursPerWeek", 0) or 0)
+        if h > 0:
+            team_hours_list.append(h)
+
+    if not team_slots and not team_hours_list:
+        return 0.5  # no data from team — neutral
+
+    # Jaccard slot similarity
+    if team_slots and cand_slots:
+        intersection = cand_slots & team_slots
+        union = cand_slots | team_slots
+        slot_score = len(intersection) / len(union)
+    elif not team_slots or not cand_slots:
+        slot_score = 0.5  # one side has no slots — neutral
+    else:
+        slot_score = 0.0
+
+    # Hours commitment compatibility
+    if team_hours_list and cand_hours > 0:
+        team_avg_hours = sum(team_hours_list) / len(team_hours_list)
+        if cand_hours >= team_avg_hours:
+            hours_score = 1.0
+        else:
+            hours_score = cand_hours / team_avg_hours
+    else:
+        hours_score = 0.5  # one side has no data — neutral
+
+    return round(0.7 * slot_score + 0.3 * hours_score, 4)

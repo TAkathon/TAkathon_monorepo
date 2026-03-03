@@ -8,6 +8,20 @@ import type { ApiResponse } from "@takathon/shared/types";
 
 // ─── Response types ───────────────────────────────────────────────────────────
 
+export type AvailabilitySlot =
+  | "weekday_morning"
+  | "weekday_afternoon"
+  | "weekday_evening"
+  | "weekend_morning"
+  | "weekend_afternoon"
+  | "weekend_evening";
+
+export interface AvailabilityData {
+  timezone: string;
+  hoursPerWeek: number;
+  preferredSlots: AvailabilitySlot[];
+}
+
 export interface StudentProfile {
   id: string;
   email: string;
@@ -23,6 +37,7 @@ export interface StudentProfile {
     graduationYear?: number;
     resumeUrl?: string;
   };
+  availability?: AvailabilityData | null;
   skills: Array<{
     id: string;
     skillId: string;
@@ -65,6 +80,7 @@ export interface UpdateProfileInput {
   university?: string;
   degree?: string;
   graduationYear?: number;
+  availability?: AvailabilityData | null;
 }
 
 export interface AddSkillInput {

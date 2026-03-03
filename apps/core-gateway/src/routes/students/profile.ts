@@ -26,6 +26,26 @@ router.get("/profile", async (req: any, res) => {
  * PUT /api/v1/students/profile
  * Update the authenticated student's profile
  */
+const availabilitySchema = z
+  .object({
+    timezone: z.string().min(1),
+    hoursPerWeek: z.number().int().min(1).max(80),
+    preferredSlots: z
+      .array(
+        z.enum([
+          "weekday_morning",
+          "weekday_afternoon",
+          "weekday_evening",
+          "weekend_morning",
+          "weekend_afternoon",
+          "weekend_evening",
+        ])
+      )
+      .min(1),
+  })
+  .nullable()
+  .optional();
+
 const updateProfileSchema = z.object({
   fullName: z.string().min(2).optional(),
   bio: z.string().max(1000).optional(),
@@ -37,6 +57,7 @@ const updateProfileSchema = z.object({
   degree: z.string().max(255).optional(),
   graduationYear: z.number().int().min(2000).max(2040).optional(),
   resumeUrl: z.string().url().optional(),
+  availability: availabilitySchema,
 });
 
 router.put("/profile", async (req: any, res) => {

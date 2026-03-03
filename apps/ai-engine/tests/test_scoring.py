@@ -121,15 +121,65 @@ def test_experience_balance_neutral_when_already_balanced():
 # availability_overlap
 # ---------------------------------------------------------------------------
 
+AVAIL_EVENING = {"timezone": "UTC", "hoursPerWeek": 20, "preferredSlots": ["weekday_evening", "weekend_afternoon"]}
+AVAIL_MORNING = {"timezone": "UTC", "hoursPerWeek": 15, "preferredSlots": ["weekday_morning", "weekend_morning"]}
+AVAIL_ALL     = {"timezone": "UTC", "hoursPerWeek": 30, "preferredSlots": ["weekday_evening", "weekend_afternoon", "weekday_morning"]}
 
-def test_availability_overlap_returns_neutral():
+
+def test_availability_overlap_no_data_returns_neutral():
     score = availability_overlap([], [])
     assert score == 0.5
 
 
-def test_availability_overlap_ignores_input():
-    """Until data is available, any input returns 0.5."""
-    dummy = [{"day": "Monday", "slots": ["18:00-22:00"]}]
-    assert availability_overlap(dummy, dummy) == 0.5
-    assert availability_overlap(dummy, []) == 0.5
-    assert availability_overlap([], dummy) == 0.5
+def test_availability_overlap_no_candidate_data_returns_neutral():
+    team = [AVAIL_EVENING]
+    assert availability_overlap(team, []) == 0.5
+
+
+def test_availability_overlap_no_team_data_returns_neutral():
+    cand = [AVAIL_EVENING]
+    assert availability_overlap([], cand) == 0.5
+
+
+def test_availability_overlap_perfect_slot_match():
+    team = [AVAIL_EVENING]
+    cand = [AVAIL_EVENING]
+    score = availability_overlap(team, cand)
+    # Jaccard = 1.0, hours >= team avg (equal) → hours_score = 1.0 → final = 1.0
+    assert score == 1.0
+
+
+def test_availability_overlap_zero_slot_match():
+    team = [AVAIL_EVENING]   # weekday_evening, weekend_afternoon
+    cand = [AVAIL_MORNING]   # weekday_morning, weekend_morning — no overlap
+    score = availability_overlap(team, cand)
+    # slot_score = 0 / 4 = 0.0; hours_score = 15/20 = 0.75 → 0.7*0 + 0.3*0.75
+    assert score < 0.4
+
+
+def test_availability_overlap_partial_slot_match():
+    team = [AVAIL_EVENING]   # 2 slots
+    cand = [AVAIL_ALL]       # 3 slots, 2 overlap
+    score = availability_overlap(team, cand)
+    # intersection={weekday_evening, weekend_afternoon}, union=3 slots → jaccard=2/3
+    assert 0.4 < score < 1.0
+
+
+def test_availability_overlap_candidate_low_hours_penalised():
+    team = [{"timezone": "UTC", "hoursPerWeek": 40, "preferredSlots": ["weekday_evening"]}]
+    cand_high = [{"timezone": "UTC", "hoursPerWeek": 40, "preferredSlots": ["weekday_evening"]}]
+    cand_low  = [{"timezone": "UTC", "hoursPerWeek": 10, "preferredSlots": ["weekday_evening"]}]
+    assert availability_overlap(team, cand_high) > availability_overlap(team, cand_low)
+
+
+def test_availability_overlap_output_in_range():
+    import itertools
+    slots_options = [["weekday_morning"], ["weekday_evening", "weekend_afternoon"], []]
+    hours_options = [5, 20, 40]
+    for t_slots, c_slots, t_h, c_h in itertools.product(
+        slots_options, slots_options, hours_options, hours_options
+    ):
+        team = [{"timezone": "UTC", "hoursPerWeek": t_h, "preferredSlots": t_slots}] if t_slots else []
+        cand = [{"timezone": "UTC", "hoursPerWeek": c_h, "preferredSlots": c_slots}] if c_slots else []
+        s = availability_overlap(team, cand)
+        assert 0.0 <= s <= 1.0, f"score={s} out of range"

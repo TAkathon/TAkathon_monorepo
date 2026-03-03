@@ -32,6 +32,7 @@ export class StudentProfileService {
       degree: user.studentProfile?.degree ?? null,
       graduationYear: user.studentProfile?.graduationYear ?? null,
       resumeUrl: user.studentProfile?.resumeUrl ?? null,
+      availability: (user.studentProfile?.availability as any) ?? null,
       skills: user.skills.map((us) => ({
         id: us.id,
         skillId: us.skillId,
@@ -61,9 +62,14 @@ export class StudentProfileService {
       degree?: string;
       graduationYear?: number;
       resumeUrl?: string;
+      availability?: {
+        timezone: string;
+        hoursPerWeek: number;
+        preferredSlots: string[];
+      } | null;
     },
   ) {
-    const { university, degree, graduationYear, resumeUrl, ...userData } = data;
+    const { university, degree, graduationYear, resumeUrl, availability, ...userData } = data;
 
     // Update user fields
     await prisma.user.update({
@@ -77,6 +83,7 @@ export class StudentProfileService {
     if (degree !== undefined) studentProfileData.degree = degree;
     if (graduationYear !== undefined) studentProfileData.graduationYear = graduationYear;
     if (resumeUrl !== undefined) studentProfileData.resumeUrl = resumeUrl;
+    if (availability !== undefined) studentProfileData.availability = availability;
 
     if (Object.keys(studentProfileData).length > 0) {
       await prisma.studentProfile.upsert({
