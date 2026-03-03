@@ -17,10 +17,12 @@ const nextConfig = {
 };
 
 export default withSentryConfig(nextConfig, {
-  // Suppress build output when SENTRY_AUTH_TOKEN is not configured.
-  silent: true,
-  // Upload a broader set of source maps for cleaner stack traces in Sentry.
-  // Requires SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT to be set.
+  org: "personal-94z",
+  project: "takathon",
+  // Suppress verbose build output; errors still surface.
+  silent: !process.env.CI,
+  // Upload a broader set of source maps for cleaner stack traces.
+  // Source maps are uploaded automatically when SENTRY_AUTH_TOKEN is set.
   widenClientFileUpload: true,
   // Don't expose source maps in the browser bundle.
   hideSourceMaps: true,

@@ -20,16 +20,15 @@ import * as Sentry from "@sentry/node";
 
 export function initSentry() {
   Sentry.init({
-    dsn: process.env.SENTRY_DSN, // undefined → events dropped locally
+    dsn:
+      process.env.SENTRY_DSN ??
+      "https://7c44a3b58b32cb6be8ccd472de537884@o4510981856296960.ingest.de.sentry.io/4510981862260816",
     environment:
       process.env.SENTRY_ENVIRONMENT ?? process.env.NODE_ENV ?? "development",
-    // Capture 20 % of transactions for performance monitoring.
-    // Lower this in high-traffic production to reduce quota usage.
-    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.2 : 0,
+    // Capture 20% of transactions in production; 100% locally for easy verification.
+    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.2 : 1.0,
     // Attach the release tag to each event for source-map unwinding.
     release: process.env.SENTRY_RELEASE,
-    // Enable only when DSN is explicitly configured so local dev is noise-free.
-    enabled: !!process.env.SENTRY_DSN,
     // Automatically instrument Express, pg, http, etc.
     integrations: [Sentry.httpIntegration()],
   });

@@ -17,7 +17,9 @@ const nextConfig = {
 };
 
 export default withSentryConfig(nextConfig, {
-  silent: true,
+  org: "personal-94z",
+  project: "takathon",
+  silent: !process.env.CI,
   widenClientFileUpload: true,
   hideSourceMaps: true,
   disableLogger: true,
