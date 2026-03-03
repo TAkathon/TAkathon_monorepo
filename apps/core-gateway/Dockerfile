@@ -46,9 +46,12 @@ FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Install production deps only (no devDependencies, skip lifecycle scripts)
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+# Reuse node_modules from deps stage and prune devDependencies in-place.
+# This avoids a second network call (npm ci) in the final stage, which
+# is unreliable when Docker builds multiple services in parallel.
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json ./
+RUN npm prune --omit=dev --ignore-scripts
 
 # Copy generated Prisma Client from builder (engine binary + generated types)
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
