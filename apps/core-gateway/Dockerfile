@@ -70,4 +70,9 @@ RUN chmod +x entrypoint.sh
 
 EXPOSE 8000
 
+# Container health probe — mirrors the docker-compose healthcheck for
+# standalone / Kubernetes deployments that read Dockerfile HEALTHCHECK.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD wget -qO- http://localhost:8000/api/v1/health || exit 1
+
 ENTRYPOINT ["./entrypoint.sh"]

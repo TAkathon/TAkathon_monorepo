@@ -3,12 +3,14 @@ set -e
 
 echo "[entrypoint] Waiting for database to be ready..."
 
-# Sync the database schema with prisma/schema.prisma.
-# 'db push' is idempotent: if the schema already matches, it's a no-op.
-# In production, replace this with 'prisma migrate deploy' after
-# baselining (see: https://pris.ly/d/migrate-baseline).
-echo "[entrypoint] Running prisma db push..."
-npx -y prisma@7 db push 2>&1
+# Apply committed migration files to the database.
+# 'migrate deploy' is safe for staging and production: it never resets data,
+# only applies unapplied migrations in order.
+# For local dev / first-time setup without migration history, run:
+#   npx prisma migrate dev --name init
+# to generate the initial migration, then commit it before deploying.
+echo "[entrypoint] Running prisma migrate deploy..."
+npx -y prisma@7 migrate deploy 2>&1
 
 echo "[entrypoint] Starting Core Gateway..."
 exec node dist/core-gateway/index.js

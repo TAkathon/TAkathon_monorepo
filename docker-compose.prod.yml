@@ -1,0 +1,104 @@
+# =============================================================================
+# docker-compose.prod.yml — Production overrides for docker-compose.yml
+# =============================================================================
+#
+# USAGE:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This file is a Compose OVERRIDE — it merges with the base docker-compose.yml.
+# It controls:
+#   - Secret injection from .env.production (never hardcoded values)
+#   - restart: always for crash recovery
+#   - Tighter healthcheck intervals for load-balancer probes
+#   - Closed postgres port (DB not exposed in production)
+#   - Sentry DSN injection into all services
+#   - NODE_ENV=production flag propagation
+#
+# ENVIRONMENT SEPARATION:
+#   Staging:    cp .env.example .env.staging    ; fill values ; docker compose ... --env-file .env.staging up -d
+#   Production: cp .env.example .env.production ; fill values ; docker compose ... --env-file .env.production up -d
+# =============================================================================
+
+services:
+
+  # ----- PostgreSQL -----------------------------------------------------------
+  postgres:
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?PostgreSQL user is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?PostgreSQL password is required}
+      POSTGRES_DB: ${POSTGRES_DB:-takathon}
+    # Do NOT expose port 5432 to the public internet in production.
+    # Frontends and the gateway communicate through the internal Docker network.
+    ports: []
+
+  # ----- Core Gateway (Express + Prisma) -------------------------------------
+  core-gateway:
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET is required}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required}
+      ACCESS_TTL: ${ACCESS_TTL:-900}
+      REFRESH_TTL: ${REFRESH_TTL:-604800}
+      NODE_ENV: production
+      PORT: "8000"
+      CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS is required in production}
+      AI_ENGINE_URL: ${AI_ENGINE_URL:-http://ai-engine:8001}
+      # Sentry (optional — events dropped silently if blank)
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
+      SENTRY_RELEASE: ${SENTRY_RELEASE:-}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ----- AI Engine (FastAPI) -------------------------------------------------
+  ai-engine:
+    restart: always
+    # Use curl-based probe now that the production Dockerfile installs curl.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ----- Landing Page ---------------------------------------------------------
+  landing-page:
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_GATEWAY_URL:?NEXT_PUBLIC_GATEWAY_URL is required}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+
+  # ----- Student Portal -------------------------------------------------------
+  student-portal:
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_GATEWAY_URL:?NEXT_PUBLIC_GATEWAY_URL is required}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+
+  # ----- Organizer Dashboard --------------------------------------------------
+  organizer-dashboard:
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: "3002"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_GATEWAY_URL:?NEXT_PUBLIC_GATEWAY_URL is required}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+
+  # ----- Sponsor Panel --------------------------------------------------------
+  sponsor-panel:
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: "3003"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_GATEWAY_URL:?NEXT_PUBLIC_GATEWAY_URL is required}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
