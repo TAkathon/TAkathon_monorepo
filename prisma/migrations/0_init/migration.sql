@@ -63,6 +63,7 @@ CREATE TABLE "student_profiles" (
     "degree" VARCHAR(255),
     "graduation_year" INTEGER,
     "resume_url" TEXT,
+    "availability" JSONB,
     "created_at" TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
 
