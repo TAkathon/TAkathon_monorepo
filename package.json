@@ -62,6 +62,8 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
+    "@sentry/nextjs": "^10.42.0",
+    "@sentry/node": "^10.42.0",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
