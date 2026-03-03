@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
 import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
 import {
     Home,
@@ -75,12 +76,6 @@ export default function DashboardLayout({
                                 TAKATHON
                             </span>
                         </Link>
-                        <div className="flex items-center gap-2 px-1">
-                            <div className="w-1.5 h-1.5 bg-green-500 animate-pulse rounded-full" />
-                            <span className="text-[8px] text-white/30 uppercase tracking-[0.2em] font-bold">
-                                System Online • Student Portal
-                            </span>
-                        </div>
                     </div>
 
                     {/* Navigation */}
@@ -112,7 +107,7 @@ export default function DashboardLayout({
                     {/* User section */}
                     <div className="p-4 border-t border-white/5">
                         <Link href="/dashboard/profile" className="flex items-center gap-3 px-3 py-3 mb-3 hover:bg-white/5 rounded-sm transition-all group cursor-pointer border border-transparent hover:border-white/10">
-                            <div className="w-10 h-10 bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center rounded-sm shadow-glow-sm group-hover:border-primary/50 group-hover:bg-primary/10 transition-all">
+                            <div className="w-10 h-10 bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center rounded-full shadow-glow-sm group-hover:border-primary/50 group-hover:bg-primary/10 transition-all">
                                 <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.fullName || 'OP'}&backgroundColor=transparent`} alt="Avatar" className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1">
@@ -150,7 +145,7 @@ export default function DashboardLayout({
                                         TAKATHON
                                     </span>
                                 </Link>
-                                <button onClick={() => setSidebarOpen(false)} className="text-white/50 hover:text-white">
+                                <button onClick={() => setSidebarOpen(false)} className="text-white/50 hover:text-white active:scale-[0.98] transition-all">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
@@ -176,7 +171,7 @@ export default function DashboardLayout({
                             </nav>
                             <div className="p-4 border-t border-white/5">
                                 <Link href="/dashboard/profile" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-3 mb-3 hover:bg-white/5 rounded-sm transition-all group cursor-pointer border border-transparent hover:border-white/10">
-                                    <div className="w-10 h-10 bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center rounded-sm shadow-glow-sm group-hover:border-primary/50 group-hover:bg-primary/10 transition-all">
+                                    <div className="w-10 h-10 bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center rounded-full shadow-glow-sm group-hover:border-primary/50 group-hover:bg-primary/10 transition-all">
                                         <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.fullName || 'OP'}&backgroundColor=transparent`} alt="Avatar" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1">
@@ -203,7 +198,7 @@ export default function DashboardLayout({
                 <header className="sticky top-0 z-40 bg-gradient-to-b from-black/95 to-black/60 backdrop-blur-xl border-b border-white/10">
                     <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
                         <div className="flex items-center gap-4">
-                            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-white/50 hover:text-white transition-colors">
+                            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-white/50 hover:text-white transition-all active:scale-[0.98]">
                                 <Menu className="w-6 h-6" />
                             </button>
 
@@ -230,11 +225,11 @@ export default function DashboardLayout({
 
                         {/* Right section */}
                         <div className="flex items-center gap-4">
-                            <button className="relative p-2 text-white/50 hover:text-white transition-colors">
+                            <button onClick={() => toast.info('No new notifications', { description: 'You are all caught up.' })} className="relative p-2 text-white/50 hover:text-white transition-all active:scale-[0.98]">
                                 <Bell className="w-5 h-5" />
                                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-black" />
                             </button>
-                            <button onClick={handleLogout} className="text-white/50 hover:text-red-400 transition-colors ml-2 pl-4 border-l border-white/10" title="Log Out">
+                            <button onClick={handleLogout} className="text-white/50 hover:text-red-400 transition-all ml-2 pl-4 border-l border-white/10 active:scale-[0.98]" title="Log Out">
                                 <LogOut className="w-5 h-5" />
                             </button>
                         </div>

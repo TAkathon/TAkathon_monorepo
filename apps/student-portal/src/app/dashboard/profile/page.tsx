@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { UserSquare, Trophy, Plus, Code } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState({
@@ -60,7 +61,7 @@ export default function ProfilePage() {
                                 {/* Online Status Dot */}
                                 <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
                             </div>
-                            <button className="px-6 py-2.5 bg-transparent border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary/5 hover:border-primary transition-all rounded-sm w-full">
+                            <button onClick={() => toast.info('Avatar customization opened!')} className="px-6 py-2.5 bg-transparent border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary/5 hover:border-primary transition-all active:scale-[0.98] rounded-sm w-full">
                                 CHANGE AVATAR
                             </button>
                         </div>
@@ -118,7 +119,7 @@ export default function ProfilePage() {
                                 <h2 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-2">
                                     <Code className="w-5 h-5 text-primary" /> SKILLSET MATRIX
                                 </h2>
-                                <button className="flex items-center gap-1 px-4 py-2 border border-white/10 hover:border-primary text-primary text-[10px] font-bold uppercase tracking-widest transition-all rounded-sm bg-black">
+                                <button onClick={() => toast.success('New skill level recorded!')} className="flex items-center gap-1 px-4 py-2 border border-white/10 hover:border-primary text-primary text-[10px] font-bold uppercase tracking-widest transition-all active:scale-[0.98] rounded-sm bg-black">
                                     <Plus className="w-3 h-3" /> ADD SKILL
                                 </button>
                             </div>
@@ -159,6 +160,73 @@ export default function ProfilePage() {
                                 <span>ROOKIE</span>
                                 <span>VETERAN</span>
                                 <span>ELITE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Hackathon History Roadmap */}
+                    <div className="relative p-8 bg-[#080808] border border-white/5 rounded-sm">
+                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary"></div>
+
+                        <div className="flex items-center gap-4 mb-10 pb-4 border-b border-white/5">
+                            <Trophy className="w-6 h-6 text-primary" />
+                            <h2 className="text-xl font-black text-white italic tracking-tighter uppercase">MISSION HISTORY ROADMAP</h2>
+                        </div>
+
+                        <div className="relative pl-8 md:pl-0">
+                            {/* Vertical Line for Mobile */}
+                            <div className="absolute left-10 md:left-1/2 top-0 bottom-0 w-px bg-white/10 -translate-x-1/2 md:-translate-x-1/2 hidden md:block"></div>
+                            <div className="absolute left-0 top-0 bottom-0 w-px bg-white/10 block md:hidden"></div>
+
+                            <div className="space-y-12">
+                                {/* Hackathon 1 */}
+                                <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between w-full group">
+                                    <div className="absolute left-0 md:left-1/2 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(255,92,0,0.5)] transform -translate-x-1.5 md:-translate-x-1.5 top-5 md:top-1/2 md:-translate-y-1/2 z-10 border-2 border-black"></div>
+                                    <div className="w-full md:w-[45%] text-left md:text-right md:pr-10 pl-6 md:pl-0 mb-4 md:mb-0">
+                                        <span className="text-primary text-[10px] font-bold uppercase tracking-widest block mb-1">Dec 2025</span>
+                                        <h3 className="text-lg font-black text-white uppercase tracking-wider">Cyberpunk Game Jam</h3>
+                                        <p className="text-xs text-white/50 mt-2 line-clamp-2">Built a 3D isometric stealth game in Godot. Won 'Best Art Direction' with custom shaders and synthwave aesthetics.</p>
+                                    </div>
+                                    <div className="w-full md:w-[45%] pl-6 md:pl-10 text-left">
+                                        <div className="inline-block px-3 py-1 bg-white/[0.03] border border-white/10 rounded-sm text-xs font-bold text-white/70 uppercase tracking-widest">
+                                            1st Place - Best Art
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Hackathon 2 */}
+                                <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between w-full group">
+                                    <div className="absolute left-0 md:left-1/2 w-3 h-3 bg-white/30 rounded-full group-hover:bg-primary/50 transition-colors transform -translate-x-1.5 md:-translate-x-1.5 top-5 md:top-1/2 md:-translate-y-1/2 z-10 border-2 border-black"></div>
+                                    <div className="w-full md:w-[45%] md:pr-10 pl-6 md:pl-0 md:text-right order-2 md:order-1 mt-4 md:mt-0 text-left md:text-right">
+                                        <div className="inline-block px-3 py-1 bg-white/[0.03] border border-white/10 rounded-sm text-xs font-bold text-white/70 uppercase tracking-widest md:hidden mb-4">
+                                            Top 10 Finalist
+                                        </div>
+                                        <div className="hidden md:inline-block px-3 py-1 bg-white/[0.03] border border-white/10 rounded-sm text-xs font-bold text-white/70 uppercase tracking-widest">
+                                            Top 10 Finalist
+                                        </div>
+                                    </div>
+                                    <div className="w-full md:w-[45%] pl-6 md:pl-10 text-left order-1 md:order-2">
+                                        <span className="text-white/40 group-hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-widest block mb-1">Oct 2025</span>
+                                        <h3 className="text-lg font-black text-white uppercase tracking-wider">AI Horizons Buildathon</h3>
+                                        <p className="text-xs text-white/50 mt-2 line-clamp-2">Developed an autonomous agent scheduling system with specialized LLM routing.</p>
+                                    </div>
+                                </div>
+
+                                {/* Hackathon 3 */}
+                                <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between w-full group">
+                                    <div className="absolute left-0 md:left-1/2 w-3 h-3 bg-white/30 rounded-full group-hover:bg-primary/50 transition-colors transform -translate-x-1.5 md:-translate-x-1.5 top-5 md:top-1/2 md:-translate-y-1/2 z-10 border-2 border-black"></div>
+                                    <div className="w-full md:w-[45%] text-left md:text-right md:pr-10 pl-6 md:pl-0 mb-4 md:mb-0">
+                                        <span className="text-white/40 group-hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-widest block mb-1">Aug 2025</span>
+                                        <h3 className="text-lg font-black text-white uppercase tracking-wider">FinTech Disrupt</h3>
+                                        <p className="text-xs text-white/50 mt-2 line-clamp-2">Created a decentralized micro-lending protocol on a testnet. Implemented smart contracts in Solidity.</p>
+                                    </div>
+                                    <div className="w-full md:w-[45%] pl-6 md:pl-10 text-left">
+                                        <div className="inline-block px-3 py-1 bg-white/[0.03] border border-white/10 rounded-sm text-xs font-bold text-white/70 uppercase tracking-widest">
+                                            Participant
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

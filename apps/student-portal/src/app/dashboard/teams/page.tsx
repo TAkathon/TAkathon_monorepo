@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Plus, Users, Crown, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 
 const myTeams = [
     {
@@ -56,7 +57,7 @@ export default function TeamsPage() {
                     </div>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="px-6 py-3 border border-primary text-primary text-xs font-bold uppercase tracking-widest hover:bg-primary/5 transition-all rounded-sm flex items-center gap-2 whitespace-nowrap"
+                        className="px-6 py-3 border border-primary text-primary text-xs font-bold uppercase tracking-widest hover:bg-primary/5 transition-all active:scale-[0.98] rounded-sm flex items-center gap-2 whitespace-nowrap"
                     >
                         <Plus className="w-4 h-4" /> FORM SQUAD
                     </button>
@@ -68,9 +69,9 @@ export default function TeamsPage() {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`px-8 py-4 text-xs font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === tab.id
-                                    ? "text-primary"
-                                    : "text-white/50 hover:text-white/80"
+                            className={`px-8 py-4 text-xs font-bold uppercase tracking-widest transition-all relative whitespace-nowrap active:scale-[0.98] ${activeTab === tab.id
+                                ? "text-primary"
+                                : "text-white/50 hover:text-white/80"
                                 }`}
                         >
                             {tab.label}
@@ -151,10 +152,10 @@ export default function TeamsPage() {
 
                                 {/* Actions */}
                                 <div className="grid grid-cols-2 gap-4 mt-auto">
-                                    <button className="px-4 py-3 border border-white/10 hover:border-white/30 text-white text-[10px] font-bold uppercase tracking-widest transition-all rounded-sm bg-black">
+                                    <button onClick={() => toast.info('Managing squad settings...')} className="px-4 py-3 border border-white/10 hover:border-white/30 text-white text-[10px] font-bold uppercase tracking-widest transition-all active:scale-[0.98] rounded-sm bg-black">
                                         MANAGE SQUAD
                                     </button>
-                                    <button className="px-4 py-3 bg-primary/10 border border-primary/40 hover:bg-primary/20 hover:border-primary text-primary text-[10px] font-bold uppercase tracking-widest transition-all rounded-sm">
+                                    <button onClick={() => toast.success('Accessing mission brief...')} className="px-4 py-3 bg-primary/10 border border-primary/40 hover:bg-primary/20 hover:border-primary text-primary text-[10px] font-bold uppercase tracking-widest transition-all active:scale-[0.98] rounded-sm">
                                         MISSION BRIEF
                                     </button>
                                 </div>
@@ -237,13 +238,13 @@ export default function TeamsPage() {
                             <div className="flex gap-4 mt-8">
                                 <button
                                     onClick={() => setShowCreateModal(false)}
-                                    className="flex-1 px-4 py-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-sm transition-all border border-white/10 hover:border-white/30"
+                                    className="flex-1 px-4 py-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-sm transition-all border border-white/10 hover:border-white/30 active:scale-[0.98]"
                                 >
                                     ABORT
                                 </button>
                                 <button
-                                    onClick={() => setShowCreateModal(false)}
-                                    className="flex-1 px-4 py-3 bg-primary/20 border border-primary/40 hover:bg-primary/30 hover:border-primary text-primary text-[10px] font-bold uppercase tracking-widest rounded-sm transition-all"
+                                    onClick={() => { setShowCreateModal(false); toast.success('Squad launch initiated successfully!'); }}
+                                    className="flex-1 px-4 py-3 bg-primary/20 border border-primary/40 hover:bg-primary/30 hover:border-primary text-primary text-[10px] font-bold uppercase tracking-widest rounded-sm transition-all active:scale-[0.98]"
                                 >
                                     LAUNCH SQUAD
                                 </button>

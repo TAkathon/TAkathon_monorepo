@@ -3,6 +3,7 @@
 import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Calendar, Users, Trophy, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 import { useAuthStore } from "@shared/utils";
 
 const stats = [
@@ -20,7 +21,7 @@ const myTeams = [
         maxMembers: 5,
         status: "LOOKING FOR 1 MORE",
         statusColor: "text-primary",
-        avatar: "🧙‍♂️",
+        teamMembers: ["John", "Jane", "Mike", "Sarah"],
     },
     {
         id: 2,
@@ -30,7 +31,7 @@ const myTeams = [
         maxMembers: 5,
         status: "PROJECT SUBMITTED",
         statusColor: "text-green-500",
-        avatar: "🤖",
+        teamMembers: ["Alex", "Sam", "Chris", "Taylor", "Jordan"],
     },
 ];
 
@@ -60,7 +61,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2 mt-4 mb-2">
                             <div className="w-2 h-2 bg-green-500 rounded-sm" />
                             <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold">
-                                SYSTEM ONLINE • READY TO HACK
+                                IT'S BEEN 3 WEEKS SINCE YOUR LAST HACKATHON
                             </span>
                         </div>
                     </div>
@@ -177,10 +178,10 @@ export default function DashboardPage() {
                             </div>
 
                             <div className="flex gap-4">
-                                <button className="flex-1 py-3 text-[10px] font-bold tracking-widest uppercase bg-transparent text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all rounded-sm">
+                                <button onClick={() => toast.loading('Loading details...')} className="flex-1 py-3 text-[10px] font-bold tracking-widest uppercase bg-transparent text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all active:scale-[0.98] rounded-sm">
                                     VIEW DETAILS
                                 </button>
-                                <button className="flex-1 py-3 text-[10px] font-bold tracking-widest uppercase bg-primary text-white border border-primary hover:bg-primary-dark hover:shadow-[0_0_15px_rgba(255,92,0,0.4)] transition-all rounded-sm drop-shadow-md">
+                                <button onClick={() => toast.success('Accessing Hackathon Hub...')} className="flex-1 py-3 text-[10px] font-bold tracking-widest uppercase bg-primary text-white border border-primary hover:bg-primary-dark hover:shadow-[0_0_15px_rgba(255,92,0,0.4)] transition-all active:scale-[0.98] rounded-sm drop-shadow-md">
                                     ACCESS HUB
                                 </button>
                             </div>
@@ -208,11 +209,27 @@ export default function DashboardPage() {
                                     <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/10 group-hover:border-primary/50 transition-colors"></div>
 
                                     <div className="flex items-start gap-4">
-                                        <div className="relative">
-                                            <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-xl">
-                                                {team.avatar}
+                                        <div className="relative flex-shrink-0 mr-2">
+                                            <div className="flex -space-x-3">
+                                                {team.teamMembers.slice(0, 3).map((member, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        className="w-10 h-10 rounded-full bg-black border-2 border-[#080808] flex items-center justify-center overflow-hidden shrink-0"
+                                                        style={{ zIndex: 10 - idx }}
+                                                    >
+                                                        <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${member}&backgroundColor=transparent`} alt={member} className="w-full h-full object-cover opacity-80" />
+                                                    </div>
+                                                ))}
+                                                {team.teamMembers.length > 3 && (
+                                                    <div
+                                                        className="w-10 h-10 rounded-full bg-white/5 border-2 border-[#080808] flex items-center justify-center shrink-0"
+                                                        style={{ zIndex: 0 }}
+                                                    >
+                                                        <span className="text-[10px] font-bold text-white/70">+{team.teamMembers.length - 3}</span>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-sm transform rotate-45 border-2 border-black" />
+                                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-sm transform rotate-45 border-2 border-[#080808] z-20 shadow-[0_0_10px_rgba(255,92,0,0.5)]" />
                                         </div>
 
                                         <div className="flex-1">

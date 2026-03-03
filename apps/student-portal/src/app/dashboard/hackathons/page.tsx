@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Globe } from "lucide-react";
+import { toast } from "sonner";
 
 const hackathons = [
     {
@@ -257,7 +258,7 @@ export default function HackathonsPage() {
                                         <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-1">PRIZE POOL</p>
                                         <span className="text-3xl font-black italic tracking-tighter text-white">{hackathon.prize}</span>
                                     </div>
-                                    <button className="px-8 py-3 bg-primary/20 border border-primary/40 hover:bg-primary/30 hover:border-primary text-primary text-xs font-bold uppercase tracking-widest transition-all rounded-sm w-full sm:w-auto text-center">
+                                    <button onClick={() => toast.success('Accessing mission intel...', { description: 'Decrypting operation dossier.' })} className="px-8 py-3 bg-primary/20 border border-primary/40 hover:bg-primary/30 hover:border-primary text-primary text-xs font-bold uppercase tracking-widest transition-all active:scale-[0.98] rounded-sm w-full sm:w-auto text-center">
                                         VIEW INTEL
                                     </button>
                                 </div>
