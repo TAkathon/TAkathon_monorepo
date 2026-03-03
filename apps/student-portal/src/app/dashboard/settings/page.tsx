@@ -12,6 +12,8 @@ import {
     Clock,
     Loader2,
     Save,
+    Mail,
+    Trash2,
 } from "lucide-react";
 import { studentApi } from "@takathon/shared/api";
 import type { AvailabilitySlot } from "@takathon/shared/api";

@@ -43,6 +43,7 @@ export interface OrganizerHackathonSummary {
   registrationDeadline: string;
   location?: string;
   isVirtual: boolean;
+  bannerUrl?: string;
   maxParticipants?: number;
   participantCount: number;
   teamCount: number;

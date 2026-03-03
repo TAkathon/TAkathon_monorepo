@@ -19,7 +19,7 @@ import {
     Loader2
 } from "lucide-react";
 import { organizerApi } from "@takathon/shared/api";
-import type { OrganizerHackathonSummary } from "@takathon/shared/api/src/organizer";
+import type { OrganizerHackathonSummary } from "@takathon/shared/api";
 import { toast } from "sonner";
 import Link from "next/link";
 

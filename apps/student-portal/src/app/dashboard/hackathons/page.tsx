@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2 } from "lucide-react";
 import { studentApi } from "@takathon/shared/api";
-import type { StudentHackathonSummary } from "@takathon/shared/api/src/student";
+import type { StudentHackathonSummary } from "@takathon/shared/api";
 import { toast } from "sonner";
 
 export default function HackathonsPage() {
@@ -117,8 +117,8 @@ export default function HackathonsPage() {
                                     <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
                                         {hackathon.title}
                                     </h3>
-                                    {/* Organizer name would ideally come from backend expansion */}
-                                    <p className="text-sm text-white/60">Organizer ID: {(hackathon.organizerId || '--------').substring(0, 8)}...</p>
+                                    {/* Organizer info */}
+                                    <p className="text-sm text-white/60">{hackathon.isVirtual ? "Virtual Event" : hackathon.location || "TBD"}</p>
                                 </div>
                                 <span
                                     className={`px-3 py-1 text-xs font-semibold rounded-full ${
@@ -175,8 +175,8 @@ export default function HackathonsPage() {
                             {/* Footer */}
                             <div className="flex items-center justify-between pt-4 border-t border-white/10">
                                 <div>
-                                    <span className="text-primary font-bold text-lg">{hackathon.prizePool || "TBD"}</span>
-                                    {hackathon.prizePool && <span className="text-white/40 text-sm ml-1">Prize Pool</span>}
+                                    <span className="text-primary font-bold text-lg">{hackathon.participantCount}</span>
+                                    <span className="text-white/40 text-sm ml-1">Participants</span>
                                 </div>
                                 <button 
                                     onClick={(e) => {
