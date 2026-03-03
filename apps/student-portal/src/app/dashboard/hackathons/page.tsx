@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Filter, Search, ChevronDown, Loader2, CheckCircle } from "lucide-react";
 import { studentApi } from "@takathon/shared/api";
 import type { StudentHackathonSummary } from "@takathon/shared/api";
 import { toast } from "sonner";
@@ -32,10 +32,20 @@ export default function HackathonsPage() {
     const handleJoin = async (hackathonId: string) => {
         try {
             await studentApi.registerForHackathon(hackathonId);
-            toast.success("Successfully registered for hackathon!");
-            fetchHackathons();
+            toast.success("Successfully registered!");
+            setHackathons(prev => prev.map(h => h.id === hackathonId ? { ...h, isRegistered: true, participantCount: h.participantCount + 1 } : h));
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to register");
+        }
+    };
+
+    const handleWithdraw = async (hackathonId: string) => {
+        try {
+            await studentApi.withdrawFromHackathon(hackathonId);
+            toast.success("Withdrawn successfully");
+            setHackathons(prev => prev.map(h => h.id === hackathonId ? { ...h, isRegistered: false, participantCount: Math.max(0, h.participantCount - 1) } : h));
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Failed to withdraw");
         }
     };
 
@@ -178,15 +188,27 @@ export default function HackathonsPage() {
                                     <span className="text-primary font-bold text-lg">{hackathon.participantCount}</span>
                                     <span className="text-white/40 text-sm ml-1">Participants</span>
                                 </div>
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleJoin(hackathon.id);
-                                    }}
-                                    className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200"
-                                >
-                                    Join Now
-                                </button>
+                                {hackathon.isRegistered ? (
+                                    <div className="flex items-center gap-2">
+                                        <span className="flex items-center gap-1 text-green-400 text-sm font-medium">
+                                            <CheckCircle className="w-4 h-4" /> Registered
+                                        </span>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleWithdraw(hackathon.id); }}
+                                            className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 text-sm font-medium rounded-lg transition-all duration-200 border border-white/10 hover:border-red-500/30"
+                                        >
+                                            Withdraw
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleJoin(hackathon.id); }}
+                                        disabled={hackathon.status !== "registration_open"}
+                                        className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        Join Now
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}

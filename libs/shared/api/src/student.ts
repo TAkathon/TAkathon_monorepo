@@ -112,12 +112,12 @@ export async function updateMyProfile(
 
 /** Add a skill to the student's profile */
 export async function addSkill(data: AddSkillInput): Promise<void> {
-  await api.post("/api/v1/students/profile/skills", data);
+  await api.post("/api/v1/students/skills", data);
 }
 
 /** Remove a skill from the student's profile */
 export async function removeSkill(skillId: string): Promise<void> {
-  await api.delete(`/api/v1/students/profile/skills/${skillId}`);
+  await api.delete(`/api/v1/students/skills/${skillId}`);
 }
 
 // ─── Hackathons ───────────────────────────────────────────────────────────────

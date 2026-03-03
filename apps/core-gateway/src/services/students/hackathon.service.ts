@@ -5,13 +5,14 @@ export class StudentHackathonService {
    * Browse/list hackathons with optional filters (for students)
    */
   static async listHackathons(params: {
+    userId?: string;
     status?: string;
     search?: string;
     page?: number;
     perPage?: number;
   }) {
     const page = params.page ?? 1;
-    const perPage = params.perPage ?? 10;
+    const perPage = params.perPage ?? 50;  // increased default so all hackathons show
     const skip = (page - 1) * perPage;
 
     const where: any = {};
@@ -53,6 +54,16 @@ export class StudentHackathonService {
       prisma.hackathon.count({ where }),
     ]);
 
+    // Fetch the user's registrations in one query to attach isRegistered
+    let registeredIds = new Set<string>();
+    if (params.userId) {
+      const participations = await prisma.hackathonParticipant.findMany({
+        where: { userId: params.userId, status: { not: "withdrawn" } },
+        select: { hackathonId: true },
+      });
+      registeredIds = new Set(participations.map((p) => p.hackathonId));
+    }
+
     return {
       data: hackathons.map((h) => ({
         id: h.id,
@@ -72,6 +83,7 @@ export class StudentHackathonService {
         organizer: h.organizer,
         participantCount: h._count.participants,
         teamCount: h._count.teams,
+        isRegistered: registeredIds.has(h.id),
       })),
       meta: {
         page,

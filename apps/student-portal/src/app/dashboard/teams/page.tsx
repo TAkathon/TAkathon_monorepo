@@ -237,6 +237,17 @@ export default function TeamsPage() {
         }
     };
 
+    const handleDisbandTeam = async (teamId: string, teamName: string) => {
+        if (!confirm(`Disband "${teamName}"? This cannot be undone.`)) return;
+        try {
+            await teamApi.disbandTeam(teamId);
+            toast.success("Team disbanded");
+            fetchData();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Failed to disband team");
+        }
+    };
+
     // ── AI matching handlers ──────────────────────────────────────────────────
 
     const openMatchModal = async (teamId: string) => {
@@ -443,6 +454,15 @@ export default function TeamsPage() {
                                         >
                                             <Trash2 className="w-4 h-4" />
                                             Leave
+                                        </button>
+                                    )}
+                                    {team.myRole === "captain" && team.status === "forming" && (
+                                        <button
+                                            onClick={() => handleDisbandTeam(team.id, team.name)}
+                                            className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                            Disband
                                         </button>
                                     )}
                                 </div>
