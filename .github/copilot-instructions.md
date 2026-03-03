@@ -32,7 +32,7 @@
   - ENV guard at startup: exits in production if `DATABASE_URL`, `JWT_ACCESS_SECRET`, or `JWT_REFRESH_SECRET` are missing
   - Prisma migrate deploy (baseline migration committed, `db push --accept-data-loss` removed)
   - 32 security tests: `token.spec.ts` (13 tests) + `auth.spec.ts` (19 tests) in `apps/core-gateway/test/`
-- **Phase 2 Core Data Flows** — branch `feature/phase2-core-data-flows` (in progress, branched from `dev`):
+- **Phase 2 Core Data Flows** — branch `feature/phase2-core-data-flows` (merged into `dev`):
   - **Typed Shared API Client** — `libs/shared/api/src/` now exports domain modules:
     - `organizerApi` — `listMyHackathons`, `getMyHackathon`, `createHackathon`, `updateHackathon`, `publishHackathon`, `startHackathon`, `completeHackathon`, `cancelHackathon`, `getParticipants`
     - `studentApi` — `getMyProfile`, `updateMyProfile`, `addSkill`, `removeSkill`, `browseHackathons`, `getHackathon`, `getMyHackathons`, `registerForHackathon`, `withdrawFromHackathon`
@@ -42,6 +42,19 @@
   - **Backend additions**: explicit `POST /:id/start`, `POST /:id/complete`, `PATCH /:id` on organizer hackathons router
   - **Frontend refactored**: all organizer-dashboard and student-portal pages use typed domain API functions (no bare `api.get/post`)
   - Lifecycle action buttons (Publish / Start / Complete / Cancel) in organizer hackathons page
+- **Phase 3 AI Matching Engine (V1)** — branch `feature/phase3-ai-matching` (in progress, branched from `dev`):
+  - **AI Engine (FastAPI)** — `apps/ai-engine/app/matching/`:
+    - `scoring.py` — three pure deterministic scorers: `skill_complementarity` (40%), `experience_balance` (30%), `availability_overlap` (30% — neutral 0.5 until schema has availability field)
+    - `engine.py` — `suggest(team_skills, candidates, open_spots, limit)` orchestrates scorers, applies weights, generates human-readable explanations, returns sorted suggestions
+    - `validators.py` — Pydantic v2 request/response models (`MatchRequest`, `MatchResponse`, `MatchSuggestion`)
+    - `main.py` — `POST /api/v1/matching/recommend` FastAPI endpoint
+  - **27 pytest tests**: `tests/test_scoring.py` (individual scorer unit tests) + `tests/test_matching.py` (engine integration tests)
+  - **Core Gateway**: `StudentMatchingService.getMatches()` fetches team + candidate data from Prisma, calls AI engine at `AI_ENGINE_URL`, falls back to local `basicScoring()` if engine unreachable
+    - Route: `GET /api/v1/students/teams/:id/matches` + `POST /api/v1/students/teams/:id/matches/:userId` (invite)
+  - **Shared API**: `matchingApi` module (`libs/shared/api/src/matching.ts`) — `suggestTeammates(teamId, limit)`, `inviteMatch(teamId, userId)` + exported types `MatchSuggestion`, `MatchResult`
+  - **Student Portal**: "Find Teammates" button on forming teams with open spots → AI matching modal with ranked candidates, score badge, breakdown (skill/exp/avail %), explanation, Invite button
+  - **Docker**: AI engine now starts by default (removed `profiles: [ai]`); `AI_ENGINE_URL=http://ai-engine:8001` injected into core-gateway
+  - **Scoring notes**: proficiency map `beginner→1, intermediate→2, advanced→3, expert→4`; experience balance targets mean=2.5 (centre of scale)
 - **Frontend-Backend Integration** (V1 complete):
   - student-portal: dashboard, profile, teams, hackathons, settings pages — live API data via shared Axios + Zustand
   - organizer-dashboard: hackathons list + create, participants, teams, settings pages
@@ -66,8 +79,7 @@
 
 ### ⛔ Out of Scope for V1
 
-- AI Matching Engine (FastAPI scoring logic — Phase 2)
-- AI coaching / chatbot features (Phase 2)
+- AI coaching / chatbot features (Phase 4+)
 
 ### ✅ Recent Operational Notes
 
@@ -81,6 +93,8 @@
 - **Prisma adapter pattern**: Prisma 7 requires `@prisma/adapter-pg` with `Pool` for connection management.
 - **Test credentials**: alice.student@university.edu / password123 (all test users have same password).
 - **Express entry point**: `apps/core-gateway/src/index.ts` — ignore empty NestJS scaffold files in `src/app/` and `src/main.ts`.
+- **AI Engine**: Now starts by default with `docker compose up` (no `--profile ai` needed). Port 8001. Gateway env var `AI_ENGINE_URL=http://ai-engine:8001` (Docker) or `http://localhost:8001` (local dev). Falls back to local `basicScoring()` if engine is unreachable.
+- **AI matching tests**: Run with `cd apps/ai-engine && python -m pytest tests/ -v` (requires `pip install fastapi pydantic uvicorn` in the ai-engine venv).
 
 ### 📋 V1 Completion — Next Steps (Priority Order)
 

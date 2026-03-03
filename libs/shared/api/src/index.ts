@@ -7,3 +7,7 @@ export * as studentApi from "./student";
 export * as hackathonApi from "./hackathon";
 export * as teamApi from "./team";
 export * as invitationApi from "./invitation";
+export * as matchingApi from "./matching";
+
+// Re-export matching types for convenience
+export type { MatchSuggestion, MatchResult, ScoreBreakdown } from "./matching";
