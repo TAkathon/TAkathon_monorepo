@@ -22,10 +22,34 @@ import { ResponseHandler } from "./utils/response";
 
 dotenv.config({ path: path.resolve(process.cwd(), "apps/core-gateway/.env") });
 
-const app = express();
+// ─── Critical ENV var guard ───────────────────────────────────────────────────
+// These variables must never be undefined at startup. In production a missing
+// secret is always a deployment misconfiguration and should prevent the server
+// from starting rather than silently falling back to a weak default.
+const REQUIRED_ENV: Record<string, string> = {
+  DATABASE_URL: process.env.DATABASE_URL ?? "",
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET ?? "",
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET ?? "",
+};
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 8000;
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+const missingVars = Object.entries(REQUIRED_ENV)
+  .filter(([, v]) => !v)
+  .map(([k]) => k);
+
+if (missingVars.length > 0) {
+  if (IS_PRODUCTION) {
+    console.error(`[startup] FATAL: Missing required environment variables: ${missingVars.join(", ")}`);
+    process.exit(1);
+  } else {
+    console.warn(`[startup] WARNING: Missing env vars (using insecure dev defaults): ${missingVars.join(", ")}`);
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+const app = express();
+const PORT = process.env.PORT ? Number(process.env.PORT) : 8000;
 
 // Default dev origins when CORS_ORIGINS env var is not set
 const DEV_ORIGINS = [

@@ -68,9 +68,8 @@ function LoginContent() {
         role: selectedRole,
       });
 
-      // result = { success, data: { user, accessToken, refreshToken } }
+      // result = { success, data: { user } } — tokens are httpOnly cookies, never in JS
       const apiUser = result.data?.user;
-      const accessToken = result.data?.accessToken;
 
       const userData = {
         id: apiUser?.id ?? "1",
@@ -78,7 +77,7 @@ function LoginContent() {
         fullName: apiUser?.fullName ?? "User",
         role: (apiUser?.role as UserRole) ?? selectedRole,
       };
-      login(userData, accessToken);
+      login(userData);
 
       const url = getRedirectUrl(userData.role);
       if (url.startsWith("http")) {

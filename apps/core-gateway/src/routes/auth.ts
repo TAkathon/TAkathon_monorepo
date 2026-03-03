@@ -1,13 +1,24 @@
 import { Router } from "express";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import rateLimit from "express-rate-limit";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../services/token";
 import { UserService } from "../services/user";
 import { requireAuth } from "../middleware/auth";
 import { ResponseHandler } from "../utils/response";
-import { UserRole, AuthResponse } from "@takathon/shared/types";
+import { UserRole } from "@takathon/shared/types";
 
 const router = Router();
+
+/** Brute-force protection: max 10 attempts per 15 min per IP */
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: { code: "RATE_LIMITED", message: "Too many attempts. Please try again later." } },
+  skipSuccessfulRequests: true,
+});
 
 const registerSchema = z.object({
   fullName: z.string().min(2),
@@ -21,7 +32,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
@@ -39,22 +50,29 @@ router.post("/register", async (req, res) => {
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
 
-  res.cookie("refreshToken", refreshToken, {
+  const cookieBase = {
     httpOnly: true,
-    sameSite: "lax",
-    secure: !!(process.env.COOKIE_SECURE === "true"),
-    maxAge: parseDurationToMs(process.env.REFRESH_TTL || "7d"),
+    sameSite: "lax" as const,
+    secure: process.env.COOKIE_SECURE === "true",
     path: "/",
+  };
+
+  res.cookie("accessToken", accessToken, {
+    ...cookieBase,
+    maxAge: parseDurationToMs(process.env.ACCESS_TTL || "15m"),
   });
 
-  return ResponseHandler.success<AuthResponse>(res, {
-    user: UserService.toPublicUser(user),
-    accessToken,
-    refreshToken,
-  }, 201);
+  res.cookie("refreshToken", refreshToken, {
+    ...cookieBase,
+    maxAge: parseDurationToMs(process.env.REFRESH_TTL || "7d"),
+    path: "/api/v1/auth/refresh",
+  });
+
+  // Never return raw token strings — cookies only
+  return ResponseHandler.success(res, { user: UserService.toPublicUser(user) }, 201);
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid payload", 400, parsed.error.format());
@@ -74,19 +92,26 @@ router.post("/login", async (req, res) => {
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
 
-  res.cookie("refreshToken", refreshToken, {
+  const cookieBase = {
     httpOnly: true,
-    sameSite: "lax",
-    secure: !!(process.env.COOKIE_SECURE === "true"),
-    maxAge: parseDurationToMs(process.env.REFRESH_TTL || "7d"),
+    sameSite: "lax" as const,
+    secure: process.env.COOKIE_SECURE === "true",
     path: "/",
+  };
+
+  res.cookie("accessToken", accessToken, {
+    ...cookieBase,
+    maxAge: parseDurationToMs(process.env.ACCESS_TTL || "15m"),
   });
 
-  return ResponseHandler.success<AuthResponse>(res, {
-    user: UserService.toPublicUser(user),
-    accessToken,
-    refreshToken,
+  res.cookie("refreshToken", refreshToken, {
+    ...cookieBase,
+    maxAge: parseDurationToMs(process.env.REFRESH_TTL || "7d"),
+    path: "/api/v1/auth/refresh",
   });
+
+  // Never return raw token strings — cookies only
+  return ResponseHandler.success(res, { user: UserService.toPublicUser(user) });
 });
 
 router.post("/refresh", async (req, res) => {
@@ -106,14 +131,25 @@ router.post("/refresh", async (req, res) => {
     }
 
     const accessToken = signAccessToken(user);
-    return ResponseHandler.success(res, { accessToken });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      secure: process.env.COOKIE_SECURE === "true",
+      maxAge: parseDurationToMs(process.env.ACCESS_TTL || "15m"),
+      path: "/",
+    });
+
+    // No token in the response body — issued via cookie only
+    return ResponseHandler.success(res, { ok: true });
   } catch (err) {
     return ResponseHandler.error(res, "INVALID_REFRESH", "Invalid or expired refresh token", 401);
   }
 });
 
 router.post("/logout", (_req, res) => {
-  res.clearCookie("refreshToken", { path: "/" });
+  res.clearCookie("accessToken", { path: "/" });
+  res.clearCookie("refreshToken", { path: "/api/v1/auth/refresh" });
   return ResponseHandler.success(res, { message: "Logged out" });
 });
 
