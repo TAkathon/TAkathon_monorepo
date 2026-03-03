@@ -18,16 +18,17 @@ import {
     Eye,
     Loader2
 } from "lucide-react";
-import api from "@takathon/shared/api";
-import { Hackathon } from "@takathon/shared/types";
+import { organizerApi } from "@takathon/shared/api";
+import type { OrganizerHackathonSummary } from "@takathon/shared/api/src/organizer";
 import { toast } from "sonner";
 import Link from "next/link";
 
 export default function HackathonsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("All");
-    const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+    const [hackathons, setHackathons] = useState<OrganizerHackathonSummary[]>([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
 
     useEffect(() => {
         fetchHackathons();
@@ -35,13 +36,32 @@ export default function HackathonsPage() {
 
     const fetchHackathons = async () => {
         try {
-            const response = await api.get("/api/v1/organizers/hackathons");
-            setHackathons(response.data.data || []);
+            const data = await organizerApi.listMyHackathons();
+            setHackathons(data);
         } catch (error) {
             console.error("Failed to fetch hackathons:", error);
             toast.error("Failed to load hackathons");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleLifecycleAction = async (
+        hackathonId: string,
+        action: "publish" | "start" | "complete" | "cancel"
+    ) => {
+        setActionLoading(hackathonId + action);
+        try {
+            if (action === "publish") await organizerApi.publishHackathon(hackathonId);
+            else if (action === "start") await organizerApi.startHackathon(hackathonId);
+            else if (action === "complete") await organizerApi.completeHackathon(hackathonId);
+            else if (action === "cancel") await organizerApi.cancelHackathon(hackathonId);
+            toast.success(`Hackathon ${action}ed successfully!`);
+            await fetchHackathons();
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || `Failed to ${action} hackathon`);
+        } finally {
+            setActionLoading(null);
         }
     };
 
@@ -186,19 +206,62 @@ export default function HackathonsPage() {
                                     </div>
                                 </div>
 
-                                <div className="pt-4 mt-auto grid grid-cols-2 gap-3">
-                                    <Link href={`/hackathons/${hackathon.id}`} className="w-full">
-                                        <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all text-sm font-medium border border-white/10">
-                                            <Eye className="w-4 h-4" />
-                                            View Details
-                                        </button>
-                                    </Link>
-                                    <Link href={`/hackathons/${hackathon.id}/edit`} className="w-full">
-                                        <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-all text-sm font-medium border border-primary/20">
-                                            <Edit2 className="w-4 h-4" />
-                                            Edit
-                                        </button>
-                                    </Link>
+                                <div className="pt-4 mt-auto space-y-2">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Link href={`/hackathons/${hackathon.id}`} className="w-full">
+                                            <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all text-sm font-medium border border-white/10">
+                                                <Eye className="w-4 h-4" />
+                                                View
+                                            </button>
+                                        </Link>
+                                        {["draft", "registration_open", "registration_closed"].includes(hackathon.status) && (
+                                            <Link href={`/hackathons/${hackathon.id}/edit`} className="w-full">
+                                                <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-all text-sm font-medium border border-primary/20">
+                                                    <Edit2 className="w-4 h-4" />
+                                                    Edit
+                                                </button>
+                                            </Link>
+                                        )}
+                                    </div>
+                                    {/* Lifecycle action buttons */}
+                                    <div className="flex flex-wrap gap-2">
+                                        {hackathon.status === "draft" && (
+                                            <button
+                                                disabled={actionLoading === hackathon.id + "publish"}
+                                                onClick={() => handleLifecycleAction(hackathon.id, "publish")}
+                                                className="flex-1 px-3 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-all text-xs font-medium border border-green-500/20 disabled:opacity-50"
+                                            >
+                                                {actionLoading === hackathon.id + "publish" ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : "Publish"}
+                                            </button>
+                                        )}
+                                        {["registration_open", "registration_closed"].includes(hackathon.status) && (
+                                            <button
+                                                disabled={actionLoading === hackathon.id + "start"}
+                                                onClick={() => handleLifecycleAction(hackathon.id, "start")}
+                                                className="flex-1 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-all text-xs font-medium border border-blue-500/20 disabled:opacity-50"
+                                            >
+                                                {actionLoading === hackathon.id + "start" ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : "Start"}
+                                            </button>
+                                        )}
+                                        {hackathon.status === "in_progress" && (
+                                            <button
+                                                disabled={actionLoading === hackathon.id + "complete"}
+                                                onClick={() => handleLifecycleAction(hackathon.id, "complete")}
+                                                className="flex-1 px-3 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg transition-all text-xs font-medium border border-purple-500/20 disabled:opacity-50"
+                                            >
+                                                {actionLoading === hackathon.id + "complete" ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : "Complete"}
+                                            </button>
+                                        )}
+                                        {!["completed", "cancelled"].includes(hackathon.status) && (
+                                            <button
+                                                disabled={actionLoading === hackathon.id + "cancel"}
+                                                onClick={() => handleLifecycleAction(hackathon.id, "cancel")}
+                                                className="flex-1 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all text-xs font-medium border border-red-500/20 disabled:opacity-50"
+                                            >
+                                                {actionLoading === hackathon.id + "cancel" ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : "Cancel"}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>

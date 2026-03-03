@@ -11,7 +11,7 @@ import {
     Image as ImageIcon,
     Loader2
 } from "lucide-react";
-import api from "@takathon/shared/api";
+import { organizerApi } from "@takathon/shared/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -83,7 +83,7 @@ export default function CreateHackathonPage() {
                 registrationDeadline: new Date(formData.registrationDeadline).toISOString(),
             };
 
-            await api.post("/api/v1/organizers/hackathons", payload);
+            await organizerApi.createHackathon(payload);
             toast.success("Hackathon created successfully!");
             router.push("/hackathons");
         } catch (error: any) {

@@ -25,6 +25,23 @@
 - **Organizer API**: Complete implementation (`/api/v1/organizers/*`) — profile, hackathon CRUD + publish/cancel/start/complete lifecycle, participant management, analytics + CSV export
 - **Sponsor API**: Complete implementation (`/api/v1/sponsors/*`) — profile, hackathon browsing + sponsorship, team search/details/favorites
 - **Shared API**: Public hackathon listings + skills taxonomy (`/api/v1/hackathons`, `/api/v1/skills`)
+- **Security Foundations (Phase 1)** — branch `feature/security-foundations` (merged into `dev`):
+  - JWT tokens issued as httpOnly cookies ONLY (never in response body)
+  - `requireAuth` reads from `req.cookies.accessToken` (not Authorization header)
+  - Rate limiting: `express-rate-limit` — 10 req/15 min on `/auth/login` and `/auth/register`
+  - ENV guard at startup: exits in production if `DATABASE_URL`, `JWT_ACCESS_SECRET`, or `JWT_REFRESH_SECRET` are missing
+  - Prisma migrate deploy (baseline migration committed, `db push --accept-data-loss` removed)
+  - 32 security tests: `token.spec.ts` (13 tests) + `auth.spec.ts` (19 tests) in `apps/core-gateway/test/`
+- **Phase 2 Core Data Flows** — branch `feature/phase2-core-data-flows` (in progress, branched from `dev`):
+  - **Typed Shared API Client** — `libs/shared/api/src/` now exports domain modules:
+    - `organizerApi` — `listMyHackathons`, `getMyHackathon`, `createHackathon`, `updateHackathon`, `publishHackathon`, `startHackathon`, `completeHackathon`, `cancelHackathon`, `getParticipants`
+    - `studentApi` — `getMyProfile`, `updateMyProfile`, `addSkill`, `removeSkill`, `browseHackathons`, `getHackathon`, `getMyHackathons`, `registerForHackathon`, `withdrawFromHackathon`
+    - `teamApi` — `getMyTeams`, `getTeam`, `createTeam`, `updateTeam`, `disbandTeam`, `leaveTeam`, `sendInvitation`
+    - `invitationApi` — `getMyInvitations`, `acceptInvitation`, `rejectInvitation`
+    - `hackathonApi` — `listPublicHackathons`, `getPublicHackathon`, `listSkills`
+  - **Backend additions**: explicit `POST /:id/start`, `POST /:id/complete`, `PATCH /:id` on organizer hackathons router
+  - **Frontend refactored**: all organizer-dashboard and student-portal pages use typed domain API functions (no bare `api.get/post`)
+  - Lifecycle action buttons (Publish / Start / Complete / Cancel) in organizer hackathons page
 - **Frontend-Backend Integration** (V1 complete):
   - student-portal: dashboard, profile, teams, hackathons, settings pages — live API data via shared Axios + Zustand
   - organizer-dashboard: hackathons list + create, participants, teams, settings pages

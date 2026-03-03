@@ -95,7 +95,8 @@ const updateHackathonSchema = z.object({
   websiteUrl: z.string().url().optional(),
 });
 
-router.put("/:id", async (req: any, res) => {
+// Shared handler for PUT and PATCH (both do partial update)
+async function handleUpdateHackathon(req: any, res: any) {
   const idSchema = z.string().uuid();
   const idParsed = idSchema.safeParse(req.params.id);
   if (!idParsed.success) {
@@ -120,7 +121,15 @@ router.put("/:id", async (req: any, res) => {
   }
 
   return ResponseHandler.success(res, result.data);
-});
+}
+
+router.put("/:id", handleUpdateHackathon);
+
+/**
+ * PATCH /api/v1/organizers/hackathons/:id
+ * Partially update a hackathon (alias for PUT)
+ */
+router.patch("/:id", handleUpdateHackathon);
 
 /**
  * POST /api/v1/organizers/hackathons/:id/publish
@@ -218,6 +227,74 @@ router.post("/:id/cancel", async (req: any, res) => {
     const statusMap: Record<string, number> = {
       NOT_OWNER: 403,
       HACKATHON_NOT_FOUND: 404,
+    };
+    return ResponseHandler.error(
+      res,
+      result.error as string,
+      (result as any).message || result.error,
+      statusMap[result.error as string] ?? 400,
+    );
+  }
+
+  return ResponseHandler.success(res, result.data);
+});
+
+/**
+ * POST /api/v1/organizers/hackathons/:id/start
+ * Start a hackathon (registration_closed → in_progress)
+ */
+router.post("/:id/start", async (req: any, res) => {
+  const idSchema = z.string().uuid();
+  const parsed = idSchema.safeParse(req.params.id);
+  if (!parsed.success) {
+    return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
+  }
+
+  const result = await OrganizerHackathonService.updateStatus(
+    req.user.id,
+    parsed.data,
+    "in_progress",
+  );
+
+  if ("error" in result) {
+    const statusMap: Record<string, number> = {
+      NOT_OWNER: 403,
+      HACKATHON_NOT_FOUND: 404,
+      INVALID_TRANSITION: 400,
+    };
+    return ResponseHandler.error(
+      res,
+      result.error as string,
+      (result as any).message || result.error,
+      statusMap[result.error as string] ?? 400,
+    );
+  }
+
+  return ResponseHandler.success(res, result.data);
+});
+
+/**
+ * POST /api/v1/organizers/hackathons/:id/complete
+ * Complete a hackathon (in_progress → completed)
+ */
+router.post("/:id/complete", async (req: any, res) => {
+  const idSchema = z.string().uuid();
+  const parsed = idSchema.safeParse(req.params.id);
+  if (!parsed.success) {
+    return ResponseHandler.error(res, "VALIDATION_ERROR", "Invalid hackathon ID", 400);
+  }
+
+  const result = await OrganizerHackathonService.updateStatus(
+    req.user.id,
+    parsed.data,
+    "completed",
+  );
+
+  if ("error" in result) {
+    const statusMap: Record<string, number> = {
+      NOT_OWNER: 403,
+      HACKATHON_NOT_FOUND: 404,
+      INVALID_TRANSITION: 400,
     };
     return ResponseHandler.error(
       res,
