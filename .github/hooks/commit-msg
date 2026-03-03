@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# commit-msg hook — enforces Conventional Commits format
+# Activate: git config core.hooksPath .github/hooks
+#           (or run the VS Code task "Git: Enable custom hooks")
+
+MSG_FILE="$1"
+COMMIT_MSG=$(cat "$MSG_FILE")
+
+# Skip merge commits, fixup/squash, and WIP commits
+if echo "$COMMIT_MSG" | grep -qE '^(Merge|Revert|fixup!|squash!|WIP)'; then
+  exit 0
+fi
+
+# ── Allowed types ─────────────────────────────────────────────────────────────
+TYPES="feat|fix|chore|docs|test|refactor|perf|ci|style|build"
+
+# ── Allowed scopes ────────────────────────────────────────────────────────────
+# Must match the scopes listed in COMMIT_CONVENTIONS.md
+SCOPES="student|organizer|sponsor|gateway|ai-engine|shared|docker|db|docs|ci|landing|auth|matching|teams|hackathons|skills|ui|types|utils"
+
+# ── Pattern ───────────────────────────────────────────────────────────────────
+# Valid:   feat(gateway): add matching route
+# Valid:   fix(student): correct skill remove URL
+# Valid:   chore: update dependencies          ← scope is optional
+# Valid:   feat!: breaking change              ← breaking change marker
+PATTERN="^($TYPES)(\(($SCOPES)\))?(!)?: .{1,100}$"
+
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  echo ""
+  echo "❌  Invalid commit message format."
+  echo ""
+  echo "    Expected: <type>(<scope>): <description>"
+  echo "    Example:  feat(gateway): add CSV export endpoint"
+  echo ""
+  echo "    Allowed types : $TYPES"
+  echo "    Allowed scopes: $SCOPES"
+  echo ""
+  echo "    Your message  : $COMMIT_MSG"
+  echo ""
+  exit 1
+fi
+
+# ── Subject line length ───────────────────────────────────────────────────────
+SUBJECT=$(echo "$COMMIT_MSG" | head -1)
+if [ ${#SUBJECT} -gt 100 ]; then
+  echo ""
+  echo "❌  Commit subject too long (${#SUBJECT} chars). Max is 100."
+  echo ""
+  exit 1
+fi
+
+exit 0

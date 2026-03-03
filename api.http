@@ -1,0 +1,290 @@
+### TAkathon API — REST Client (VS Code humao.rest-client)
+### Install: humao.rest-client extension
+### Usage: click "Send Request" above any request block
+### Auth: cookies are sent automatically by rest-client via the @cookie variable below
+
+@gateway = http://localhost:8000
+@api = {{gateway}}/api/v1
+
+# ─── After login, paste the Set-Cookie value here for subsequent requests ──────
+# rest-client auto-stores cookies when you use "Send Request" on the login call.
+# Variables below are used as template values in request bodies.
+@studentEmail = alice.student@university.edu
+@organizerEmail = emma.organizer@company.com
+@sponsorEmail = grace.sponsor@corp.com
+@password = password123
+
+
+###
+# @name health
+GET {{gateway}}/api/v1/health
+
+
+# ════════════════════════════════════════════════════════════
+# AUTH
+# ════════════════════════════════════════════════════════════
+
+###
+# @name loginStudent
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{studentEmail}}",
+  "password": "{{password}}"
+}
+
+###
+# @name loginOrganizer
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{organizerEmail}}",
+  "password": "{{password}}"
+}
+
+###
+# @name loginSponsor
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{sponsorEmail}}",
+  "password": "{{password}}"
+}
+
+###
+# @name me
+GET {{api}}/auth/me
+
+###
+# @name refresh
+POST {{api}}/auth/refresh
+
+###
+# @name logout
+POST {{api}}/auth/logout
+
+
+# ════════════════════════════════════════════════════════════
+# PUBLIC
+# ════════════════════════════════════════════════════════════
+
+###
+# @name publicHackathons
+GET {{api}}/hackathons
+
+###
+# @name skills
+GET {{api}}/skills
+
+
+# ════════════════════════════════════════════════════════════
+# STUDENT — Profile & Skills
+# ════════════════════════════════════════════════════════════
+
+###
+GET {{api}}/students/profile
+
+###
+PUT {{api}}/students/profile
+Content-Type: application/json
+
+{
+  "bio": "Full-stack dev, open to React + Node projects",
+  "university": "MIT",
+  "graduationYear": 2026,
+  "availability": {
+    "timezone": "UTC+1",
+    "hoursPerWeek": 20,
+    "preferredSlots": ["weekday_evening", "weekend_morning"]
+  }
+}
+
+###
+# Add a skill — replace skillId with a real UUID from GET /api/v1/skills
+POST {{api}}/students/skills
+Content-Type: application/json
+
+{
+  "skillId": "REPLACE_WITH_REAL_SKILL_UUID",
+  "proficiency": "INTERMEDIATE"
+}
+
+###
+# Remove a skill — replace :id with the userSkill id from profile
+DELETE {{api}}/students/skills/REPLACE_WITH_USER_SKILL_ID
+
+
+# ════════════════════════════════════════════════════════════
+# STUDENT — Hackathons
+# ════════════════════════════════════════════════════════════
+
+###
+GET {{api}}/students/hackathons
+
+###
+# Register — replace :id
+POST {{api}}/students/hackathons/REPLACE_HACKATHON_ID/register
+
+###
+# Withdraw
+DELETE {{api}}/students/hackathons/REPLACE_HACKATHON_ID/withdraw
+
+
+# ════════════════════════════════════════════════════════════
+# STUDENT — Teams
+# ════════════════════════════════════════════════════════════
+
+###
+# List my teams (returns nested shape — flatten on frontend)
+GET {{api}}/students/teams
+
+###
+# Create team
+POST {{api}}/students/teams
+Content-Type: application/json
+
+{
+  "name": "Test Team Alpha",
+  "hackathonId": "REPLACE_HACKATHON_ID",
+  "description": "Demo team for testing",
+  "maxSize": 4
+}
+
+###
+# Invite a user to the team
+POST {{api}}/students/teams/REPLACE_TEAM_ID/invite
+Content-Type: application/json
+
+{
+  "userId": "REPLACE_USER_ID"
+}
+
+###
+# Leave a team (non-captain)
+DELETE {{api}}/students/teams/REPLACE_TEAM_ID/leave
+
+###
+# Disband team (captain only, status must be 'forming')
+DELETE {{api}}/students/teams/REPLACE_TEAM_ID
+
+
+# ════════════════════════════════════════════════════════════
+# STUDENT — AI Matching
+# NOTE: route is /students/matching/, NOT /students/teams/
+# ════════════════════════════════════════════════════════════
+
+###
+GET {{api}}/students/matching/REPLACE_TEAM_ID/matches?limit=10
+
+###
+# Invite a matched user
+POST {{api}}/students/matching/REPLACE_TEAM_ID/matches/REPLACE_USER_ID
+
+
+# ════════════════════════════════════════════════════════════
+# ORGANIZER — Hackathons
+# ════════════════════════════════════════════════════════════
+
+###
+GET {{api}}/organizers/hackathons
+
+###
+POST {{api}}/organizers/hackathons
+Content-Type: application/json
+
+{
+  "title": "Test Hackathon 2026",
+  "description": "A great hackathon",
+  "maxParticipants": 100,
+  "maxTeamSize": 4,
+  "registrationDeadline": "2026-04-01T00:00:00Z",
+  "startDate": "2026-04-10T09:00:00Z",
+  "endDate": "2026-04-12T18:00:00Z"
+}
+
+###
+# Lifecycle transitions
+POST {{api}}/organizers/hackathons/REPLACE_HACKATHON_ID/publish
+###
+POST {{api}}/organizers/hackathons/REPLACE_HACKATHON_ID/start
+###
+POST {{api}}/organizers/hackathons/REPLACE_HACKATHON_ID/complete
+###
+POST {{api}}/organizers/hackathons/REPLACE_HACKATHON_ID/cancel
+
+###
+GET {{api}}/organizers/hackathons/REPLACE_HACKATHON_ID/participants
+
+###
+# CSV export
+GET {{api}}/organizers/hackathons/REPLACE_HACKATHON_ID/export
+
+
+# ════════════════════════════════════════════════════════════
+# SPONSOR
+# ════════════════════════════════════════════════════════════
+
+###
+GET {{api}}/sponsors/profile
+
+###
+GET {{api}}/sponsors/hackathons
+
+###
+POST {{api}}/sponsors/hackathons/REPLACE_HACKATHON_ID/sponsor
+Content-Type: application/json
+
+{
+  "amount": 5000,
+  "tier": "gold"
+}
+
+###
+GET {{api}}/sponsors/hackathons/REPLACE_HACKATHON_ID/teams
+
+###
+GET {{api}}/sponsors/teams/REPLACE_TEAM_ID/details
+
+
+# ════════════════════════════════════════════════════════════
+# AI ENGINE (direct — bypass gateway)
+# ════════════════════════════════════════════════════════════
+
+###
+GET http://localhost:8001/api/v1/health
+
+###
+POST http://localhost:8001/api/v1/matching/recommend
+Content-Type: application/json
+
+{
+  "teamId": "test-team-1",
+  "teamSkills": [
+    { "skillName": "React", "proficiencyLevel": "advanced" },
+    { "skillName": "Node.js", "proficiencyLevel": "intermediate" }
+  ],
+  "teamAvailability": [
+    { "timezone": "UTC+1", "hoursPerWeek": 20, "preferredSlots": ["weekday_evening"] }
+  ],
+  "openSpots": 2,
+  "candidates": [
+    {
+      "userId": "candidate-1",
+      "username": "bob",
+      "fullName": "Bob Jones",
+      "skills": [
+        { "skillName": "Python", "proficiencyLevel": "expert" },
+        { "skillName": "Docker", "proficiencyLevel": "advanced" }
+      ],
+      "availability": {
+        "timezone": "UTC+1",
+        "hoursPerWeek": 25,
+        "preferredSlots": ["weekday_evening", "weekend_morning"]
+      }
+    }
+  ],
+  "limit": 5
+}

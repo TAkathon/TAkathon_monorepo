@@ -1,0 +1,201 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ─── Database ────────────────────────────────────────────────────────────
+    {
+      "label": "DB: Start",
+      "type": "shell",
+      "command": "npm run db:start",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Seed",
+      "type": "shell",
+      "command": "npm run db:seed",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Reset + Seed",
+      "type": "shell",
+      "command": "npm run db:reset ; npm run db:generate ; npm run db:seed",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Studio (GUI)",
+      "type": "shell",
+      "command": "npm run db:studio",
+      "isBackground": true,
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Generate Prisma Client",
+      "type": "shell",
+      "command": "npm run db:generate",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+
+    // ─── Docker — full stack ──────────────────────────────────────────────────
+    {
+      "label": "Docker: Up (all services)",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Down",
+      "type": "shell",
+      "command": "docker compose down",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Logs (follow)",
+      "type": "shell",
+      "command": "docker compose logs -f",
+      "isBackground": true,
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+
+    // ─── Docker — targeted rebuilds (always --no-cache) ──────────────────────
+    {
+      "label": "Docker: Rebuild core-gateway",
+      "type": "shell",
+      "command": "docker compose build --no-cache core-gateway ; docker compose up -d core-gateway",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Rebuild student-portal",
+      "type": "shell",
+      "command": "docker compose build --no-cache student-portal ; docker compose up -d student-portal",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Rebuild organizer-dashboard",
+      "type": "shell",
+      "command": "docker compose build --no-cache organizer-dashboard ; docker compose up -d organizer-dashboard",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Rebuild sponsor-panel",
+      "type": "shell",
+      "command": "docker compose build --no-cache sponsor-panel ; docker compose up -d sponsor-panel",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Rebuild ai-engine",
+      "type": "shell",
+      "command": "docker compose build --no-cache ai-engine ; docker compose up -d ai-engine",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Rebuild ALL --no-cache",
+      "type": "shell",
+      "command": "docker compose build --no-cache ; docker compose up -d",
+      "group": "build",
+      "isBackground": false,
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+
+    // ─── Local dev (non-Docker) ───────────────────────────────────────────────
+    {
+      "label": "Dev: core-gateway (ts-node)",
+      "type": "shell",
+      "command": "npx nx run core-gateway:dev",
+      "isBackground": true,
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": [
+        {
+          "pattern": [{ "regexp": "." }],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "Listening on port"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Dev: student-portal",
+      "type": "shell",
+      "command": "npx nx serve student-portal",
+      "isBackground": true,
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": [
+        {
+          "pattern": [{ "regexp": "." }],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "Ready in"
+          }
+        }
+      ]
+    },
+
+    // ─── Tests ────────────────────────────────────────────────────────────────
+    {
+      "label": "Test: core-gateway (all)",
+      "type": "shell",
+      "command": "npx nx run core-gateway:test",
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: ai-engine (pytest)",
+      "type": "shell",
+      "command": "cd apps/ai-engine ; python -m pytest tests/ -v",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+
+    // ─── Type checks ──────────────────────────────────────────────────────────
+    {
+      "label": "TypeCheck: all apps",
+      "type": "shell",
+      "command": "npx tsc -p apps/core-gateway/tsconfig.json --noEmit ; npx tsc -p apps/student-portal/tsconfig.json --noEmit ; npx tsc -p apps/organizer-dashboard/tsconfig.json --noEmit ; npx tsc -p apps/sponsor-panel/tsconfig.json --noEmit",
+      "group": { "kind": "build", "isDefault": false },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$tsc"]
+    },
+
+    // ─── Git hooks setup (run once per machine) ───────────────────────────────
+    {
+      "label": "Git: Enable custom hooks (.github/hooks)",
+      "type": "shell",
+      "command": "git config core.hooksPath .github/hooks ; git update-index --chmod=+x .github/hooks/commit-msg",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    }
+  ]
+}

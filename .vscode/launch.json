@@ -1,0 +1,113 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ─── Core Gateway ─────────────────────────────────────────────────────────
+    {
+      "name": "Debug: core-gateway",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "ts-node",
+        "-r",
+        "tsconfig-paths/register",
+        "--transpile-only",
+        "src/index.ts"
+      ],
+      "cwd": "${workspaceFolder}/apps/core-gateway",
+      "env": {
+        "NODE_ENV": "development",
+        "DATABASE_URL": "postgresql://postgres:postgrespassword@localhost:5432/takathon?schema=public",
+        "JWT_ACCESS_SECRET": "dev-access-secret-change-in-production-min32chars",
+        "JWT_REFRESH_SECRET": "dev-refresh-secret-change-in-production-min32chars",
+        "PORT": "8000",
+        "AI_ENGINE_URL": "http://localhost:8001"
+      },
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/apps/core-gateway/dist/**/*.js"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+
+    // ─── Core Gateway Tests ───────────────────────────────────────────────────
+    {
+      "name": "Debug: auth.spec.ts",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "ts-node",
+        "--project",
+        "${workspaceFolder}/apps/core-gateway/tsconfig.test.json",
+        "-r",
+        "tsconfig-paths/register"
+      ],
+      "args": ["${workspaceFolder}/apps/core-gateway/test/auth.spec.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "test",
+        "DATABASE_URL": "postgresql://postgres:postgrespassword@localhost:5432/takathon?schema=public",
+        "JWT_ACCESS_SECRET": "test-access-secret-min-32-characters-ok",
+        "JWT_REFRESH_SECRET": "test-refresh-secret-min-32-characters-ok"
+      },
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+
+    // ─── AI Engine (Python) ───────────────────────────────────────────────────
+    {
+      "name": "Debug: ai-engine (uvicorn)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--reload", "--port", "8001"],
+      "cwd": "${workspaceFolder}/apps/ai-engine",
+      "env": { "PYTHONPATH": "${workspaceFolder}/apps/ai-engine" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug: ai-engine pytest",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/", "-v", "-s"],
+      "cwd": "${workspaceFolder}/apps/ai-engine",
+      "env": { "PYTHONPATH": "${workspaceFolder}/apps/ai-engine" },
+      "console": "integratedTerminal"
+    },
+
+    // ─── Next.js Apps ─────────────────────────────────────────────────────────
+    {
+      "name": "Debug: student-portal (Next.js)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "--port", "3001"],
+      "cwd": "${workspaceFolder}/apps/student-portal",
+      "env": {
+        "NODE_ENV": "development",
+        "NEXT_PUBLIC_GATEWAY_URL": "http://localhost:8000"
+      },
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "ready - started server on .+, url: (https?://.+)",
+        "uriFormat": "%s"
+      }
+    }
+  ],
+
+  "compounds": [
+    {
+      "name": "Full Stack (gateway + student-portal)",
+      "configurations": [
+        "Debug: core-gateway",
+        "Debug: student-portal (Next.js)"
+      ],
+      "stopAll": true
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "file": ".github/copilot-instructions.md"
+    },
+    {
+      "file": "docs/REPO_STATE.md"
+    },
+    {
+      "file": "docs/architecture.md"
+    },
+    {
+      "file": "docs/api-specification.md"
+    },
+    {
+      "file": "docs/FRONTEND_PATTERNS.md"
+    },
+    {
+      "file": "docs/NAMING_CONVENTIONS.md"
+    },
+    {
+      "file": "docs/ENVIRONMENT_VARIABLES.md"
+    },
+    {
+      "text": "CRITICAL RULES — read before every code generation:\n\n1. JWT tokens are httpOnly cookies ONLY. Never use Authorization: Bearer headers in runtime code, docs, or tests. Access token = req.cookies.accessToken. Axios client uses withCredentials: true.\n\n2. AI matching mount point is /api/v1/students/matching (NOT /students/teams). Correct URLs:\n   GET  /api/v1/students/matching/:teamId/matches\n   POST /api/v1/students/matching/:teamId/matches/:userId\n\n3. Student skills endpoints:\n   POST   /api/v1/students/skills\n   DELETE /api/v1/students/skills/:id\n   GET    /api/v1/skills (public, shared router)\n\n4. getMyTeams() returns { role, joinedAt, team: {...} }[] (nested). Always flatten:\n   rawTeams.map(m => ({ ...(m.team ?? m), myRole: m.role ?? m.myRole, members: (m.team?.members ?? m.members) || [] }))\n\n5. Server profile skills shape is { id, skillId, skillName, category, proficiencyLevel, yearsOfExperience } — there is NO nested skill: { name } object. Access name as s.skillName.\n\n6. After profile save, always re-call getMyProfile() to re-sync local state from DB.\n\n7. DashboardLayout must NOT redirect to /login — only middleware.ts does that. On mount, call GET /auth/me to hydrate Zustand.\n\n8. Login page must verify /api/v1/auth/me before trusting isAuthenticated from Zustand. Clear store on 4xx.\n\n9. Tailwind opacity must be multiples of 5 (bg-white/10, not bg-white/8). Add eslint-plugin-tailwindcss to lint.\n\n10. select option dark theme must be applied via globals.css (browser ignores Tailwind classes on <option>):\n    select option { background-color: #1A0A00; color: #fff; }\n\n11. Docker: always run 'docker compose build --no-cache <service>' after source changes. Never rely on cached layers.\n\n12. Express entry point is apps/core-gateway/src/index.ts — NOT src/main.ts (that is an empty NestJS scaffold).\n\n13. Prisma 7 adapter pattern:\n    import { PrismaPg } from '@prisma/adapter-pg'; import { Pool } from 'pg';\n    const pool = new Pool({ connectionString: process.env.DATABASE_URL });\n    const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });\n\n14. AI matching basicScoring fallback must return MatchResult shape:\n    { suggestions: [{ candidateId, username, fullName, score (0-1), scoreBreakdown: { skill, experience, availability }, explanation, skills, complementarySkills }], totalCandidates: N }"
+    }
+  ],
+  "github.copilot.chat.testGeneration.instructions": [
+    {
+      "file": ".github/copilot-instructions.md"
+    },
+    {
+      "text": "Tests use Jest + Supertest for core-gateway, pytest for ai-engine. Auth tests must use cookies (not Authorization header). Set-Cookie header in responses; pass Cookie header in requests. Test credentials: alice.student@university.edu / password123."
+    }
+  ],
+  // ── Prompt files (.github/prompts/*.prompt.md) ──────────────────────────
+  "chat.promptFiles": true,
+  "chat.promptFilesLocations": {
+    ".github/prompts": true
+  },
+
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/__pycache__": true,
+    "**/.venv": true
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.tsbuildinfo": true
+  }
+}

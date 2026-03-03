@@ -1,0 +1,41 @@
+{
+  "recommendations": [
+    // --- Core DX ---
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+
+    // --- TypeScript / Node ---
+    "ms-vscode.vscode-typescript-next",
+    "nrwl.angular-console", // Nx Console — run nx targets from the sidebar
+
+    // --- Frontend ---
+    "bradlc.vscode-tailwindcss", // Tailwind IntelliSense
+    "formulahendry.auto-rename-tag",
+    "steoates.autoimport",
+
+    // --- Database / Prisma ---
+    "Prisma.prisma", // Schema syntax, format, autocomplete
+
+    // --- Python / AI Engine ---
+    "ms-python.python",
+    "ms-python.pylance",
+    "ms-python.debugpy",
+    "charliermarsh.ruff", // Fast Python linter (replaces flake8/isort)
+
+    // --- Docker ---
+    "ms-azuretools.vscode-docker", // Compose file IntelliSense + container explorer
+
+    // --- API Testing ---
+    "humao.rest-client", // Run .http files directly in VS Code
+
+    // --- Markdown ---
+    "yzhang.markdown-all-in-one",
+
+    // --- Utility ---
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens" // Inline error display
+  ]
+}
