@@ -69,12 +69,10 @@ export default function DashboardLayout({
                 <div className="flex flex-col h-full">
                     {/* Logo */}
                     <div className="flex flex-col gap-2 px-6 py-6 border-b border-white/5">
-                        <Link href="/" className="flex items-center gap-1 group">
-                            <span className="text-2xl font-black text-primary tracking-tighter transition-all duration-300">
-                                TAKA
-                            </span>
-                            <span className="text-2xl font-black text-white tracking-tighter">
-                                THON
+                        <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+                            <img src="/logotakathon.png" alt="Takathon Logo" className="h-8 w-auto group-hover:opacity-80 transition-opacity" />
+                            <span className="text-2xl font-black tracking-tighter text-white group-hover:text-primary transition-colors">
+                                TAKATHON
                             </span>
                         </Link>
                         <div className="flex items-center gap-2 px-1">
@@ -114,8 +112,8 @@ export default function DashboardLayout({
                     {/* User section */}
                     <div className="p-4 border-t border-white/5">
                         <Link href="/dashboard/profile" className="flex items-center gap-3 px-3 py-3 mb-3 hover:bg-white/5 rounded-sm transition-all group cursor-pointer border border-transparent hover:border-white/10">
-                            <div className="w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-black text-sm group-hover:bg-primary/20 group-hover:border-primary/50 transition-all rounded-sm shadow-glow-sm">
-                                {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'OP'}
+                            <div className="w-10 h-10 bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center rounded-sm shadow-glow-sm group-hover:border-primary/50 group-hover:bg-primary/10 transition-all">
+                                <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.fullName || 'OP'}&backgroundColor=transparent`} alt="Avatar" className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1">
                                 <div className="text-xs font-bold text-white uppercase tracking-widest truncate">{user?.fullName || 'OPERATIVE'}</div>
@@ -146,9 +144,11 @@ export default function DashboardLayout({
                     <aside className="absolute inset-y-0 left-0 w-64 bg-[#0a0a0a] border-r border-white/5">
                         <div className="flex flex-col h-full">
                             <div className="flex items-center justify-between px-6 py-6 border-b border-white/5">
-                                <Link href="/" className="flex items-center gap-1">
-                                    <span className="text-2xl font-black text-primary tracking-tighter">TAKA</span>
-                                    <span className="text-2xl font-black text-white tracking-tighter">THON</span>
+                                <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+                                    <img src="/logotakathon.png" alt="Takathon Logo" className="h-8 w-auto group-hover:opacity-80 transition-opacity" />
+                                    <span className="text-2xl font-black tracking-tighter text-white group-hover:text-primary transition-colors">
+                                        TAKATHON
+                                    </span>
                                 </Link>
                                 <button onClick={() => setSidebarOpen(false)} className="text-white/50 hover:text-white">
                                     <X className="w-5 h-5" />
@@ -176,8 +176,8 @@ export default function DashboardLayout({
                             </nav>
                             <div className="p-4 border-t border-white/5">
                                 <Link href="/dashboard/profile" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-3 mb-3 hover:bg-white/5 rounded-sm transition-all group cursor-pointer border border-transparent hover:border-white/10">
-                                    <div className="w-10 h-10 bg-primary/10 border border-primary/30 flex items-center justify-center text-primary font-black text-sm group-hover:bg-primary/20 group-hover:border-primary/50 transition-all rounded-sm shadow-glow-sm">
-                                        {user?.fullName?.split(' ').map((n: string) => n[0]).join('') || 'OP'}
+                                    <div className="w-10 h-10 bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center rounded-sm shadow-glow-sm group-hover:border-primary/50 group-hover:bg-primary/10 transition-all">
+                                        <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.fullName || 'OP'}&backgroundColor=transparent`} alt="Avatar" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1">
                                         <div className="text-xs font-bold text-white uppercase tracking-widest truncate">{user?.fullName || 'OPERATIVE'}</div>
@@ -209,6 +209,7 @@ export default function DashboardLayout({
 
                             {/* Logo for mobile - same style as landing page */}
                             <Link href="/" className="flex lg:hidden items-center gap-2 group cursor-pointer">
+                                <img src="/logotakathon.png" alt="Takathon Logo" className="h-6 w-auto group-hover:opacity-80 transition-opacity" />
                                 <span className="text-xl font-black tracking-tighter text-white group-hover:text-primary transition-colors">
                                     TAKATHON
                                 </span>

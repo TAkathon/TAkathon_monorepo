@@ -10,6 +10,7 @@ export default function Navbar() {
         <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-8 py-5 bg-gradient-to-b from-black/90 to-transparent">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+                <img src="/logotakathon.png" alt="Takathon Logo" className="h-8 w-auto group-hover:opacity-80 transition-opacity" />
                 <span className="text-2xl font-black tracking-tighter text-white group-hover:text-primary transition-colors">
                     TAKATHON
                 </span>
