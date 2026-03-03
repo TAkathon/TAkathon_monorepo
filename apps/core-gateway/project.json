@@ -40,7 +40,7 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx ts-node -r tsconfig-paths/register apps/core-gateway/test/token.spec.ts && npx ts-node -r tsconfig-paths/register apps/core-gateway/test/auth.spec.ts"
+        "command": "npx ts-node --project apps/core-gateway/tsconfig.test.json -r tsconfig-paths/register apps/core-gateway/test/token.spec.ts && npx ts-node --project apps/core-gateway/tsconfig.test.json -r tsconfig-paths/register apps/core-gateway/test/auth.spec.ts"
       }
     }
   },
