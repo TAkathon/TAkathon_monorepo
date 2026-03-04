@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import OrganizerLayout from "@/components/OrganizerLayout";
+import DashboardLayout from "@/components/DashboardLayout";
 import {
     Trophy,
     Medal,
@@ -68,7 +68,7 @@ export default function LeaderboardPage() {
     const stats = activeTab === "players" ? playerStats : orgStats;
 
     return (
-        <OrganizerLayout>
+        <DashboardLayout>
             <div className="max-w-6xl mx-auto space-y-8 pb-12">
                 {/* Background Floating Objects */}
                 <div className="absolute top-20 right-10 w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none"></div>
@@ -245,6 +245,6 @@ export default function LeaderboardPage() {
                     </div>
                 </div>
             </div>
-        </OrganizerLayout>
+        </DashboardLayout>
     );
 }

@@ -15,6 +15,7 @@ import {
     Bell,
     Search,
     Menu,
+    Trophy,
     X,
 } from "lucide-react";
 
@@ -22,6 +23,7 @@ const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Hackathons", href: "/dashboard/hackathons", icon: Calendar },
     { name: "My Teams", href: "/dashboard/teams", icon: Users },
+    { name: "Leaderboard", href: "/dashboard/leaderboard", icon: Trophy },
     { name: "Profile", href: "/dashboard/profile", icon: User },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
