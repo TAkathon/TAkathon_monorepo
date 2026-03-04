@@ -70,7 +70,7 @@ export interface ParticipantDetail {
 /** List all hackathons created by the authenticated organizer */
 export async function listMyHackathons(): Promise<OrganizerHackathonSummary[]> {
   const res = await api.get<ApiResponse<OrganizerHackathonSummary[]>>(
-    "/api/v1/organizers/hackathons"
+    "/api/v1/organizers/hackathons",
   );
   return res.data.data ?? [];
 }
@@ -78,18 +78,18 @@ export async function listMyHackathons(): Promise<OrganizerHackathonSummary[]> {
 /** Get full hackathon details (organizer view) */
 export async function getMyHackathon(id: string): Promise<Hackathon> {
   const res = await api.get<ApiResponse<Hackathon>>(
-    `/api/v1/organizers/hackathons/${id}`
+    `/api/v1/organizers/hackathons/${id}`,
   );
   return res.data.data!;
 }
 
 /** Create a new hackathon */
 export async function createHackathon(
-  data: CreateHackathonInput
+  data: CreateHackathonInput,
 ): Promise<Hackathon> {
   const res = await api.post<ApiResponse<Hackathon>>(
     "/api/v1/organizers/hackathons",
-    data
+    data,
   );
   return res.data.data!;
 }
@@ -97,11 +97,11 @@ export async function createHackathon(
 /** Update an existing hackathon (must still be in a mutable state) */
 export async function updateHackathon(
   id: string,
-  data: UpdateHackathonInput
+  data: UpdateHackathonInput,
 ): Promise<Hackathon> {
   const res = await api.patch<ApiResponse<Hackathon>>(
     `/api/v1/organizers/hackathons/${id}`,
-    data
+    data,
   );
   return res.data.data!;
 }
@@ -109,7 +109,7 @@ export async function updateHackathon(
 /** Publish a hackathon — transitions status from draft → registration_open */
 export async function publishHackathon(id: string): Promise<Hackathon> {
   const res = await api.post<ApiResponse<Hackathon>>(
-    `/api/v1/organizers/hackathons/${id}/publish`
+    `/api/v1/organizers/hackathons/${id}/publish`,
   );
   return res.data.data!;
 }
@@ -117,7 +117,7 @@ export async function publishHackathon(id: string): Promise<Hackathon> {
 /** Start a hackathon — transitions status to in_progress */
 export async function startHackathon(id: string): Promise<Hackathon> {
   const res = await api.post<ApiResponse<Hackathon>>(
-    `/api/v1/organizers/hackathons/${id}/start`
+    `/api/v1/organizers/hackathons/${id}/start`,
   );
   return res.data.data!;
 }
@@ -125,7 +125,7 @@ export async function startHackathon(id: string): Promise<Hackathon> {
 /** Complete a hackathon — transitions status to completed */
 export async function completeHackathon(id: string): Promise<Hackathon> {
   const res = await api.post<ApiResponse<Hackathon>>(
-    `/api/v1/organizers/hackathons/${id}/complete`
+    `/api/v1/organizers/hackathons/${id}/complete`,
   );
   return res.data.data!;
 }
@@ -133,17 +133,104 @@ export async function completeHackathon(id: string): Promise<Hackathon> {
 /** Cancel a hackathon */
 export async function cancelHackathon(id: string): Promise<Hackathon> {
   const res = await api.post<ApiResponse<Hackathon>>(
-    `/api/v1/organizers/hackathons/${id}/cancel`
+    `/api/v1/organizers/hackathons/${id}/cancel`,
   );
   return res.data.data!;
 }
 
 /** Get the full participant list for a hackathon */
 export async function getParticipants(
-  hackathonId: string
+  hackathonId: string,
 ): Promise<ParticipantDetail[]> {
   const res = await api.get<ApiResponse<ParticipantDetail[]>>(
-    `/api/v1/organizers/hackathons/${hackathonId}/participants`
+    `/api/v1/organizers/hackathons/${hackathonId}/participants`,
   );
   return res.data.data ?? [];
+}
+
+/** Get teams for a hackathon */
+export async function getTeams(hackathonId: string): Promise<any[]> {
+  const res = await api.get<ApiResponse<any[]>>(
+    `/api/v1/organizers/hackathons/${hackathonId}/teams`,
+  );
+  return res.data.data ?? [];
+}
+
+/** Get analytics for a hackathon */
+export async function getAnalytics(hackathonId: string): Promise<any> {
+  const res = await api.get<ApiResponse<any>>(
+    `/api/v1/organizers/hackathons/${hackathonId}/analytics`,
+  );
+  return res.data.data;
+}
+
+// ─── Profile & Settings ──────────────────────────────────────────────────────
+
+export interface OrganizerProfile {
+  id: string;
+  fullName: string;
+  email: string;
+  bio?: string;
+  avatarUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  organization?: string;
+  organizationWebsite?: string;
+  organizationName?: string;
+  position?: string;
+}
+
+export interface UpdateOrganizerProfileInput {
+  fullName?: string;
+  bio?: string;
+  avatarUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  organization?: string;
+  organizationWebsite?: string;
+  organizationName?: string;
+  position?: string;
+}
+
+/** Get the authenticated organizer's profile */
+export async function getProfile(): Promise<OrganizerProfile> {
+  const res = await api.get<ApiResponse<OrganizerProfile>>(
+    "/api/v1/organizers/profile",
+  );
+  return res.data.data!;
+}
+
+/** Update the authenticated organizer's profile */
+export async function updateProfile(
+  data: UpdateOrganizerProfileInput,
+): Promise<OrganizerProfile> {
+  const res = await api.put<ApiResponse<OrganizerProfile>>(
+    "/api/v1/organizers/profile",
+    data,
+  );
+  return res.data.data!;
+}
+
+/** Change organizer password */
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  await api.post("/api/v1/organizers/settings/change-password", {
+    currentPassword,
+    newPassword,
+  });
+}
+
+/** Delete organizer account (requires password + "DELETE" confirmation) */
+export async function deleteAccount(
+  password: string,
+  confirmText: string,
+): Promise<void> {
+  await api.post("/api/v1/organizers/settings/delete-account", {
+    password,
+    confirmText,
+  });
 }

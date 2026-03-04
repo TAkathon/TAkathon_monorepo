@@ -9,6 +9,7 @@ export * as teamApi from "./team";
 export * as invitationApi from "./invitation";
 export * as matchingApi from "./matching";
 export * as sponsorApi from "./sponsor";
+export * as notificationApi from "./notifications";
 
 // Re-export matching types for convenience
 export type { MatchSuggestion, MatchResult, ScoreBreakdown } from "./matching";
@@ -20,6 +21,9 @@ export type {
   StudentHackathonSummary,
 } from "./student";
 
+// Re-export hackathon types
+export type { Skill } from "./hackathon";
+
 // Re-export organizer types
 export type { OrganizerHackathonSummary } from "./organizer";
 
@@ -28,4 +32,12 @@ export type {
   SponsorHackathonItem,
   SponsorshipSummary,
   SponsorshipTier,
+  HackathonOverview,
 } from "./sponsor";
+
+// Re-export notification types
+export type {
+  Notification,
+  PaginatedNotifications,
+  UnreadCount,
+} from "./notifications";

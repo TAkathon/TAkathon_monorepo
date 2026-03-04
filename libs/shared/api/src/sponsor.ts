@@ -40,12 +40,54 @@ export interface SponsorshipSummary {
   status: string;
   tier: SponsorshipTier;
   amount: number;
+  createdAt?: string;
   hackathon?: {
     id: string;
     title: string;
+    status?: string;
     startDate?: string | null;
     endDate?: string | null;
+    organizer?: { id: string; fullName: string; organization?: string };
+    _count?: { participants?: number; teams?: number };
   };
+}
+
+export interface HackathonOverview {
+  hackathon: {
+    id: string;
+    title: string;
+    status: string;
+    startDate: string | null;
+    endDate: string | null;
+    location: string | null;
+    isVirtual: boolean;
+    organizer: {
+      id: string;
+      fullName: string;
+      organization?: string;
+      avatarUrl?: string;
+      email?: string;
+    };
+  };
+  mySponsorship: {
+    id: string;
+    tier: SponsorshipTier;
+    amount: number;
+    status: string;
+    createdAt: string;
+  };
+  stats: {
+    totalParticipants: number;
+    totalTeams: number;
+    topSkills: { name: string; count: number }[];
+  };
+  leaderboard: {
+    rank: number;
+    teamName: string;
+    projectIdea: string | null;
+    memberCount: number;
+  }[];
+  universityBreakdown: { university: string; count: number }[];
 }
 
 export async function listSponsorHackathons(): Promise<SponsorHackathonItem[]> {
@@ -88,4 +130,46 @@ export async function cancelSponsorship(
     `/api/v1/sponsors/hackathons/sponsorships/${sponsorshipId}/cancel`,
   );
   return response.data.data as SponsorshipSummary;
+}
+
+export async function getHackathonOverview(
+  hackathonId: string,
+): Promise<HackathonOverview> {
+  const response = await api.get<ApiResponse<HackathonOverview>>(
+    `/api/v1/sponsors/hackathons/${hackathonId}/overview`,
+  );
+  return response.data.data as HackathonOverview;
+}
+
+export async function listMySponsorshipsDetailed(params?: {
+  status?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{
+  sponsorships: SponsorshipSummary[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}> {
+  const query = new URLSearchParams();
+  if (params?.status) query.set("status", params.status);
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.limit) query.set("limit", String(params.limit));
+  const response = await api.get<ApiResponse<any>>(
+    `/api/v1/sponsors/hackathons/sponsorships?${query.toString()}`,
+  );
+  const data = response.data?.data;
+  return {
+    sponsorships: (data?.sponsorships ??
+      (Array.isArray(data) ? data : [])) as SponsorshipSummary[],
+    pagination: data?.pagination ?? {
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 0,
+    },
+  };
 }

@@ -28,15 +28,15 @@ export interface StudentProfile {
   fullName: string;
   username: string;
   bio?: string;
+  avatarUrl?: string;
   githubUrl?: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
-  studentProfile?: {
-    university?: string;
-    degree?: string;
-    graduationYear?: number;
-    resumeUrl?: string;
-  };
+  /** Top-level — returned directly by gateway getProfile(), NOT nested */
+  university?: string | null;
+  degree?: string | null;
+  graduationYear?: number | null;
+  resumeUrl?: string | null;
   availability?: AvailabilityData | null;
   skills: Array<{
     id: string;
@@ -172,4 +172,30 @@ export async function withdrawFromHackathon(
   hackathonId: string,
 ): Promise<void> {
   await api.post(`/api/v1/students/hackathons/${hackathonId}/withdraw`);
+}
+
+// ─── Settings / Security ──────────────────────────────────────────────────────
+
+/** Change the current student's password */
+export async function changePassword(data: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<{ message: string }> {
+  const res = await api.post<ApiResponse<{ message: string }>>(
+    "/api/v1/students/settings/change-password",
+    data,
+  );
+  return res.data.data!;
+}
+
+/** Permanently delete the current student's account */
+export async function deleteAccount(data: {
+  password: string;
+  confirmText: "DELETE";
+}): Promise<{ message: string }> {
+  const res = await api.post<ApiResponse<{ message: string }>>(
+    "/api/v1/students/settings/delete-account",
+    data,
+  );
+  return res.data.data!;
 }
