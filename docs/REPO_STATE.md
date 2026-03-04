@@ -90,35 +90,35 @@ TAkathon_monorepo/
 
 ## 🔧 Technology Stack
 
-| Layer           | Technology           | Version   | Status                         |
-|-----------------|----------------------|-----------|--------------------------------|
-| **Frontend**    | Next.js              | 15.5.12   | ✅ Running — App Router        |
-| **Backend**     | Express              | 4.x       | ✅ Running — NOT NestJS        |
-| **ORM**         | Prisma               | 7.4.0     | ✅ Adapter pattern required    |
-| **DB Adapter**  | @prisma/adapter-pg   | 7.4.0     | ✅ PrismaPg + pg.Pool          |
-| **Database**    | PostgreSQL           | 16-alpine | ✅ Volume-persisted            |
-| **AI Service**  | FastAPI + Python     | 3.11+     | ✅ V1 deterministic matching   |
-| **Build Tool**  | esbuild              | 0.27.3    | ✅ Bundles core-gateway        |
-| **Monorepo**    | Nx                   | 20.4.4    | ✅ Build cache + graph         |
-| **State**       | Zustand              | 4.5+      | ✅ Auth store only (minimal)   |
-| **HTTP**        | Axios                | 1.6+      | ✅ Shared client + interceptors|
-| **Styling**     | Tailwind CSS         | 3.x       | ✅ Glassmorphism design system |
-| **Validation**  | Zod (gateway) + Pydantic (AI) | — | ✅ Schema validation all routes |
-| **Auth**        | JWT (httpOnly cookies only) | — | ✅ No bearer token / response body |
+| Layer          | Technology                    | Version   | Status                             |
+| -------------- | ----------------------------- | --------- | ---------------------------------- |
+| **Frontend**   | Next.js                       | 15.5.12   | ✅ Running — App Router            |
+| **Backend**    | Express                       | 4.x       | ✅ Running — NOT NestJS            |
+| **ORM**        | Prisma                        | 7.4.0     | ✅ Adapter pattern required        |
+| **DB Adapter** | @prisma/adapter-pg            | 7.4.0     | ✅ PrismaPg + pg.Pool              |
+| **Database**   | PostgreSQL                    | 16-alpine | ✅ Volume-persisted                |
+| **AI Service** | FastAPI + Python              | 3.11+     | ✅ V1 deterministic matching       |
+| **Build Tool** | esbuild                       | 0.27.3    | ✅ Bundles core-gateway            |
+| **Monorepo**   | Nx                            | 20.4.4    | ✅ Build cache + graph             |
+| **State**      | Zustand                       | 4.5+      | ✅ Auth store only (minimal)       |
+| **HTTP**       | Axios                         | 1.6+      | ✅ Shared client + interceptors    |
+| **Styling**    | Tailwind CSS                  | 3.x       | ✅ Glassmorphism design system     |
+| **Validation** | Zod (gateway) + Pydantic (AI) | —         | ✅ Schema validation all routes    |
+| **Auth**       | JWT (httpOnly cookies only)   | —         | ✅ No bearer token / response body |
 
 ---
 
 ## 🌐 Service Ports
 
-| Service             | Port | Docker Container      | Dev URL                 |
-|---------------------|------|-----------------------|-------------------------|
-| Landing Page        | 3000 | `takathon-landing`    | http://localhost:3000   |
-| Student Portal      | 3001 | `takathon-student`    | http://localhost:3001   |
-| Organizer Dashboard | 3002 | `takathon-organizer`  | http://localhost:3002   |
-| Sponsor Panel       | 3003 | `takathon-sponsor`    | http://localhost:3003   |
-| Core Gateway (API)  | 8000 | `takathon-gateway`    | http://localhost:8000   |
-| AI Engine           | 8001 | `takathon-ai`         | http://localhost:8001   |
-| PostgreSQL          | 5432 | `takathon-db`         | localhost:5432          |
+| Service             | Port | Docker Container     | Dev URL               |
+| ------------------- | ---- | -------------------- | --------------------- |
+| Landing Page        | 3000 | `takathon-landing`   | http://localhost:3000 |
+| Student Portal      | 3001 | `takathon-student`   | http://localhost:3001 |
+| Organizer Dashboard | 3002 | `takathon-organizer` | http://localhost:3002 |
+| Sponsor Panel       | 3003 | `takathon-sponsor`   | http://localhost:3003 |
+| Core Gateway (API)  | 8000 | `takathon-gateway`   | http://localhost:8000 |
+| AI Engine           | 8001 | `takathon-ai`        | http://localhost:8001 |
+| PostgreSQL          | 5432 | `takathon-db`        | localhost:5432        |
 
 > **AI Engine**: Starts by default with `docker compose up`. No `--profile ai` flag required.
 
@@ -130,17 +130,19 @@ TAkathon_monorepo/
 
 ### Token Strategy (IMPORTANT — common source of confusion)
 
-| Token          | Storage          | Lifetime | Cookie Name      |
-|----------------|------------------|----------|------------------|
-| Access Token   | httpOnly cookie  | 15 min   | `accessToken`    |
-| Refresh Token  | httpOnly cookie  | 7 days   | `refreshToken`   |
+| Token         | Storage         | Lifetime | Cookie Name    |
+| ------------- | --------------- | -------- | -------------- |
+| Access Token  | httpOnly cookie | 15 min   | `accessToken`  |
+| Refresh Token | httpOnly cookie | 7 days   | `refreshToken` |
 
 **Tokens are NEVER**:
+
 - Returned in response body
 - Stored in `localStorage` or `sessionStorage`
 - Sent via `Authorization: Bearer` header
 
 **How it works**:
+
 1. Login → gateway sets both cookies via `res.cookie()`
 2. All subsequent requests include cookies automatically (`withCredentials: true`)
 3. `requireAuth` middleware reads `req.cookies.accessToken`
@@ -165,25 +167,25 @@ TAkathon_monorepo/
 
 ### Students (`/api/v1/students/*`)
 
-| Method | Path                              | Status | Notes                            |
-|--------|-----------------------------------|--------|----------------------------------|
-| GET    | /profile                          | ✅     | includes skills array            |
-| PUT    | /profile                          | ✅     | accepts `availability` JsonB     |
-| GET    | /hackathons                       | ✅     | returns `isRegistered`, `isInTeam` per hackathon |
-| POST   | /hackathons/:id/register          | ✅     |                                  |
-| DELETE | /hackathons/:id/withdraw          | ✅     | blocked if `isInTeam`            |
-| GET    | /teams                            | ✅     | **nested shape — must flatten** (see Known Pitfalls) |
-| GET    | /teams/:id                        | ✅     |                                  |
-| POST   | /teams                            | ✅     |                                  |
-| POST   | /teams/:id/invite                 | ✅     |                                  |
-| DELETE | /teams/:id/leave                  | ✅     | non-captain members              |
-| DELETE | /teams/:id                        | ✅     | captain only, forming status     |
-| GET    | /matching/:id/matches             | ✅     | ← AI suggestions (mounted at /students/matching) |
-| POST   | /matching/:id/matches/:userId     | ✅     | ← invite matched user            |
-| POST   | /skills                           | ✅     | add skill (NOT /profile/skills)  |
-| DELETE | /skills/:id                       | ✅     | remove by userSkill ID           |
-| GET    | /settings                         | ✅     | student settings (notifications, privacy) |
-| PUT    | /settings                         | ✅     |                                  |
+| Method | Path                          | Status | Notes                                                |
+| ------ | ----------------------------- | ------ | ---------------------------------------------------- |
+| GET    | /profile                      | ✅     | includes skills array                                |
+| PUT    | /profile                      | ✅     | accepts `availability` JsonB                         |
+| GET    | /hackathons                   | ✅     | returns `isRegistered`, `isInTeam` per hackathon     |
+| POST   | /hackathons/:id/register      | ✅     |                                                      |
+| DELETE | /hackathons/:id/withdraw      | ✅     | blocked if `isInTeam`                                |
+| GET    | /teams                        | ✅     | **nested shape — must flatten** (see Known Pitfalls) |
+| GET    | /teams/:id                    | ✅     |                                                      |
+| POST   | /teams                        | ✅     |                                                      |
+| POST   | /teams/:id/invite             | ✅     |                                                      |
+| DELETE | /teams/:id/leave              | ✅     | non-captain members                                  |
+| DELETE | /teams/:id                    | ✅     | captain only, forming status                         |
+| GET    | /matching/:id/matches         | ✅     | ← AI suggestions (mounted at /students/matching)     |
+| POST   | /matching/:id/matches/:userId | ✅     | ← invite matched user                                |
+| POST   | /skills                       | ✅     | add skill (NOT /profile/skills)                      |
+| DELETE | /skills/:id                   | ✅     | remove by userSkill ID                               |
+| GET    | /settings                     | ✅     | student settings (notifications, privacy)            |
+| PUT    | /settings                     | ✅     |                                                      |
 
 ### Organizers (`/api/v1/organizers/*`) — ✅ All implemented
 
@@ -209,10 +211,10 @@ Browse hackathons, sponsor events, view teams, project details, bookmark teams.
 
 **Route mount in `index.ts`**: `/api/v1/students/matching` (separate from `/api/v1/students/teams`)
 
-| Scorer                  | Weight | Algorithm                                      |
-|-------------------------|--------|------------------------------------------------|
-| `skill_complementarity` | 40%    | unique new skills / team open skill slots      |
-| `experience_balance`    | 30%    | targets mean proficiency of 2.5 (scale 1–4)   |
+| Scorer                  | Weight | Algorithm                                          |
+| ----------------------- | ------ | -------------------------------------------------- |
+| `skill_complementarity` | 40%    | unique new skills / team open skill slots          |
+| `experience_balance`    | 30%    | targets mean proficiency of 2.5 (scale 1–4)        |
 | `availability_overlap`  | 30%    | Jaccard slot similarity (70%) + hours compat (30%) |
 
 **Proficiency map**: `beginner→1`, `intermediate→2`, `advanced→3`, `expert→4`
@@ -223,15 +225,15 @@ Browse hackathons, sponsor events, view teams, project details, bookmark teams.
 
 ## 🐳 Docker Services
 
-| Container           | Image Built From              | Depends On      |
-|---------------------|-------------------------------|-----------------|
-| `takathon-db`       | `postgres:16-alpine`          | —               |
-| `takathon-gateway`  | `apps/core-gateway/Dockerfile`| db (healthy)    |
-| `takathon-ai`       | `apps/ai-engine/Dockerfile`   | db (healthy)    |
-| `takathon-landing`  | `apps/landing-page/Dockerfile`| gateway (healthy)|
-| `takathon-student`  | `apps/student-portal/Dockerfile`| gateway (healthy)|
-| `takathon-organizer`| `apps/organizer-dashboard/Dockerfile`| gateway (healthy)|
-| `takathon-sponsor`  | `apps/sponsor-panel/Dockerfile`| gateway (healthy)|
+| Container            | Image Built From                      | Depends On        |
+| -------------------- | ------------------------------------- | ----------------- |
+| `takathon-db`        | `postgres:16-alpine`                  | —                 |
+| `takathon-gateway`   | `apps/core-gateway/Dockerfile`        | db (healthy)      |
+| `takathon-ai`        | `apps/ai-engine/Dockerfile`           | db (healthy)      |
+| `takathon-landing`   | `apps/landing-page/Dockerfile`        | gateway (healthy) |
+| `takathon-student`   | `apps/student-portal/Dockerfile`      | gateway (healthy) |
+| `takathon-organizer` | `apps/organizer-dashboard/Dockerfile` | gateway (healthy) |
+| `takathon-sponsor`   | `apps/sponsor-panel/Dockerfile`       | gateway (healthy) |
 
 ### Critical Docker Commands
 
@@ -258,16 +260,16 @@ docker compose down
 
 All seed users share password: `password123`
 
-| Role       | Email                          | Data                          |
-|------------|--------------------------------|-------------------------------|
-| Student    | alice.student@university.edu   | captain of "Code Warriors"    |
-| Student    | bob.student@university.edu     | member of "Code Warriors"     |
-| Student    | carol.student@university.edu   | registered participant        |
-| Student    | david.student@university.edu   | registered participant        |
-| Organizer  | emma.organizer@company.com     | created "Spring Innovation"   |
-| Organizer  | frank.organizer@company.com    |                               |
-| Sponsor    | grace.sponsor@corp.com         | Microsoft sponsorship         |
-| Sponsor    | henry.sponsor@corp.com         | Google sponsorship            |
+| Role      | Email                        | Data                        |
+| --------- | ---------------------------- | --------------------------- |
+| Student   | alice.student@university.edu | captain of "Code Warriors"  |
+| Student   | bob.student@university.edu   | member of "Code Warriors"   |
+| Student   | carol.student@university.edu | registered participant      |
+| Student   | david.student@university.edu | registered participant      |
+| Organizer | emma.organizer@company.com   | created "Spring Innovation" |
+| Organizer | frank.organizer@company.com  |                             |
+| Sponsor   | grace.sponsor@corp.com       | Microsoft sponsorship       |
+| Sponsor   | henry.sponsor@corp.com       | Google sponsorship          |
 
 ---
 
@@ -290,7 +292,7 @@ See `.github/copilot-instructions.md` **"Known Bugs & Pitfalls"** section for fu
 ## 🎯 V1 Remaining Work
 
 | Priority | Item                                              | Owner    |
-|----------|---------------------------------------------------|----------|
+| -------- | ------------------------------------------------- | -------- |
 | High     | Organizer: `[id]/edit` hackathon edit form page   | Frontend |
 | Medium   | CSV export button wired (organizer)               | Frontend |
 | Medium   | E2E tests: auth flow, team creation, registration | QA       |
@@ -321,4 +323,4 @@ See `.github/copilot-instructions.md` **"Known Bugs & Pitfalls"** section for fu
 
 ---
 
-*For architecture details see `docs/architecture.md`. For coding standards see `docs/NAMING_CONVENTIONS.md`.*
+_For architecture details see `docs/architecture.md`. For coding standards see `docs/NAMING_CONVENTIONS.md`._

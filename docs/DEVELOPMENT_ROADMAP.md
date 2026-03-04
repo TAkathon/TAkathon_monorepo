@@ -7,13 +7,13 @@
 
 ## Phase Summary
 
-| Phase | Name                     | Status      | Branch (merged to `dev`) |
-|-------|--------------------------|-------------|--------------------------|
-| 1     | Security Foundations     | ✅ Complete | `feature/security-foundations` |
-| 2     | Core Data Flows          | ✅ Complete | `feature/phase2-core-data-flows` |
-| 3     | AI Matching Engine + UX  | ✅ Complete | `feature/phase3-ai-matching` (PR #26) |
-| 4     | V1 Polish & CI           | ✅ Complete | `dev` (direct commits) |
-| 5     | V2 Features              | ⬜ Future   | — |
+| Phase | Name                    | Status      | Branch (merged to `dev`)              |
+| ----- | ----------------------- | ----------- | ------------------------------------- |
+| 1     | Security Foundations    | ✅ Complete | `feature/security-foundations`        |
+| 2     | Core Data Flows         | ✅ Complete | `feature/phase2-core-data-flows`      |
+| 3     | AI Matching Engine + UX | ✅ Complete | `feature/phase3-ai-matching` (PR #26) |
+| 4     | V1 Polish & CI          | ✅ Complete | `dev` (direct commits)                |
+| 5     | V2 Features             | ⬜ Future   | —                                     |
 
 ---
 
@@ -214,6 +214,7 @@ hotfix/*      ← emergency production fixes (branch from main)
 ```
 
 **Rules**:
+
 1. Never commit directly to `main` or `dev`
 2. Always create a feature/fix/chore branch from `dev`
 3. All merges via Pull Request only
@@ -221,4 +222,4 @@ hotfix/*      ← emergency production fixes (branch from main)
 
 ---
 
-*See `docs/REPO_STATE.md` for current implementation status and `docs/NAMING_CONVENTIONS.md` for coding standards.*
+_See `docs/REPO_STATE.md` for current implementation status and `docs/NAMING_CONVENTIONS.md` for coding standards._
