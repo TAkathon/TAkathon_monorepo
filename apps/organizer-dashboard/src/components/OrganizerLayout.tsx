@@ -19,6 +19,7 @@ import {
     Shield,
     BarChart,
     Search,
+    FileText,
 } from "lucide-react";
 
 // The Organizer Sidebar Navigation
@@ -26,6 +27,7 @@ const navigation = [
     { name: "Overview", href: "/", icon: LayoutDashboard },
     { name: "Hackathons", href: "/hackathons", icon: Trophy },
     { name: "Participants", href: "/participants", icon: Users },
+    { name: "Applications", href: "/applications", icon: FileText },
     { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
     { name: "Analytics", href: "/analytics", icon: BarChart },
     { name: "Settings", href: "/settings", icon: Settings },
