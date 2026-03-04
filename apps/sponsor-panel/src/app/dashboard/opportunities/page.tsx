@@ -15,8 +15,15 @@ import {
   Building2,
   X,
   CheckCircle2,
+  Clock,
+  XCircle,
+  RotateCcw,
 } from "lucide-react";
-import { sponsorApi, type SponsorshipTier } from "@takathon/shared/api";
+import {
+  sponsorApi,
+  type SponsorshipTier,
+  type SponsorshipSummary,
+} from "@takathon/shared/api";
 import { toast } from "sonner";
 
 interface OrganizerSnippet {
@@ -54,16 +61,32 @@ export default function OpportunitiesPage() {
   const [sponsorAmount, setSponsorAmount] = useState<number>(1000);
   const [submittingSponsor, setSubmittingSponsor] = useState(false);
 
+  // Sponsorship status map: hackathonId → sponsorship
+  const [sponsorshipMap, setSponsorshipMap] = useState<
+    Record<string, SponsorshipSummary>
+  >({});
+
   useEffect(() => {
-    fetchHackathons();
+    fetchData();
   }, []);
 
-  const fetchHackathons = async () => {
+  const fetchData = async () => {
     try {
-      const data = await sponsorApi.listSponsorHackathons();
-      setHackathons(data);
+      const [hackathonData, sponsorships] = await Promise.all([
+        sponsorApi.listSponsorHackathons(),
+        sponsorApi.listMySponsorships(),
+      ]);
+      setHackathons(hackathonData);
+
+      // Build map: hackathonId → latest sponsorship
+      const map: Record<string, SponsorshipSummary> = {};
+      for (const s of sponsorships) {
+        const hId = s.hackathon?.id;
+        if (hId) map[hId] = s;
+      }
+      setSponsorshipMap(map);
     } catch (error) {
-      console.error("Failed to fetch hackathons:", error);
+      console.error("Failed to fetch data:", error);
       toast.error("Failed to load opportunities");
     } finally {
       setLoading(false);
@@ -99,12 +122,19 @@ export default function OpportunitiesPage() {
       });
       toast.success("Sponsorship request submitted successfully");
       setContactTarget(null);
-      await fetchHackathons();
+      await fetchData();
     } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to submit sponsorship request",
-      );
+      const code = error?.response?.data?.error;
+      if (code === "ALREADY_SPONSORING") {
+        setContactTarget(null);
+        toast.error("You have already submitted a request for this hackathon");
+        await fetchData(); // refresh statuses
+      } else {
+        toast.error(
+          error?.response?.data?.message ||
+            "Failed to submit sponsorship request",
+        );
+      }
     } finally {
       setSubmittingSponsor(false);
     }
@@ -121,6 +151,98 @@ export default function OpportunitiesPage() {
     if (s === "completed") return "bg-white/5 border-white/10 text-white/40";
     return "bg-primary/10 border-primary/20 text-primary";
   };
+
+  /** Render sponsorship action button per hackathon */
+  function SponsorshipAction({ hackathon }: { hackathon: HackathonItem }) {
+    const sponsorship = sponsorshipMap[hackathon.id];
+
+    if (!sponsorship) {
+      // No existing sponsorship — allow submission
+      return (
+        <button
+          onClick={() => openSponsorModal(hackathon)}
+          className="flex-1 lg:flex-none btn-primary flex items-center justify-center gap-2 py-2.5 text-sm"
+        >
+          Sponsor This Hackathon
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      );
+    }
+
+    const st = sponsorship.status;
+
+    if (st === "pending") {
+      return (
+        <div className="flex-1 lg:flex-none space-y-2">
+          <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium">
+            <Clock className="w-4 h-4" />
+            Request Pending
+          </div>
+          <p className="text-xs text-white/40 leading-snug text-center lg:text-left">
+            Your sponsorship request is under review by the organizer.
+          </p>
+        </div>
+      );
+    }
+
+    if (st === "approved" || st === "paid") {
+      return (
+        <div className="flex-1 lg:flex-none space-y-2">
+          <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium">
+            <CheckCircle2 className="w-4 h-4" />
+            Sponsoring ✓
+          </div>
+          <p className="text-xs text-white/40 leading-snug text-center lg:text-left">
+            Your sponsorship has been approved. You are an official sponsor.
+          </p>
+        </div>
+      );
+    }
+
+    if (st === "rejected") {
+      return (
+        <div className="flex-1 lg:flex-none space-y-2">
+          <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium">
+            <XCircle className="w-4 h-4" />
+            Request Declined
+          </div>
+          <p className="text-xs text-white/40 leading-snug text-center lg:text-left">
+            Your request was not approved.
+          </p>
+          <button
+            onClick={() => openSponsorModal(hackathon)}
+            className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Submit New Request
+          </button>
+        </div>
+      );
+    }
+
+    if (st === "cancelled") {
+      return (
+        <button
+          onClick={() => openSponsorModal(hackathon)}
+          className="flex-1 lg:flex-none btn-primary flex items-center justify-center gap-2 py-2.5 text-sm"
+        >
+          Sponsor This Hackathon
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      );
+    }
+
+    // Fallback
+    return (
+      <button
+        onClick={() => openSponsorModal(hackathon)}
+        className="flex-1 lg:flex-none btn-primary flex items-center justify-center gap-2 py-2.5 text-sm"
+      >
+        Contact Organizer
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -400,14 +522,8 @@ export default function OpportunitiesPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-row lg:flex-col justify-end gap-3 lg:min-w-[160px]">
-                    <button
-                      onClick={() => openSponsorModal(opp)}
-                      className="flex-1 lg:flex-none btn-primary flex items-center justify-center gap-2 py-2.5 text-sm"
-                    >
-                      Contact Organizer
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                  <div className="flex flex-row lg:flex-col justify-end gap-3 lg:min-w-[180px]">
+                    <SponsorshipAction hackathon={opp} />
                     {opp.websiteUrl && (
                       <a
                         href={opp.websiteUrl}

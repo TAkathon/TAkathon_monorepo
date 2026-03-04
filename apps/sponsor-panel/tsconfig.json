@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -31,16 +27,11 @@
       "@takathon/shared/types": ["../../libs/shared/types/src/index.ts"],
       "@takathon/shared/types/*": ["../../libs/shared/types/src/*"],
       "@takathon/shared/api": ["../../libs/shared/api/src/index.ts"],
-      "@takathon/shared/api/*": ["../../libs/shared/api/src/*"]
+      "@takathon/shared/api/*": ["../../libs/shared/api/src/*"],
+      "@takathon/shared/ui": ["../../libs/shared/ui/src/index.ts"],
+      "@takathon/shared/ui/*": ["../../libs/shared/ui/src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
