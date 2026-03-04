@@ -97,6 +97,8 @@ export default function CreateHackathonPage() {
         errs.title = "Title must be at least 3 characters";
       if (!formData.description.trim())
         errs.description = "Description is required";
+      else if (formData.description.trim().length < 10)
+        errs.description = "Description must be at least 10 characters";
     }
 
     if (s === 1) {
@@ -122,6 +124,11 @@ export default function CreateHackathonPage() {
       const max = formData.maxTeamSize ? parseInt(formData.maxTeamSize) : 0;
       if (min && max && min > max)
         errs.minTeamSize = "Min team size cannot exceed max team size";
+
+      if (formData.bannerUrl && !/^https?:\/\/.+/.test(formData.bannerUrl))
+        errs.bannerUrl = "Must be a valid URL (https://...)";
+      if (formData.websiteUrl && !/^https?:\/\/.+/.test(formData.websiteUrl))
+        errs.websiteUrl = "Must be a valid URL (https://...)";
     }
 
     setErrors(errs);
@@ -178,9 +185,12 @@ export default function CreateHackathonPage() {
       toast.success("Hackathon created as Draft!");
       router.push(`/hackathons/${(hackathon as any).id ?? ""}`);
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Failed to create hackathon",
-      );
+      // ResponseHandler nests the message under data.error.message
+      const msg =
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        "Failed to create hackathon";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

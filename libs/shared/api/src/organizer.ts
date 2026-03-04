@@ -142,18 +142,22 @@ export async function cancelHackathon(id: string): Promise<Hackathon> {
 export async function getParticipants(
   hackathonId: string,
 ): Promise<ParticipantDetail[]> {
-  const res = await api.get<ApiResponse<ParticipantDetail[]>>(
+  const res = await api.get<ApiResponse<any>>(
     `/api/v1/organizers/hackathons/${hackathonId}/participants`,
   );
-  return res.data.data ?? [];
+  // Service returns { data: [...], meta: {...} } wrapped in ApiResponse
+  const payload = res.data.data;
+  return Array.isArray(payload) ? payload : (payload?.data ?? []);
 }
 
 /** Get teams for a hackathon */
 export async function getTeams(hackathonId: string): Promise<any[]> {
-  const res = await api.get<ApiResponse<any[]>>(
+  const res = await api.get<ApiResponse<any>>(
     `/api/v1/organizers/hackathons/${hackathonId}/teams`,
   );
-  return res.data.data ?? [];
+  // Service returns { data: [...], meta: {...} } wrapped in ApiResponse
+  const payload = res.data.data;
+  return Array.isArray(payload) ? payload : (payload?.data ?? []);
 }
 
 /** Get analytics for a hackathon */
