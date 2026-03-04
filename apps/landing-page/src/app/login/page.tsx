@@ -122,11 +122,11 @@ function LoginContent() {
           </div>
 
           {/* Mascot */}
-          <div className="relative z-10 w-full max-w-sm aspect-square flex items-center justify-center p-6">
+          <div className="relative z-10 w-full max-w-xl aspect-square flex items-center justify-center p-6">
             <img
               alt="Takathon Phoenix Mascot"
               className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(255,92,0,0.3)] filter contrast-125 saturate-150 mascot-float"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp-h5nlug8j53t4bKjxp3SnwaCPWxpJJK0I4_6pJ_2byaHtwPkE041jeZ7HEt4tV5dNeCqFELA5oIM73cPeovkg49RJ_clC3Q4ICjlf4Tx_vmoBBstQ4t5WmukmqgcypJxP3O7aey7XYlvSE7jVNxgDlexmemSaRwdh-DhFCBOT6JGTEjO74Gg5MH1xdvVuSZwVX3gWpHRSRWRizxC62VdiML7fj7vpc6QRRcWyAnf2z3qBpX97kqjmVou3SpBbf6dXJzsJz1i7wc"
+              src="/searching.png"
             />
           </div>
 
