@@ -50,6 +50,8 @@ interface TeamData {
 interface HackathonOption {
   id: string;
   title: string;
+  minTeamSize: number;
+  maxTeamSize: number;
 }
 
 // ─── Suggestion Card ──────────────────────────────────────────────────────────
@@ -213,7 +215,17 @@ export default function TeamsPage() {
         members: (m.team?.members ?? m.members) || [],
       }));
       setTeams(teams);
-      setHackathons(hackathons.map((h) => ({ id: h.id, title: h.title })));
+      // Only show hackathons the student is registered for and not yet in a team
+      setHackathons(
+        hackathons
+          .filter((h) => h.isRegistered && !h.isInTeam)
+          .map((h) => ({
+            id: h.id,
+            title: h.title,
+            minTeamSize: h.minTeamSize ?? 2,
+            maxTeamSize: h.maxTeamSize ?? 10,
+          })),
+      );
     } catch (error) {
       console.error("Failed to fetch data:", error);
       toast.error("Failed to load teams");
@@ -562,12 +574,24 @@ export default function TeamsPage() {
                   <div className="relative">
                     <select
                       value={newTeam.hackathonId}
-                      onChange={(e) =>
-                        setNewTeam({ ...newTeam, hackathonId: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const selected = hackathons.find(
+                          (h) => h.id === e.target.value,
+                        );
+                        setNewTeam({
+                          ...newTeam,
+                          hackathonId: e.target.value,
+                          // Auto-set maxSize to hackathon's max when a hackathon is selected
+                          maxSize: selected?.maxTeamSize ?? newTeam.maxSize,
+                        });
+                      }}
                       className="input-field appearance-none pr-10"
                     >
-                      <option value="">Select a hackathon...</option>
+                      <option value="">
+                        {hackathons.length === 0
+                          ? "No eligible hackathons — register for one first"
+                          : "Select a hackathon..."}
+                      </option>
                       {hackathons.map((h) => (
                         <option key={h.id} value={h.id}>
                           {h.title}
@@ -606,8 +630,14 @@ export default function TeamsPage() {
                   </label>
                   <input
                     type="number"
-                    min="2"
-                    max="10"
+                    min={
+                      hackathons.find((h) => h.id === newTeam.hackathonId)
+                        ?.minTeamSize ?? 2
+                    }
+                    max={
+                      hackathons.find((h) => h.id === newTeam.hackathonId)
+                        ?.maxTeamSize ?? 10
+                    }
                     value={newTeam.maxSize}
                     onChange={(e) =>
                       setNewTeam({
@@ -617,6 +647,17 @@ export default function TeamsPage() {
                     }
                     className="input-field"
                   />
+                  {newTeam.hackathonId &&
+                    (() => {
+                      const h = hackathons.find(
+                        (h) => h.id === newTeam.hackathonId,
+                      );
+                      return h ? (
+                        <p className="text-xs text-white/40 mt-1">
+                          Allowed: {h.minTeamSize}–{h.maxTeamSize} members
+                        </p>
+                      ) : null;
+                    })()}
                 </div>
               </div>
               <div className="flex gap-3 mt-6">
@@ -628,7 +669,9 @@ export default function TeamsPage() {
                 </button>
                 <button
                   onClick={handleCreateTeam}
-                  disabled={creating}
+                  disabled={
+                    creating || !newTeam.name.trim() || !newTeam.hackathonId
+                  }
                   className="flex-1 px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {creating && <Loader2 className="w-4 h-4 animate-spin" />}

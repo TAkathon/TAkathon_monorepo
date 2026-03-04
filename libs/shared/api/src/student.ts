@@ -60,6 +60,8 @@ export interface StudentHackathonSummary {
   location?: string;
   isVirtual: boolean;
   maxParticipants?: number;
+  minTeamSize: number;
+  maxTeamSize: number;
   requiredSkills: string[];
   participantCount: number;
   isRegistered?: boolean;
