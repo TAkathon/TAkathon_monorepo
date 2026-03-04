@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { studentApi, hackathonApi } from "@takathon/shared/api";
 import { useAuthStore } from "@takathon/shared/utils";
+import { SkeletonProfileSection } from "@takathon/shared/ui";
 import { toast } from "sonner";
 
 interface ProfileData {
@@ -88,9 +89,9 @@ export default function ProfilePage() {
         email: data.email || user?.email || "",
         bio: data.bio || "",
         location: "",
-        university: data.studentProfile?.university || "",
-        major: "",
-        graduationYear: data.studentProfile?.graduationYear?.toString() || "",
+        university: data.university || "",
+        major: data.degree || "",
+        graduationYear: data.graduationYear?.toString() || "",
         github: data.githubUrl || "",
         linkedin: data.linkedinUrl || "",
         website: data.portfolioUrl || "",
@@ -165,8 +166,10 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       await studentApi.updateMyProfile({
-        bio: profile.bio,
-        university: profile.university,
+        fullName: profile.fullName || undefined,
+        bio: profile.bio || undefined,
+        university: profile.university || undefined,
+        degree: profile.major || undefined,
         graduationYear: profile.graduationYear
           ? parseInt(profile.graduationYear)
           : undefined,
@@ -196,8 +199,12 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-full min-h-[400px]">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <div className="space-y-6 max-w-4xl">
+          <div className="space-y-2">
+            <div className="h-8 w-48 bg-white/10 rounded animate-pulse" />
+            <div className="h-4 w-72 bg-white/10 rounded animate-pulse" />
+          </div>
+          <SkeletonProfileSection />
         </div>
       </DashboardLayout>
     );
@@ -314,15 +321,24 @@ export default function ProfilePage() {
                   Bio
                 </label>
                 {isEditing ? (
-                  <textarea
-                    value={profile.bio}
-                    onChange={(e) =>
-                      setProfile({ ...profile, bio: e.target.value })
-                    }
-                    rows={3}
-                    className="input-field resize-none"
-                    placeholder="Tell us about yourself..."
-                  />
+                  <>
+                    <textarea
+                      value={profile.bio}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          bio: e.target.value.slice(0, 500),
+                        })
+                      }
+                      rows={3}
+                      maxLength={500}
+                      className="input-field resize-none"
+                      placeholder="Tell us about yourself..."
+                    />
+                    <p className="text-xs text-white/40 text-right mt-1">
+                      {(profile.bio || "").length} / 500
+                    </p>
+                  </>
                 ) : (
                   <p className="text-white/70">{profile.bio || "No bio yet"}</p>
                 )}
@@ -451,6 +467,7 @@ export default function ProfilePage() {
                     setNewSkillId("");
                   }}
                   className="px-3 py-3 text-white/50 hover:text-white rounded-lg transition-all"
+                  aria-label="Cancel adding skill"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -485,6 +502,7 @@ export default function ProfilePage() {
                       <button
                         onClick={() => handleRemoveSkill(skill, index)}
                         className="p-1 text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                        aria-label="Remove skill"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

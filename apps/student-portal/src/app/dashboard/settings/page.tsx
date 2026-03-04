@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   Bell,
@@ -14,9 +15,13 @@ import {
   Save,
   Mail,
   Trash2,
+  EyeOff,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 import { studentApi } from "@takathon/shared/api";
 import type { AvailabilitySlot } from "@takathon/shared/api";
+import { useAuthStore } from "@takathon/shared/utils";
 import { toast } from "sonner";
 
 // ─── Availability config ──────────────────────────────────────────────────────
@@ -62,6 +67,9 @@ const COMMON_TIMEZONES = [
 ];
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const { logout } = useAuthStore();
+
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [teamInvites, setTeamInvites] = useState(true);
@@ -76,6 +84,25 @@ export default function SettingsPage() {
   const [selectedSlots, setSelectedSlots] = useState<Set<AvailabilitySlot>>(
     new Set(),
   );
+
+  // ── Change Password state ──────────────────────────────────────────────
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // ── Delete Account state ───────────────────────────────────────────────
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [showDeletePw, setShowDeletePw] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     studentApi
@@ -402,58 +429,229 @@ export default function SettingsPage() {
             <h2 className="text-xl font-bold text-white">Security</h2>
           </div>
           <div className="space-y-4">
-            <button className="w-full p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all group">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Lock className="w-5 h-5 text-white/40 group-hover:text-primary transition-colors" />
-                  <div>
-                    <p className="font-medium text-white">Change Password</p>
-                    <p className="text-sm text-white/60">
-                      Update your password
-                    </p>
+            {/* ── Change Password ──────────────────────────────────── */}
+            <div className="p-4 bg-white/5 rounded-lg">
+              <button
+                onClick={() => {
+                  setShowPasswordForm((p) => !p);
+                  setPasswordError(null);
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                }}
+                className="w-full text-left group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Lock className="w-5 h-5 text-white/40 group-hover:text-primary transition-colors" />
+                    <div>
+                      <p className="font-medium text-white">Change Password</p>
+                      <p className="text-sm text-white/60">
+                        Update your password
+                      </p>
+                    </div>
                   </div>
+                  <span className="text-white/40 group-hover:text-white transition-colors">
+                    {showPasswordForm ? "▾" : "→"}
+                  </span>
                 </div>
-                <span className="text-white/40 group-hover:text-white transition-colors">
-                  →
-                </span>
-              </div>
-            </button>
+              </button>
 
-            <button className="w-full p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all group">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-white/40 group-hover:text-primary transition-colors" />
-                  <div>
-                    <p className="font-medium text-white">
-                      Two-Factor Authentication
+              {showPasswordForm && (
+                <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
+                  {passwordError && (
+                    <p className="text-red-400 text-sm flex items-center gap-1">
+                      <AlertTriangle size={14} />
+                      {passwordError}
                     </p>
-                    <p className="text-sm text-white/60">
-                      Add extra security layer
-                    </p>
-                  </div>
-                </div>
-                <span className="text-white/40 group-hover:text-white transition-colors">
-                  →
-                </span>
-              </div>
-            </button>
+                  )}
 
-            <button className="w-full p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all group">
+                  {/* Current Password */}
+                  <div>
+                    <label className="block text-sm font-medium text-white/60 mb-1">
+                      Current Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showCurrentPw ? "text" : "password"}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="input-field w-full pr-10"
+                        placeholder="Enter current password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPw((p) => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                        aria-label={
+                          showCurrentPw ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showCurrentPw ? (
+                          <EyeOff size={16} />
+                        ) : (
+                          <Eye size={16} />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* New Password */}
+                  <div>
+                    <label className="block text-sm font-medium text-white/60 mb-1">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showNewPw ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="input-field w-full pr-10"
+                        placeholder="At least 8 characters"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPw((p) => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                        aria-label={
+                          showNewPw ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showNewPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm New Password */}
+                  <div>
+                    <label className="block text-sm font-medium text-white/60 mb-1">
+                      Confirm New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPw ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="input-field w-full pr-10"
+                        placeholder="Repeat new password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPw((p) => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                        aria-label={
+                          showConfirmPw ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showConfirmPw ? (
+                          <EyeOff size={16} />
+                        ) : (
+                          <Eye size={16} />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-1">
+                    <button
+                      onClick={async () => {
+                        setPasswordError(null);
+                        if (newPassword.length < 8) {
+                          setPasswordError(
+                            "New password must be at least 8 characters",
+                          );
+                          return;
+                        }
+                        if (newPassword !== confirmPassword) {
+                          setPasswordError("Passwords do not match");
+                          return;
+                        }
+                        setChangingPassword(true);
+                        try {
+                          await studentApi.changePassword({
+                            currentPassword,
+                            newPassword,
+                          });
+                          toast.success(
+                            "Password changed. Please log in again.",
+                          );
+                          logout();
+                          router.push("/login");
+                        } catch (err: any) {
+                          const msg =
+                            err.response?.data?.error?.message ||
+                            err.response?.data?.message ||
+                            "Failed to change password";
+                          setPasswordError(msg);
+                        } finally {
+                          setChangingPassword(false);
+                        }
+                      }}
+                      disabled={
+                        changingPassword ||
+                        !currentPassword ||
+                        !newPassword ||
+                        !confirmPassword
+                      }
+                      className="px-5 py-2 bg-primary hover:bg-primary-dark disabled:opacity-50 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+                    >
+                      {changingPassword ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Lock className="w-4 h-4" />
+                      )}
+                      Update Password
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ── Two-Factor Authentication — Coming Soon ─────────── */}
+            <div className="p-4 bg-white/5 rounded-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-white/40 group-hover:text-primary transition-colors" />
+                  <Shield className="w-5 h-5 text-white/40" />
                   <div>
-                    <p className="font-medium text-white">Connected Accounts</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">
+                        Two-Factor Authentication
+                      </p>
+                      <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
+                        Coming Soon
+                      </span>
+                    </div>
                     <p className="text-sm text-white/60">
-                      Manage linked accounts
+                      Extra security with an authenticator app — available in a
+                      future update.
                     </p>
                   </div>
                 </div>
-                <span className="text-white/40 group-hover:text-white transition-colors">
-                  →
-                </span>
               </div>
-            </button>
+            </div>
+
+            {/* ── Connected Accounts — Coming Soon ───────────────── */}
+            <div className="p-4 bg-white/5 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-white/40" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">
+                        Connected Accounts
+                      </p>
+                      <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
+                        Coming Soon
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/60">
+                      Link GitHub, Google, or LinkedIn accounts — coming in a
+                      future update.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -464,14 +662,156 @@ export default function SettingsPage() {
             <h2 className="text-xl font-bold text-white">Danger Zone</h2>
           </div>
           <p className="text-white/60 text-sm mb-4">
-            Once you delete your account, there is no going back. Please be
-            certain.
+            Once you delete your account, there is no going back. All your
+            teams, registrations, and profile data will be permanently removed.
           </p>
-          <button className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 font-medium rounded-lg transition-all duration-200">
+          <button
+            onClick={() => {
+              setShowDeleteModal(true);
+              setDeletePassword("");
+              setDeleteConfirmText("");
+              setDeleteError(null);
+            }}
+            className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 font-medium rounded-lg transition-all duration-200"
+          >
             Delete Account
           </button>
         </div>
       </div>
+
+      {/* ── Delete Account Confirmation Modal ─────────────────────────── */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+          onClick={() => setShowDeleteModal(false)}
+        >
+          <div
+            className="glass max-w-md w-full mx-4 p-6 border border-red-500/30"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-red-400">
+                <AlertTriangle size={20} />
+                <h2 className="text-xl font-bold text-white">Delete Account</h2>
+              </div>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-white/60 hover:text-white"
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p className="text-white/70 text-sm mb-4">
+              This action is <strong className="text-red-400">permanent</strong>{" "}
+              and cannot be undone. All your profile data, teams, hackathon
+              registrations, and skills will be deleted.
+            </p>
+
+            {deleteError && (
+              <p className="text-red-400 text-sm mb-3 flex items-center gap-1">
+                <AlertTriangle size={14} />
+                {deleteError}
+              </p>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-white/60 mb-1">
+                  Your Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showDeletePw ? "text" : "password"}
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    className="input-field w-full pr-10"
+                    placeholder="Enter your password to confirm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDeletePw(!showDeletePw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                    aria-label={
+                      showDeletePw ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showDeletePw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-white/60 mb-1">
+                  Type <strong className="text-red-400">DELETE</strong> to
+                  confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className="input-field w-full"
+                  placeholder='Type "DELETE"'
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-5">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-lg transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setDeleteError(null);
+                  if (deleteConfirmText !== "DELETE") {
+                    setDeleteError('Please type "DELETE" to confirm');
+                    return;
+                  }
+                  if (!deletePassword) {
+                    setDeleteError("Password is required");
+                    return;
+                  }
+                  setDeletingAccount(true);
+                  try {
+                    await studentApi.deleteAccount({
+                      password: deletePassword,
+                      confirmText: "DELETE",
+                    });
+                    toast.success("Account deleted. Goodbye!");
+                    logout();
+                    window.location.href = "/";
+                  } catch (err: any) {
+                    const msg =
+                      err.response?.data?.error?.message ||
+                      err.response?.data?.message ||
+                      "Failed to delete account";
+                    setDeleteError(msg);
+                  } finally {
+                    setDeletingAccount(false);
+                  }
+                }}
+                disabled={
+                  deletingAccount ||
+                  deleteConfirmText !== "DELETE" ||
+                  !deletePassword
+                }
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+              >
+                {deletingAccount ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                Permanently Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
