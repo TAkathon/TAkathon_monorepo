@@ -1,9 +1,9 @@
 # TAkathon Monorepo — Repository State
 
-**Last Updated**: March 3, 2026
+**Last Updated**: March 4, 2026
 **Version**: 1.0.0
 **Branch**: `dev` (active development)
-**Overall Status**: Phase 3 Complete — AI Matching V1 + Full Frontend Integration
+**Overall Status**: Phase 4 Complete — V1 Polish done (~95%)
 
 ---
 
@@ -42,10 +42,26 @@ TAkathon_monorepo/
 │   │       │   └── [id]/
 │   │       │       ├── messages/ ✅ placeholder chat ("Coming Soon" — WebSockets V2)
 │   │       │       └── project/  ✅ milestone tracker, tech stack, submission links (demo data)
+│   │       ├── notifications/    ✅ list, mark-read, delete; paginated
 │   │       └── settings/         ✅ availability: timezone, hours/week, slot toggles
 │   │
-│   ├── organizer-dashboard/   ✅ Next.js 15 — hackathons list, participants, teams, settings
-│   ├── sponsor-panel/         ✅ Next.js 15 — dashboard, opportunities, requests, profile
+│   ├── organizer-dashboard/   ✅ Next.js 15 — hackathons list, detail, participants, teams, notifications, settings
+│   │   └── src/app/
+│   │       ├── page.tsx          ✅ live stats + skeleton loading
+│   │       ├── hackathons/
+│   │       │   ├── page.tsx      ✅ hackathon list with lifecycle buttons
+│   │       │   ├── [id]/page.tsx ✅ hackathon detail — participants, teams, stats
+│   │       │   └── create/page.tsx ✅ create hackathon form
+│   │       ├── notifications/    ✅ list, mark-read, delete; paginated
+│   │       └── settings/         ✅ organizer profile settings
+│   ├── sponsor-panel/         ✅ Next.js 15 — dashboard, opportunities, requests, profile, notifications
+│   │   └── src/app/dashboard/
+│   │       ├── page.tsx          ✅ live stats + skeleton loading
+│   │       ├── opportunities/    ✅ browse + sponsor hackathons
+│   │       ├── notifications/    ✅ list, mark-read, delete; paginated
+│   │       └── sponsored/
+│   │           ├── page.tsx      ✅ list of sponsored hackathons
+│   │           └── [id]/page.tsx ✅ sponsored hackathon detail
 │   └── landing-page/          ✅ Next.js 15 — home, login, signup wired to /api/v1/auth/*
 │
 ├── libs/shared/
@@ -55,13 +71,14 @@ TAkathon_monorepo/
 │   │   ├── organizer.ts       ✅ organizerApi
 │   │   ├── hackathon.ts       ✅ hackathonApi (public)
 │   │   ├── matching.ts        ✅ matchingApi — suggestTeammates, inviteMatch
+│   │   ├── notifications.ts   ✅ notificationsApi — getNotifications, markAsRead, deleteNotification
 │   │   └── index.ts           ✅ barrel export
 │   ├── types/src/             ✅ UserRole enum (STUDENT, ORGANIZER, SPONSOR), domain models
 │   ├── utils/src/             ✅ Zustand authStore, authRedirect, AvailabilitySlot types
-│   └── ui/src/                🟡 basic shared components only
+│   └── ui/src/                ✅ Skeleton (12 primitives), Breadcrumbs, AvatarMenu, Button, Input, Card
 │
 ├── prisma/
-│   ├── schema.prisma          ✅ 18 models, 9 enums, availability JsonB on StudentProfile
+│   ├── schema.prisma          ✅ 21 models, 9 enums — Notification, StudentSettings, OrganizerSettings added
 │   └── seed.ts                ✅ 36 skills, 8 users, 2 hackathons, 1 team, 2 sponsorships
 │
 └── docker-compose.yml         ✅ 7 services, all with healthchecks
@@ -165,10 +182,16 @@ TAkathon_monorepo/
 | POST   | /matching/:id/matches/:userId     | ✅     | ← invite matched user            |
 | POST   | /skills                           | ✅     | add skill (NOT /profile/skills)  |
 | DELETE | /skills/:id                       | ✅     | remove by userSkill ID           |
+| GET    | /settings                         | ✅     | student settings (notifications, privacy) |
+| PUT    | /settings                         | ✅     |                                  |
 
 ### Organizers (`/api/v1/organizers/*`) — ✅ All implemented
 
-Hackathon CRUD + lifecycle (publish → start → complete / cancel), participants, analytics, CSV export.
+Hackathon CRUD + lifecycle + settings. `GET/PUT /settings` added in Phase 4.
+
+### Notifications (`/api/v1/notifications`) — ✅ All implemented
+
+`GET` list (paginated), `PUT /:id/read` mark as read, `DELETE /:id` delete. Shared across all roles.
 
 ### Sponsors (`/api/v1/sponsors/*`) — ✅ All implemented
 
@@ -268,15 +291,26 @@ See `.github/copilot-instructions.md` **"Known Bugs & Pitfalls"** section for fu
 
 | Priority | Item                                              | Owner    |
 |----------|---------------------------------------------------|----------|
-| High     | Loading skeletons on all dashboard pages          | Frontend |
-| High     | Toast / inline error feedback on API failures     | Frontend |
-| High     | Organizer: `new` + `[id]/edit` hackathon pages    | Frontend |
+| High     | Organizer: `[id]/edit` hackathon edit form page   | Frontend |
 | Medium   | CSV export button wired (organizer)               | Frontend |
-| Medium   | Sponsor team detail modal                         | Frontend |
-| Medium   | ResponseHandler audit across all gateway routes   | Backend  |
 | Medium   | E2E tests: auth flow, team creation, registration | QA       |
 | Low      | Mobile responsive audit (375px)                   | Frontend |
 | Low      | Deployment guide (Render/DigitalOcean)            | DevOps   |
+
+### Completed in Phase 4 (March 4, 2026)
+
+- ✅ Loading skeletons on all dashboard pages (student, organizer, sponsor)
+- ✅ Toast notifications (`sonner`) for API success/error feedback
+- ✅ Empty states with CTAs on all list pages
+- ✅ Form UX: textarea char counts, password visibility toggles
+- ✅ Sidebar `startsWith` active highlighting for child/nested routes
+- ✅ Breadcrumbs on all detail pages (`Breadcrumbs` shared component)
+- ✅ Accessibility: `aria-label` on all icon-only buttons across all portals
+- ✅ Notifications system: backend + API module + page in all 3 portals
+- ✅ Student settings backend route + service (`StudentSettings` model)
+- ✅ Organizer settings backend route + service (`OrganizerSettings` model)
+- ✅ Organizer hackathon detail page (`hackathons/[id]/page.tsx`)
+- ✅ Sponsor sponsored-hackathon detail page (`sponsored/[id]/page.tsx`)
 
 ### Out of Scope for V1
 

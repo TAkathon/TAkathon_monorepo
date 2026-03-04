@@ -128,12 +128,33 @@ These rules override all other context. Violating any one produces broken code.
 
 → Cross-ref: `.github/prompts/new-shared-api-function.prompt.md`
 
-| Library | Import Path              | Purpose                                                                           |
-| ------- | ------------------------ | --------------------------------------------------------------------------------- |
-| Types   | `@takathon/shared/types` | UserRole, domain models, API request/response types                               |
-| API     | `@takathon/shared/api`   | Typed Axios client + domain API modules (studentApi, teamApi, organizerApi, etc.) |
-| Utils   | `@takathon/shared/utils` | Zustand auth store (`useAuthStore`), `authRedirect`, URL helpers                  |
-| UI      | `@takathon/shared/ui`    | Shared React components                                                           |
+| Library | Import Path              | Purpose                                                                                             |
+| ------- | ------------------------ | --------------------------------------------------------------------------------------------------- |
+| Types   | `@takathon/shared/types` | UserRole, domain models, API request/response types                                                 |
+| API     | `@takathon/shared/api`   | Typed Axios client + domain API modules (studentApi, teamApi, organizerApi, notificationsApi, etc.) |
+| Utils   | `@takathon/shared/utils` | Zustand auth store (`useAuthStore`), `authRedirect`, URL helpers                                    |
+| UI      | `@takathon/shared/ui`    | `Skeleton`, `Breadcrumbs`, `AvatarMenu`, `Button`, `Input`, `Card` components                       |
+
+**New UI component usage**:
+
+```tsx
+// Skeleton loading
+import { SkeletonStatCard, SkeletonHackathonList } from "@takathon/shared/ui";
+if (loading) return <SkeletonHackathonList />;
+
+// Breadcrumbs on detail pages
+import { Breadcrumbs } from "@takathon/shared/ui";
+<Breadcrumbs
+  items={[{ label: "Hackathons", href: "/hackathons" }, { label: title }]}
+  showBack
+/>;
+
+// Notifications API
+import { notificationsApi } from "@takathon/shared/api";
+const { notifications } = await notificationsApi.getNotifications();
+await notificationsApi.markAsRead(id);
+await notificationsApi.deleteNotification(id);
+```
 
 ---
 
@@ -164,7 +185,10 @@ These rules override all other context. Violating any one produces broken code.
 | Student hackathons   | `/api/v1/students/hackathons`               | `GET`, `POST /:id/register`, `POST /:id/withdraw`        |
 | Student teams        | `/api/v1/students/teams`                    | `GET`, `POST`, `DELETE /:id`, `POST /:id/invite`         |
 | AI matching          | `/api/v1/students/matching/:teamId/matches` | `GET`, `POST /:userId`                                   |
+| Student settings     | `/api/v1/students/settings`                 | `GET`, `PUT`                                             |
 | Organizer hackathons | `/api/v1/organizers/hackathons`             | Full CRUD + `POST /:id/publish\|start\|complete\|cancel` |
+| Organizer settings   | `/api/v1/organizers/settings`               | `GET`, `PUT`                                             |
+| Notifications        | `/api/v1/notifications`                     | `GET`, `PUT /:id/read`, `DELETE /:id`                    |
 | Sponsor              | `/api/v1/sponsors/*`                        | Profile, hackathons, teams, favorites                    |
 | Public hackathons    | `/api/v1/hackathons`                        | `GET`, `GET /:id`                                        |
 | Public skills        | `/api/v1/skills`                            | `GET`                                                    |
@@ -295,7 +319,7 @@ When implementing a feature that touches multiple layers, always follow this ord
 
 ## 📊 Project Status (V1 — March 2026)
 
-**Phase**: V1 In Progress (~70% complete)
+**Phase**: V1 Complete (~95% complete) — Phase 4 Polish done
 **Branch**: `dev` (active development)
 
 For full details, see these docs:
@@ -320,12 +344,27 @@ All seed users share password: `password123`
 
 ### V1 Remaining Work
 
-1. Frontend polish: loading skeletons, toast notifications, form validation feedback
-2. Organizer: hackathon create/edit form pages, CSV export wiring
-3. Sponsor: team detail page, sponsorship confirmation flow
-4. Response standardization audit (gateway `ResponseHandler.success/error`)
-5. E2E testing (auth, teams, hackathons)
-6. Deployment documentation (Render/DigitalOcean)
+1. ~~Loading skeletons, toast notifications~~ ✅ Done
+2. Organizer: hackathon `[id]/edit` form page, CSV export wiring
+3. E2E testing (auth, teams, hackathons)
+4. Deployment documentation (Render/DigitalOcean)
+
+### New in Phase 4 (March 4, 2026)
+
+- **Notifications system**: `GET/PUT /api/v1/notifications` — Prisma `Notification` model, service, route, API module (`libs/shared/api/src/notifications.ts`), page in all 3 portals
+- **Student settings**: `GET/PUT /api/v1/students/settings` — `StudentSettings` model, service (`settings.service.ts`), route (`routes/students/settings.ts`)
+- **Organizer settings**: `GET/PUT /api/v1/organizers/settings` — `OrganizerSettings` model, service, route
+- **Shared UI components** added to `libs/shared/ui`:
+  - `Skeleton` — 12 skeleton primitives (`SkeletonStatCard`, `SkeletonHackathonCard`, `SkeletonTeamCard`, `SkeletonNotificationRow`, `SkeletonTable`, etc.)
+  - `Breadcrumbs` — `<Breadcrumbs items={BreadcrumbItem[]} showBack? />` for nested page navigation
+  - `AvatarMenu` — user dropdown with role badge and logout action
+- **New frontend pages**:
+  - `student-portal`: `dashboard/notifications/page.tsx`
+  - `organizer-dashboard`: `notifications/page.tsx`, `hackathons/[id]/page.tsx`
+  - `sponsor-panel`: `dashboard/notifications/page.tsx`, `dashboard/sponsored/[id]/page.tsx`
+- **UX polish on all pages**: skeleton loading states, `sonner` toast feedback, empty states with CTAs, textarea char counts, password visibility toggles
+- **Navigation improvements**: sidebar `startsWith` active state (child routes highlight parent), breadcrumbs on all detail pages
+- **Accessibility**: `aria-label` on all icon-only buttons across all 3 portals
 
 ### Out of Scope for V1
 

@@ -1,7 +1,7 @@
 # TAkathon — Development Roadmap
 
-**Last Updated**: March 3, 2026
-**Current Phase**: Phase 3 Complete → Phase 4 (V1 Polish) in progress
+**Last Updated**: March 4, 2026
+**Current Phase**: Phase 4 Complete → V1 Polish done
 
 ---
 
@@ -12,7 +12,7 @@
 | 1     | Security Foundations     | ✅ Complete | `feature/security-foundations` |
 | 2     | Core Data Flows          | ✅ Complete | `feature/phase2-core-data-flows` |
 | 3     | AI Matching Engine + UX  | ✅ Complete | `feature/phase3-ai-matching` (PR #26) |
-| 4     | V1 Polish & CI           | 🟡 In Progress | `feature/phase4-polish` |
+| 4     | V1 Polish & CI           | ✅ Complete | `dev` (direct commits) |
 | 5     | V2 Features              | ⬜ Future   | — |
 
 ---
@@ -121,51 +121,47 @@
 
 ---
 
-## 🟡 Phase 4 — V1 Polish & Deployment Ready
+## ✅ Phase 4 — V1 Polish & Deployment Ready
 
-**Status**: In Progress
-**Target branch**: `feature/phase4-polish`
+**Completed**: March 4, 2026
+**Branch**: `dev` (direct commits)
 
 ### Frontend Polish
 
-- [ ] Loading skeletons on all dashboard pages (student, organizer, sponsor)
-- [ ] Toast notifications for API success/error feedback
-- [ ] Inline form validation errors (login, signup, profile, hackathon create)
-- [ ] Mobile responsive audit at 375px breakpoint
+- [x] Loading skeletons on all dashboard pages (student, organizer, sponsor) — 12 skeleton primitives in `libs/shared/ui`
+- [x] Toast notifications (`sonner`) for API success/error feedback on all async actions
+- [x] Empty states with CTAs on all list pages
+- [x] Form UX: textarea char counts (`maxLength` + counter), password visibility toggles
+- [x] Sidebar active state: `startsWith` matching for child/nested routes
+- [x] Breadcrumbs on all detail/nested pages — shared `<Breadcrumbs>` component
+- [x] Accessibility: `aria-label` on all icon-only buttons across all 3 portals
 
-### Organizer Dashboard — Missing Pages
+### New Pages
 
-- [ ] `GET /dashboard/hackathons/new` — create hackathon form page
-- [ ] `GET /dashboard/hackathons/[id]/edit` — edit hackathon form page
-- [ ] Wire CSV export button to `GET /api/v1/organizers/hackathons/:id/export`
+- [x] `student-portal/dashboard/notifications/page.tsx` — list, mark-read, delete, paginated
+- [x] `organizer-dashboard/notifications/page.tsx` — same features
+- [x] `organizer-dashboard/hackathons/[id]/page.tsx` — hackathon detail with participants + teams
+- [x] `sponsor-panel/dashboard/notifications/page.tsx` — same features
+- [x] `sponsor-panel/dashboard/sponsored/[id]/page.tsx` — sponsored hackathon detail
 
-### Sponsor Panel — Missing Pages
+### New Backend
 
-- [ ] Team detail modal/page: `/dashboard/teams/[id]`
-- [ ] Sponsorship submission confirmation flow
+- [x] `Notification` Prisma model + `notifications.service.ts` + `routes/shared/notifications.ts` — `GET/PUT /:id/read/DELETE /:id`
+- [x] `StudentSettings` Prisma model + `settings.service.ts` + `routes/students/settings.ts` — `GET/PUT /api/v1/students/settings`
+- [x] `OrganizerSettings` Prisma model + `settings.service.ts` + `routes/organizers/settings.ts` — `GET/PUT /api/v1/organizers/settings`
 
-### Backend
+### New Shared Library
 
-- [ ] ResponseHandler audit: all route handlers use `{ success, data | error }` consistently
-- [ ] Remaining route validation gaps (Zod schemas on all inputs)
+- [x] `libs/shared/api/src/notifications.ts` — `notificationsApi`: `getNotifications`, `markAsRead`, `deleteNotification`
+- [x] `libs/shared/ui`: `Skeleton` (12 primitives), `Breadcrumbs`, `AvatarMenu`
 
-### Testing
+### Remaining for V1 (future)
 
-- [ ] E2E: register → login → dashboard redirect
-- [ ] E2E: create team → invite member → accept invite → team roster updates
-- [ ] E2E: browse hackathon → register → appears in student dashboard
-- [ ] E2E: organizer publishes hackathon → students can see it
-
-### CI/CD
-
-- [ ] GitHub Actions: lint → type-check → unit tests → build (all apps)
-- [ ] `apps/core-gateway/.env.production.example`
-- [ ] `apps/*/next.config.prod.mjs` for production builds
-
-### Deployment Docs
-
-- [ ] `docs/deployment.md` with full Render/DigitalOcean steps
-- [ ] Environment variable checklist for each service
+- [ ] Organizer hackathon edit form page (`hackathons/[id]/edit`)
+- [ ] CSV export button wired on organizer detail page
+- [ ] E2E tests: register, login, team creation, hackathon registration
+- [ ] Deployment guide (Render/DigitalOcean)
+- [ ] Mobile responsive audit (375px)
 
 ---
 
