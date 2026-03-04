@@ -89,6 +89,24 @@ enum SponsorshipStatus {
   paid
 }
 
+enum NotificationType {
+  // Student
+  TEAM_INVITATION_RECEIVED
+  TEAM_INVITATION_ACCEPTED
+  TEAM_INVITATION_REJECTED
+  HACKATHON_REGISTRATION_CONFIRMED
+  HACKATHON_CANCELLED
+  HACKATHON_STARTING_SOON
+  // Organizer
+  SPONSORSHIP_REQUEST_RECEIVED
+  TEAM_JOIN_REQUEST_RECEIVED
+  // Sponsor
+  SPONSORSHIP_REQUEST_APPROVED
+  SPONSORSHIP_REQUEST_REJECTED
+  // General
+  SYSTEM_ANNOUNCEMENT
+}
+
 // Models
 
 model User {
@@ -121,6 +139,7 @@ model User {
   receivedInvitations   TeamInvitation[]       @relation("ReceivedInvitations")
   applications          Application[]
   sponsorships          Sponsorship[]
+  notifications         Notification[]
 
   @@index([email])
   @@index([username])
@@ -351,4 +370,22 @@ model Sponsorship {
   @@index([hackathonId])
   @@index([status])
   @@map("sponsorships")
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  title     String           @db.VarChar(255)
+  message   String
+  isRead    Boolean          @default(false) @map("is_read")
+  actionUrl String?          @map("action_url")
+  metadata  Json?            @db.JsonB
+  createdAt DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId])
+  @@map("notifications")
 }
