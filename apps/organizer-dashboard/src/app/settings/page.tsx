@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+import OrganizerLayout from "@/components/OrganizerLayout";
 import {
     User,
     Bell,
@@ -17,47 +17,59 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState("profile");
 
     return (
-        <DashboardLayout>
-            <div className="space-y-8">
+        <OrganizerLayout>
+            <div className="max-w-6xl mx-auto space-y-8 pb-12">
+                {/* Background Floating Objects */}
+                <div className="absolute top-20 right-10 w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none"></div>
+
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-white uppercase tracking-tight">System Configuration</h1>
-                        <div className="flex items-center gap-2 mt-2">
-                            <div className="w-1.5 h-1.5 bg-primary animate-pulse rounded-full" />
-                            <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold">
-                                Manage organization and account parameters
+                        <div className="flex items-center relative mb-1">
+                            <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                                <span className="text-white">SYSTEM CONFIG</span>
+                            </h1>
+                            <div className="flex ml-4 gap-1 opacity-60 mt-2">
+                                <div className="w-8 h-1 bg-primary"></div>
+                                <div className="w-2 h-1 bg-primary"></div>
+                                <div className="w-1 h-1 bg-primary"></div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-4 mb-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-sm" />
+                            <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold">
+                                MANAGE ORGANIZATION AND ACCOUNT PARAMETERS
                             </span>
                         </div>
                     </div>
-                    <button className="btn-primary flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest font-bold">
+                    <button className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white border border-primary hover:bg-primary-dark hover:shadow-[0_0_15px_rgba(255,92,0,0.4)] transition-all active:scale-[0.98] rounded-sm drop-shadow-md text-[10px] font-bold tracking-widest uppercase mt-4">
                         <Save className="w-4 h-4" />
-                        <span>Save Config</span>
+                        <span>SAVE CONFIG</span>
                     </button>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Navigation */}
-                    <div className="space-y-2">
+                    <div className="space-y-1 bg-[#080808] border border-white/5 p-2 rounded-sm h-fit">
                         {[
-                            { id: "profile", label: "Org Profile", icon: User },
-                            { id: "notifications", label: "Alerts", icon: Bell },
-                            { id: "security", label: "Security", icon: Shield },
-                            { id: "billing", label: "Subscription", icon: CreditCard },
+                            { id: "profile", label: "ORG PROFILE", icon: User },
+                            { id: "notifications", label: "ALERTS", icon: Bell },
+                            { id: "security", label: "SECURITY", icon: Shield },
+                            { id: "billing", label: "SUBSCRIPTION", icon: CreditCard },
                         ].map((tab) => {
                             const Icon = tab.icon;
                             return (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`w-full flex items-center justify-between px-4 py-3 transition-all border-l-2 ${activeTab === tab.id
-                                            ? "bg-primary/10 text-white border-primary"
-                                            : "text-white/40 border-transparent hover:bg-white/5 hover:text-white/70"
+                                    className={`w-full flex items-center justify-between px-4 py-4 transition-all border-l-2 rounded-sm ${activeTab === tab.id
+                                        ? "bg-primary/10 text-white border-primary"
+                                        : "text-white/40 border-transparent hover:bg-white/5 hover:text-white/80"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
                                         <Icon className={`w-4 h-4 ${activeTab === tab.id ? "text-primary" : ""}`} />
-                                        <span className="font-bold text-[11px] uppercase tracking-widest">{tab.label}</span>
+                                        <span className="font-bold text-[10px] uppercase tracking-widest">{tab.label}</span>
                                     </div>
                                     <ChevronRight className={`w-4 h-4 transition-transform ${activeTab === tab.id ? "rotate-90 text-primary" : ""}`} />
                                 </button>
@@ -68,91 +80,105 @@ export default function SettingsPage() {
                     {/* Content */}
                     <div className="lg:col-span-3 space-y-6">
                         {/* Org Profile */}
-                        <div className="glass p-6 rounded-xl space-y-6 border border-white/5">
-                            <div className="flex items-center gap-6">
-                                <div className="relative group">
-                                    <div className="w-24 h-24 bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-3xl font-black">
-                                        TH
+                        <div className="bg-[#080808] p-8 rounded-sm space-y-8 border border-white/5 relative group">
+                            <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-white/20 group-hover:border-primary/50 transition-colors"></div>
+
+                            <div className="flex items-center gap-8 pb-8 border-b border-white/5">
+                                <div className="relative group/avatar cursor-pointer">
+                                    <div className="w-24 h-24 bg-[#050505] border border-white/10 flex items-center justify-center text-primary text-3xl font-black italic tracking-tighter rounded-sm overflow-hidden">
+                                        <span className="group-hover/avatar:scale-110 transition-transform duration-500">TH</span>
                                     </div>
-                                    <button className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-white">
-                                        <Camera className="w-6 h-6" />
+                                    <button className="absolute inset-0 bg-primary/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all text-white border border-primary rounded-sm">
+                                        <Camera className="w-6 h-6 shadow-glow-sm" />
                                     </button>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white flex items-center gap-2 uppercase tracking-wider">
-                                        Tech Hub Global
-                                        <ShieldCheck className="w-5 h-5 text-green-400" />
+                                    <h3 className="text-2xl font-black text-white flex items-center gap-3 uppercase tracking-tighter italic mb-2">
+                                        TECH HUB GLOBAL
+                                        <ShieldCheck className="w-6 h-6 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]" />
                                     </h3>
-                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Organization account since January 2025</p>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <span className="px-2 py-0.5 text-[8px] font-bold bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-widest">Verified</span>
-                                        <span className="px-2 py-0.5 text-[8px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest">Enterprise Plan</span>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">ORGANIZATION ACCOUNT SINCE JANUARY 2025</p>
+                                    <div className="flex items-center gap-3 mt-4">
+                                        <span className="px-3 py-1 flex items-center gap-1.5 text-[8px] font-bold bg-green-500/10 text-green-400 border border-green-500/20 uppercase tracking-widest rounded-sm"><ShieldCheck className="w-3 h-3" /> VERIFIED</span>
+                                        <span className="px-3 py-1 text-[8px] font-bold bg-[#050505] text-primary border border-primary/20 uppercase tracking-widest rounded-sm">ENTERPRISE PLAN</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Organization Name</label>
+                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                                        ORGANIZATION NAME
+                                    </label>
                                     <input
                                         type="text"
-                                        defaultValue="Tech Hub Global"
-                                        className="w-full px-4 py-3 bg-black border border-white/5 text-sm text-white focus:outline-none focus:border-primary/30 transition-all font-medium tracking-wide"
+                                        defaultValue="TECH HUB GLOBAL"
+                                        className="w-full px-4 py-3 bg-[#050505] border border-white/10 text-sm text-white focus:outline-none focus:border-primary/50 transition-all font-bold tracking-wide rounded-sm placeholder:text-white/20"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Official Website</label>
+                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                                        OFFICIAL WEBSITE
+                                    </label>
                                     <input
                                         type="url"
-                                        defaultValue="https://techhub.global"
-                                        className="w-full px-4 py-3 bg-black border border-white/5 text-sm text-white focus:outline-none focus:border-primary/30 transition-all font-medium tracking-wide"
+                                        defaultValue="HTTPS://TECHHUB.GLOBAL"
+                                        className="w-full px-4 py-3 bg-[#050505] border border-white/10 text-sm text-white focus:outline-none focus:border-primary/50 transition-all font-bold tracking-wide rounded-sm placeholder:text-white/20"
                                     />
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
-                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">About Organization</label>
+                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                                        ABOUT ORGANIZATION
+                                    </label>
                                     <textarea
                                         rows={4}
-                                        defaultValue="Tech Hub Global is a leading community for developers and tech enthusiasts, organizing world-class hackathons and innovation challenges."
-                                        className="w-full px-4 py-3 bg-black border border-white/5 text-sm text-white focus:outline-none focus:border-primary/30 transition-all font-medium tracking-wide resize-none"
+                                        defaultValue="TECH HUB GLOBAL IS A LEADING COMMUNITY FOR DEVELOPERS AND TECH ENTHUSIASTS, ORGANIZING WORLD-CLASS HACKATHONS AND INNOVATION CHALLENGES."
+                                        className="w-full px-4 py-3 bg-[#050505] border border-white/10 text-sm text-white focus:outline-none focus:border-primary/50 transition-all font-bold tracking-wide resize-none rounded-sm placeholder:text-white/20"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Primary Contact Email</label>
+                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                                        PRIMARY CONTACT EMAIL
+                                    </label>
                                     <input
                                         type="email"
-                                        defaultValue="events@techhub.global"
-                                        className="w-full px-4 py-3 bg-black border border-white/5 text-sm text-white focus:outline-none focus:border-primary/30 transition-all font-medium tracking-wide"
+                                        defaultValue="EVENTS@TECHHUB.GLOBAL"
+                                        className="w-full px-4 py-3 bg-[#050505] border border-white/10 text-sm text-white focus:outline-none focus:border-primary/50 transition-all font-bold tracking-wide rounded-sm placeholder:text-white/20"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Timezone</label>
-                                    <select className="w-full px-4 py-3 bg-black border border-white/5 text-sm text-white focus:outline-none focus:border-primary/30 transition-all appearance-none cursor-pointer font-medium tracking-wide">
-                                        <option>UTC (Greenwich Mean Time)</option>
-                                        <option>EST (Eastern Standard Time)</option>
-                                        <option>PST (Pacific Standard Time)</option>
+                                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                                        TIMEZONE
+                                    </label>
+                                    <select className="w-full px-4 py-3 bg-[#050505] border border-white/10 text-[10px] text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer font-bold tracking-widest rounded-sm">
+                                        <option>UTC (GREENWICH MEAN TIME)</option>
+                                        <option>EST (EASTERN STANDARD TIME)</option>
+                                        <option>PST (PACIFIC STANDARD TIME)</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
                         {/* Public Link */}
-                        <div className="glass p-6 rounded-xl border-l-4 border-primary">
-                            <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-2">Organizer Public Page</h4>
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-4">
-                                This is the public page where participants can see all your active hackathons and organization details.
+                        <div className="bg-[#080808] p-6 rounded-sm border border-white/5 border-l-4 border-l-primary relative overflow-hidden">
+                            <div className="absolute right-0 top-0 w-32 h-32 bg-primary/10 blur-[40px] pointer-events-none"></div>
+
+                            <h4 className="text-white font-black italic text-lg uppercase tracking-tighter mb-2">ORGANIZER PUBLIC PAGE</h4>
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-6">
+                                THIS IS THE PUBLIC PAGE WHERE PARTICIPANTS CAN SEE ALL YOUR ACTIVE HACKATHONS AND ORGANIZATION DETAILS.
                             </p>
-                            <div className="flex items-center gap-2">
-                                <div className="flex-1 px-4 py-2 bg-black border border-white/5 text-white/40 text-xs font-mono tracking-wider">
-                                    takathon.com/org/tech-hub-global
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 px-4 py-3 bg-[#050505] border border-white/10 text-white/60 text-xs font-mono tracking-wider rounded-sm flex items-center justify-between">
+                                    HTTPS://TAKATHON.COM/ORG/TECH-HUB-GLOBAL
                                 </div>
-                                <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold uppercase tracking-widest transition-all border border-white/5">
-                                    Copy Link
+                                <button className="px-6 py-3 bg-transparent text-white text-[10px] font-bold uppercase tracking-widest transition-all border border-white/20 hover:border-white/50 hover:bg-white/5 rounded-sm active:scale-[0.98]">
+                                    COPY LINK
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+        </OrganizerLayout>
     );
 }
