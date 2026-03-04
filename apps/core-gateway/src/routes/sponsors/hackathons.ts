@@ -60,6 +60,27 @@ router.get("/sponsorships/:sponsorshipId", async (req: any, res) => {
 });
 
 /**
+ * GET /api/v1/sponsors/hackathons/:id/overview
+ * Hackathon overview for sponsor — stats, skills, leaderboard, university breakdown
+ * Requires APPROVED or PAID sponsorship
+ */
+router.get("/:id/overview", async (req: any, res) => {
+  const result = await SponsorHackathonService.getHackathonOverview(
+    req.user.id,
+    req.params.id,
+  );
+  if ("error" in result) {
+    return ResponseHandler.error(
+      res,
+      result.error as string,
+      (result as any).message || "Not found",
+      404,
+    );
+  }
+  return ResponseHandler.success(res, result.data);
+});
+
+/**
  * GET /api/v1/sponsors/hackathons/:id
  * View hackathon detail
  */
@@ -102,7 +123,12 @@ router.post("/:id/sponsor", async (req: any, res) => {
 
   if ("error" in result) {
     const status = result.error === "HACKATHON_NOT_FOUND" ? 404 : 409;
-    return ResponseHandler.error(res, result.error as string, (result as any).message || (result.error as string), status);
+    return ResponseHandler.error(
+      res,
+      result.error as string,
+      (result as any).message || (result.error as string),
+      status,
+    );
   }
 
   return ResponseHandler.success(res, result.sponsorship, 201);
@@ -120,7 +146,12 @@ router.post("/sponsorships/:sponsorshipId/cancel", async (req: any, res) => {
 
   if ("error" in result) {
     const status = result.error === "NOT_FOUND" ? 404 : 409;
-    return ResponseHandler.error(res, result.error as string, (result as any).message || (result.error as string), status);
+    return ResponseHandler.error(
+      res,
+      result.error as string,
+      (result as any).message || (result.error as string),
+      status,
+    );
   }
 
   return ResponseHandler.success(res, result.sponsorship);
@@ -139,7 +170,12 @@ router.get("/:id/teams", async (req: any, res) => {
   });
 
   if ("error" in result) {
-    return ResponseHandler.error(res, result.error as string, (result as any).message || (result.error as string), 404);
+    return ResponseHandler.error(
+      res,
+      result.error as string,
+      (result as any).message || (result.error as string),
+      404,
+    );
   }
 
   return ResponseHandler.success(res, result);

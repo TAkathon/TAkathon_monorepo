@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { NotificationService } from "../shared/notifications.service";
 
 export class StudentTeamService {
   /**
@@ -16,7 +17,12 @@ export class StudentTeamService {
             members: {
               include: {
                 user: {
-                  select: { id: true, fullName: true, username: true, avatarUrl: true },
+                  select: {
+                    id: true,
+                    fullName: true,
+                    username: true,
+                    avatarUrl: true,
+                  },
                 },
               },
             },
@@ -170,7 +176,8 @@ export class StudentTeamService {
     });
     if (!team) return { error: "TEAM_NOT_FOUND" as const };
     if (team.creatorId !== userId) return { error: "NOT_CAPTAIN" as const };
-    if (team.status !== "forming") return { error: "TEAM_NOT_FORMING" as const };
+    if (team.status !== "forming")
+      return { error: "TEAM_NOT_FORMING" as const };
 
     await prisma.$transaction(async (tx) => {
       // Reset all members' participant status
@@ -204,8 +211,10 @@ export class StudentTeamService {
   ) {
     const team = await prisma.team.findUnique({ where: { id: teamId } });
     if (!team) return { error: "TEAM_NOT_FOUND" as const };
-    if (team.status !== "forming") return { error: "TEAM_NOT_FORMING" as const };
-    if (team.currentSize >= team.maxSize) return { error: "TEAM_FULL" as const };
+    if (team.status !== "forming")
+      return { error: "TEAM_NOT_FORMING" as const };
+    if (team.currentSize >= team.maxSize)
+      return { error: "TEAM_FULL" as const };
 
     // Check inviter is a member
     const inviterMembership = await prisma.teamMember.findUnique({
@@ -214,12 +223,20 @@ export class StudentTeamService {
     if (!inviterMembership) return { error: "NOT_A_MEMBER" as const };
 
     // Check invitee exists and is a student
-    const invitee = await prisma.user.findUnique({ where: { id: data.userId } });
-    if (!invitee || invitee.role !== "student") return { error: "INVITEE_NOT_FOUND" as const };
+    const invitee = await prisma.user.findUnique({
+      where: { id: data.userId },
+    });
+    if (!invitee || invitee.role !== "student")
+      return { error: "INVITEE_NOT_FOUND" as const };
 
     // Check invitee is registered for this hackathon
     const inviteeParticipant = await prisma.hackathonParticipant.findUnique({
-      where: { hackathonId_userId: { hackathonId: team.hackathonId, userId: data.userId } },
+      where: {
+        hackathonId_userId: {
+          hackathonId: team.hackathonId,
+          userId: data.userId,
+        },
+      },
     });
     if (!inviteeParticipant || inviteeParticipant.status === "withdrawn") {
       return { error: "INVITEE_NOT_REGISTERED" as const };
@@ -243,6 +260,20 @@ export class StudentTeamService {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       },
     });
+
+    // Notify the invited student
+    const inviterUser = await prisma.user.findUnique({
+      where: { id: inviterId },
+      select: { fullName: true },
+    });
+    NotificationService.createNotification(
+      data.userId,
+      "TEAM_INVITATION_RECEIVED",
+      "Team Invitation",
+      `${inviterUser?.fullName ?? "Someone"} invited you to join ${team.name}`,
+      "/dashboard/teams",
+      { teamId, teamName: team.name, inviterId },
+    ).catch(() => {}); // fire-and-forget
 
     return { data: invitation };
   }
@@ -314,6 +345,21 @@ export class StudentTeamService {
         where: { id: invitationId },
         data: { status: "rejected", respondedAt: new Date() },
       });
+
+      // Notify the inviter/captain that the invitation was rejected
+      const inviteeUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { fullName: true },
+      });
+      NotificationService.createNotification(
+        invitation.inviterId,
+        "TEAM_INVITATION_REJECTED",
+        "Invitation Declined",
+        `${inviteeUser?.fullName ?? "A student"} declined your invitation to ${invitation.team.name}`,
+        "/dashboard/teams",
+        { teamId: invitation.teamId, teamName: invitation.team.name },
+      ).catch(() => {});
+
       return { data: rejected };
     }
 
@@ -361,6 +407,20 @@ export class StudentTeamService {
 
       return accepted;
     });
+
+    // Notify the inviter/captain that the invitation was accepted
+    const acceptedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { fullName: true },
+    });
+    NotificationService.createNotification(
+      invitation.inviterId,
+      "TEAM_INVITATION_ACCEPTED",
+      "Invitation Accepted",
+      `${acceptedUser?.fullName ?? "A student"} accepted your invitation to ${team.name}`,
+      "/dashboard/teams",
+      { teamId: team.id, teamName: team.name },
+    ).catch(() => {});
 
     return { data: result };
   }

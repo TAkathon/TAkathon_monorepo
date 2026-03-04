@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { NotificationService } from "../shared/notifications.service";
 
 export class OrganizerHackathonService {
   /**
@@ -220,11 +221,31 @@ export class OrganizerHackathonService {
    * Cancel a hackathon
    */
   static async cancelHackathon(organizerId: string, hackathonId: string) {
-    return OrganizerHackathonService.updateStatus(
+    const result = await OrganizerHackathonService.updateStatus(
       organizerId,
       hackathonId,
       "cancelled",
     );
+
+    // Notify all participants if cancellation succeeded
+    if ("data" in result && result.data) {
+      const participants = await prisma.hackathonParticipant.findMany({
+        where: { hackathonId },
+        select: { userId: true },
+      });
+      for (const p of participants) {
+        NotificationService.createNotification(
+          p.userId,
+          "HACKATHON_CANCELLED",
+          "Hackathon Cancelled",
+          `${result.data.title} has been cancelled by the organizer`,
+          "/dashboard/hackathons",
+          { hackathonId, hackathonTitle: result.data.title },
+        ).catch(() => {});
+      }
+    }
+
+    return result;
   }
 
   /**
