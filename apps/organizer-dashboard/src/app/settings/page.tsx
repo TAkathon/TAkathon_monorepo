@@ -15,7 +15,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import * as organizerApi from "@takathon/shared/api/src/organizer";
+import { organizerApi } from "@takathon/shared/api";
 import { useAuthStore } from "@takathon/shared/utils";
 import { toast } from "sonner";
 
