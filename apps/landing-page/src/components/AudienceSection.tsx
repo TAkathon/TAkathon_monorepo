@@ -5,7 +5,7 @@ const personas = [
         number: "01",
         title: "STUDENTS",
         subtitle: "Build portfolio & win prizes",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCdDkzqESJSr11_vomiN8MLbt3Py07zDe8gldaww_uJp7Trw_j2ql_KBELRpsTeCCZCRVvMOfZoQFbVd-GpdxxqnHC6buM3o0ErCOVlfOQoqW_93GrHYvK3V30E-O6e7n1t3m0cTJtDCCShjrKCf5fg0W2kOlSMjzNi9pXdBytpN-tsZb0I3ztxG7E_oz_pJ-o4tQEic1xZD8dQj2uRug4_jtHSCRzNn-HrdOQy0ro2GwRPTPAd7zbLk9UWLyU4WCILnU3kHawdTXg",
+        image: "/students.jpg",
         watermarkIcon: (
             <svg className="w-36 h-36 text-white/10" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
@@ -17,7 +17,7 @@ const personas = [
         number: "02",
         title: "ORGANIZERS",
         subtitle: "Manage events seamlessly",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC0dPT4c0F_jgrCk0ESqzGMgRdBqWhTXxadQ65HVTDmd1zzS4mIWU-0xiBrP48aEHmT4Jv3-IIw6XkDeGrNa-RvmIeMM8GBxaRDOMv-ZVMhr-Kmm05yjr48TsB-fxOdM6Zdt0Cob3cMZohwS7ImLfMsd_sdoTP5_LONgViYXxGk0H51IWGGd5wS6kllWzsTZLd3ry0s8LDKH7fUNf6xBELXnUXskgm4f_2zi7QJe57GCqBJgRD1JigK4nNjDoe6MgR2DM1A78jkAkE",
+        image: "/organizers.jpg",
         watermarkIcon: (
             <svg className="w-36 h-36 text-primary/20" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M16.53 11.06L12.58 7.11l1.41-1.41 2.54 2.53 5.54-5.53 1.41 1.41-6.95 6.95zM19 19H5V8h7.11l2-2H5c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-6.97l-2 2V19z" />
@@ -29,7 +29,7 @@ const personas = [
         number: "03",
         title: "SPONSORS",
         subtitle: "Access top tech talent",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDofH7LYXEvRdDP4-juh12WHT-_htvgMPxRU4nQQFqarcpStad_1xPYwDQEdbkPLDv0jDVEkQbdhOrN5OUwkXvyuWAg7Fn1nV-wTE35DfgM1GHszi14qQeYTxXhfwzvWI0jhmNcfuItsIapo2zWu4CjY9KxHwQPwv2WIIgPwc1ggpDyR45ovJpwiI-DDVlV3kzgF5zD7NNV5u4MdxAXCgo8s87nYfRG69Qvtq0PhImWF0jRY25maNRvea045v300BvfzwpH4XV5QrY",
+        image: "/sponsors.jpg",
         watermarkIcon: (
             <svg className="w-36 h-36 text-yellow-500/10" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" />

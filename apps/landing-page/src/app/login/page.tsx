@@ -77,17 +77,17 @@ function LoginContent() {
     {
       id: "student",
       label: "Student",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBPGkPLZUd1zHNoZnDHc7TwvIKpjtDYa3MVrTl7xk1mGaeY8dJGP7g32UgtuTFRB6WX0mDmFLMNAGtZE-bGizb8sC6xzqhkmblFCi3WJR0pDMOPpysz2HDHBNdnGc0h_es3kugYGrVxKEkF-3LuQeB5SIofQgjmh9wyGVcSoHxkILOD1Anyt-SWjYJYmGXaJdB38B_UO3Pwg80HlL02lwQhhHrPo3aR2BwihoRCB9ztuIDZRbJM1O6cGKonE4RXrST6O4mYZ4RVEEg",
+      image: "/students.jpg",
     },
     {
       id: "organizer",
       label: "Organizer",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDruA4RT_G63TeWm8HoS367mK3r3pAafcvDVl45QDw9r0aRPddOAPzCSemv4WLfs5cbVXB0reLoUohZUoLQVVjfIjnu6nXj14gChK3mFUNQhqXr1qIJJxPAHufhk7cMg9rQD3jXQ1iVstfGgJ6t4e6exIi0QlgKCNiXU6c4K0c2jpYtSZB824x3femRT1C0GlE1OME7mI25ITcH65IuBbiGAEY3FpfqNj00zi8NUvUT1yd3c-ZqEOYdrRAzWiedciIHMoFjxXR89bc",
+      image: "/organizers.jpg",
     },
     {
       id: "sponsor",
       label: "Sponsor",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAg7hvMljrZGLkAa-tHrsvrXc6aWQKvY6z2QtcTp3gc3CqW8cWiA818mvPgAsK507AkgNY6LqS6FWArMduRVZpbfXWR3DPxEPFwTUHGHLSXnTq8YTyfP63Ax4ZcZ-vvkvXhVm9gk2vBpO2CL1JYjFDCWRuY5mcLh0r9KfY4UL9QYRWUiLr21-yaoGHwp2iqzM0TuiETjZO076wplw5Noyh1ry7UPpZdbrjicQfy758bPkQy9mS-IdjryddzxOmuoehCjXIuHtOg_kQ",
+      image: "/sponsors.jpg",
     },
   ];
 
