@@ -59,7 +59,7 @@ export default function HeroSection() {
       <div className="absolute bottom-[-50px] left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl">
         <div className="relative w-full aspect-square flex items-end justify-center">
           <div className="relative w-96 h-96 md:w-[500px] md:h-[500px] floating">
-            <div className="absolute inset-0 bg-primary blur-[120px] opacity-30 rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-[radial-gradient(circle,rgba(255,92,0,0.4)_0%,transparent_65%)] pointer-events-none"></div>
             <div className="relative z-20 w-full h-full">
               <img
                 src="/mascot.png"
