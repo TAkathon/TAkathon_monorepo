@@ -69,7 +69,7 @@ export default function AudienceSection() {
                                     <span className="w-2 h-2 bg-primary"></span> {persona.number}
                                 </div>
                                 <div>
-                                    <div className="huge-title text-5xl lg:text-6xl leading-none mb-2">
+                                    <div className="huge-title text-4xl lg:text-5xl leading-none mb-2">
                                         {persona.title}
                                     </div>
                                     <p className="text-xs font-bold tracking-widest text-zinc-300 uppercase">
