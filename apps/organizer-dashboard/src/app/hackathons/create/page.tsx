@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+import OrganizerLayout from "@/components/OrganizerLayout";
 import {
   Calendar,
   MapPin,
@@ -14,6 +14,12 @@ import {
   ChevronLeft,
   Check,
   AlertCircle,
+  Shield,
+  Target,
+  Zap,
+  Activity,
+  Trophy,
+  Dna
 } from "lucide-react";
 import { organizerApi, hackathonApi } from "@takathon/shared/api";
 import { Breadcrumbs } from "@takathon/shared/ui";
@@ -21,705 +27,366 @@ import type { Skill } from "@takathon/shared/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const STEPS = ["Basic Info", "Logistics", "Skills & Review"];
+const STEPS = ["MISSION INTEL", "DEPLOYMENT LOGISTICS", "OPERATIVE SKILLS"];
 
 export default function CreateHackathonPage() {
-  const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [skillsLoading, setSkillsLoading] = useState(true);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+    const router = useRouter();
+    const [step, setStep] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [skills, setSkills] = useState<Skill[]>([]);
+    const [skillsLoading, setSkillsLoading] = useState(true);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    theme: "",
-    prizesDescription: "",
-    startDate: "",
-    endDate: "",
-    registrationDeadline: "",
-    location: "",
-    isVirtual: false,
-    maxParticipants: "",
-    maxTeamSize: "",
-    minTeamSize: "",
-    prizePool: "",
-    bannerUrl: "",
-    websiteUrl: "",
-    requiredSkillIds: [] as string[],
-  });
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        theme: "",
+        prizesDescription: "",
+        startDate: "",
+        endDate: "",
+        registrationDeadline: "",
+        location: "",
+        isVirtual: false,
+        maxParticipants: "",
+        maxTeamSize: "",
+        minTeamSize: "",
+        prizePool: "",
+        bannerUrl: "",
+        websiteUrl: "",
+        requiredSkillIds: [] as string[],
+    });
 
-  useEffect(() => {
-    hackathonApi
-      .listSkills()
-      .then((s) => setSkills(s))
-      .catch(() => toast.error("Failed to load skills"))
-      .finally(() => setSkillsLoading(false));
-  }, []);
+    useEffect(() => {
+        hackathonApi
+            .listSkills()
+            .then((s) => setSkills(s))
+            .catch(() => toast.error("FAILED TO LOAD SKILL DATABASE"))
+            .finally(() => setSkillsLoading(false));
+    }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-    if (errors[name]) {
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy[name];
-        return copy;
-      });
-    }
-  };
+    const handleChange = (
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >,
+    ) => {
+        const { name, value, type } = e.target;
+        if (type === "checkbox") {
+            const checked = (e.target as HTMLInputElement).checked;
+            setFormData((prev) => ({ ...prev, [name]: checked }));
+        } else {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+        if (errors[name]) {
+            setErrors((prev) => {
+                const copy = { ...prev };
+                delete copy[name];
+                return copy;
+            });
+        }
+    };
 
-  const toggleSkill = (skillId: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      requiredSkillIds: prev.requiredSkillIds.includes(skillId)
-        ? prev.requiredSkillIds.filter((id) => id !== skillId)
-        : [...prev.requiredSkillIds, skillId],
-    }));
-  };
+    const toggleSkill = (skillId: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            requiredSkillIds: prev.requiredSkillIds.includes(skillId)
+                ? prev.requiredSkillIds.filter((id) => id !== skillId)
+                : [...prev.requiredSkillIds, skillId],
+        }));
+    };
 
-  // ── Step validation ──────────────────────────────────────────────────────
-  const validateStep = (s: number): boolean => {
-    const errs: Record<string, string> = {};
+    const validateStep = (s: number): boolean => {
+        const errs: Record<string, string> = {};
+        if (s === 0) {
+            if (!formData.title.trim() || formData.title.trim().length < 3)
+                errs.title = "TITLE MUST BE AT LEAST 3 CHARACTERS";
+            if (!formData.description.trim())
+                errs.description = "DESCRIPTION IS MANDATORY";
+            else if (formData.description.trim().length < 10)
+                errs.description = "DESCRIPTION TOO BRIEF";
+        }
 
-    if (s === 0) {
-      if (!formData.title.trim() || formData.title.trim().length < 3)
-        errs.title = "Title must be at least 3 characters";
-      if (!formData.description.trim())
-        errs.description = "Description is required";
-      else if (formData.description.trim().length < 10)
-        errs.description = "Description must be at least 10 characters";
-    }
+        if (s === 1) {
+            if (!formData.startDate) errs.startDate = "START DATE REQUIRED";
+            if (!formData.endDate) errs.endDate = "END DATE REQUIRED";
+            if (!formData.registrationDeadline)
+                errs.registrationDeadline = "DEADLINE REQUIRED";
 
-    if (s === 1) {
-      if (!formData.startDate) errs.startDate = "Start date is required";
-      if (!formData.endDate) errs.endDate = "End date is required";
-      if (!formData.registrationDeadline)
-        errs.registrationDeadline = "Registration deadline is required";
+            if (formData.startDate && formData.endDate) {
+                if (new Date(formData.endDate) <= new Date(formData.startDate))
+                    errs.endDate = "END MUST BE AFTER START";
+            }
+            if (formData.registrationDeadline && formData.startDate) {
+                if (new Date(formData.registrationDeadline) >= new Date(formData.startDate))
+                    errs.registrationDeadline = "DEADLINE MUST PRECEDE START";
+            }
+        }
 
-      if (formData.startDate && formData.endDate) {
-        if (new Date(formData.endDate) <= new Date(formData.startDate))
-          errs.endDate = "End date must be after start date";
-      }
-      if (formData.registrationDeadline && formData.startDate) {
-        if (
-          new Date(formData.registrationDeadline) >=
-          new Date(formData.startDate)
-        )
-          errs.registrationDeadline =
-            "Registration deadline must be before start date";
-      }
+        setErrors(errs);
+        return Object.keys(errs).length === 0;
+    };
 
-      const min = formData.minTeamSize ? parseInt(formData.minTeamSize) : 0;
-      const max = formData.maxTeamSize ? parseInt(formData.maxTeamSize) : 0;
-      if (min && max && min > max)
-        errs.minTeamSize = "Min team size cannot exceed max team size";
+    const nextStep = () => {
+        if (validateStep(step)) setStep((s) => Math.min(s + 1, 2));
+    };
 
-      if (formData.bannerUrl && !/^https?:\/\/.+/.test(formData.bannerUrl))
-        errs.bannerUrl = "Must be a valid URL (https://...)";
-      if (formData.websiteUrl && !/^https?:\/\/.+/.test(formData.websiteUrl))
-        errs.websiteUrl = "Must be a valid URL (https://...)";
-    }
+    const prevStep = () => setStep((s) => Math.max(s - 1, 0));
 
-    setErrors(errs);
-    if (Object.keys(errs).length > 0) {
-      const firstKey = Object.keys(errs)[0];
-      document
-        .querySelector(`[name="${firstKey}"]`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-    return Object.keys(errs).length === 0;
-  };
+    const handleSubmit = async () => {
+        if (!validateStep(step)) return;
+        setLoading(true);
+        try {
+            const payload: Record<string, unknown> = {
+                title: formData.title.trim(),
+                description: formData.description.trim(),
+                startDate: new Date(formData.startDate).toISOString(),
+                endDate: new Date(formData.endDate).toISOString(),
+                registrationDeadline: new Date(formData.registrationDeadline).toISOString(),
+                location: formData.location || undefined,
+                isVirtual: formData.isVirtual,
+                maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : undefined,
+                maxTeamSize: formData.maxTeamSize ? parseInt(formData.maxTeamSize) : undefined,
+                minTeamSize: formData.minTeamSize ? parseInt(formData.minTeamSize) : undefined,
+                prizePool: formData.prizePool || undefined,
+                bannerUrl: formData.bannerUrl || undefined,
+                websiteUrl: formData.websiteUrl || undefined,
+                requiredSkills: formData.requiredSkillIds.length ? formData.requiredSkillIds : undefined,
+            };
+            if (formData.theme) payload.theme = formData.theme;
+            if (formData.prizesDescription) payload.prizesDescription = formData.prizesDescription;
 
-  const nextStep = () => {
-    if (validateStep(step)) setStep((s) => Math.min(s + 1, 2));
-  };
+            const hackathon = await organizerApi.createHackathon(payload as any);
+            toast.success("MISSION INITIALIZED", { description: "OPERATION LOGGED AS DRAFT." });
+            router.push(`/hackathons/${(hackathon as any).id ?? ""}`);
+        } catch (error: any) {
+            toast.error("INITIALIZATION FAILED", { description: "CHECK SYSTEM ERRORS." });
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const prevStep = () => setStep((s) => Math.max(s - 1, 0));
+    return (
+        <OrganizerLayout>
+            <div className="max-w-4xl mx-auto space-y-8 pb-12 relative">
+                {/* Background Floating Objects */}
+                <div className="absolute top-20 right-10 w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none"></div>
+                <div className="absolute top-60 left-10 w-24 h-24 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none"></div>
 
-  const handleSubmit = async () => {
-    if (!validateStep(step)) return;
-    setLoading(true);
-    try {
-      const payload: Record<string, unknown> = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        startDate: new Date(formData.startDate).toISOString(),
-        endDate: new Date(formData.endDate).toISOString(),
-        registrationDeadline: new Date(
-          formData.registrationDeadline,
-        ).toISOString(),
-        location: formData.location || undefined,
-        isVirtual: formData.isVirtual,
-        maxParticipants: formData.maxParticipants
-          ? parseInt(formData.maxParticipants)
-          : undefined,
-        maxTeamSize: formData.maxTeamSize
-          ? parseInt(formData.maxTeamSize)
-          : undefined,
-        minTeamSize: formData.minTeamSize
-          ? parseInt(formData.minTeamSize)
-          : undefined,
-        prizePool: formData.prizePool || undefined,
-        bannerUrl: formData.bannerUrl || undefined,
-        websiteUrl: formData.websiteUrl || undefined,
-        requiredSkills: formData.requiredSkillIds.length
-          ? formData.requiredSkillIds
-          : undefined,
-      };
-      if (formData.theme) payload.theme = formData.theme;
-      if (formData.prizesDescription)
-        payload.prizesDescription = formData.prizesDescription;
-
-      const hackathon = await organizerApi.createHackathon(payload as any);
-      toast.success("Hackathon created as Draft!");
-      router.push(`/hackathons/${(hackathon as any).id ?? ""}`);
-    } catch (error: any) {
-      // ResponseHandler nests the message under data.error.message
-      const msg =
-        error.response?.data?.error?.message ||
-        error.response?.data?.message ||
-        "Failed to create hackathon";
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const FieldError = ({ name }: { name: string }) =>
-    errors[name] ? (
-      <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-        <AlertCircle size={14} />
-        {errors[name]}
-      </p>
-    ) : null;
-
-  const skillsByCategory = skills.reduce<Record<string, Skill[]>>(
-    (acc, skill) => {
-      const cat = skill.category || "Other";
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(skill);
-      return acc;
-    },
-    {},
-  );
-
-  return (
-    <DashboardLayout>
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Breadcrumbs + Header */}
-        <div>
-          <div className="mb-3">
-            <Breadcrumbs
-              items={[
-                { label: "My Hackathons", href: "/hackathons" },
-                { label: "Create New Hackathon" },
-              ]}
-              showBack
-            />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Create New Hackathon
-          </h1>
-          <p className="text-white/60">Follow the steps to launch your event</p>
-        </div>
-
-        {/* Step Progress */}
-        <div className="flex items-center gap-2">
-          {STEPS.map((label, i) => (
-            <div key={label} className="flex items-center gap-2 flex-1">
-              <button
-                type="button"
-                onClick={() => {
-                  if (i < step) setStep(i);
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all w-full ${
-                  i === step
-                    ? "bg-primary text-white"
-                    : i < step
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-white/5 text-white/40"
-                }`}
-              >
-                {i < step ? (
-                  <Check size={16} />
-                ) : (
-                  <span className="w-5 h-5 rounded-full border border-current flex items-center justify-center text-xs">
-                    {i + 1}
-                  </span>
-                )}
-                {label}
-              </button>
-              {i < STEPS.length - 1 && (
-                <ChevronRight size={16} className="text-white/20 shrink-0" />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* ── Step 1: Basic Info ─────────────────────────────────────────── */}
-        {step === 0 && (
-          <div className="glass p-6 rounded-xl space-y-6">
-            <h2 className="text-xl font-bold text-white">Basic Information</h2>
-
-            <div className="space-y-2">
-              <label className="text-sm text-white/60">
-                Hackathon Title <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                className="input-field w-full"
-                placeholder="e.g. AI Innovation Summit 2026"
-              />
-              <FieldError name="title" />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm text-white/60">
-                Description <span className="text-red-400">*</span>
-              </label>
-              <textarea
-                name="description"
-                rows={4}
-                value={formData.description}
-                onChange={handleChange}
-                className="input-field w-full resize-none"
-                placeholder="Describe your hackathon..."
-              />
-              <p className="text-white/30 text-xs text-right">
-                {formData.description.length} / 2000
-              </p>
-              <FieldError name="description" />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm text-white/60">Theme</label>
-              <input
-                type="text"
-                name="theme"
-                value={formData.theme}
-                onChange={handleChange}
-                className="input-field w-full"
-                placeholder="e.g. Sustainability, Health-Tech"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm text-white/60">
-                Prizes Description
-              </label>
-              <textarea
-                name="prizesDescription"
-                rows={3}
-                value={formData.prizesDescription}
-                onChange={handleChange}
-                className="input-field w-full resize-none"
-                placeholder="Describe prizes and rewards..."
-              />
-              <p className="text-white/30 text-xs text-right">
-                {formData.prizesDescription.length} / 1000
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm text-white/60">Prize Pool</label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                <input
-                  type="text"
-                  name="prizePool"
-                  value={formData.prizePool}
-                  onChange={handleChange}
-                  className="input-field w-full pl-11"
-                  placeholder="e.g. $10,000"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 2: Logistics ──────────────────────────────────────────── */}
-        {step === 1 && (
-          <div className="glass p-6 rounded-xl space-y-6">
-            <h2 className="text-xl font-bold text-white">Logistics</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">
-                  Start Date <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <input
-                    type="datetime-local"
-                    name="startDate"
-                    value={formData.startDate}
-                    onChange={handleChange}
-                    className="input-field w-full pl-11"
-                  />
-                </div>
-                <FieldError name="startDate" />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">
-                  End Date <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <input
-                    type="datetime-local"
-                    name="endDate"
-                    value={formData.endDate}
-                    onChange={handleChange}
-                    className="input-field w-full pl-11"
-                  />
-                </div>
-                <FieldError name="endDate" />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">
-                  Registration Deadline <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <input
-                    type="datetime-local"
-                    name="registrationDeadline"
-                    value={formData.registrationDeadline}
-                    onChange={handleChange}
-                    className="input-field w-full pl-11"
-                  />
-                </div>
-                <FieldError name="registrationDeadline" />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">Event Type</label>
-                <div className="flex items-center gap-4 mt-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="isVirtual"
-                      checked={formData.isVirtual}
-                      onChange={handleChange}
-                      className="w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-primary/50"
-                    />
-                    <span className="text-white">Virtual Event</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {!formData.isVirtual && (
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">Location</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    className="input-field w-full pl-11"
-                    placeholder="Venue address or city"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">
-                  Max Participants
-                </label>
-                <div className="relative">
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <input
-                    type="number"
-                    name="maxParticipants"
-                    min="2"
-                    max="10000"
-                    value={formData.maxParticipants}
-                    onChange={handleChange}
-                    className="input-field w-full pl-11"
-                    placeholder="Unlimited"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">Min Team Size</label>
-                <input
-                  type="number"
-                  name="minTeamSize"
-                  min="1"
-                  max="10"
-                  value={formData.minTeamSize}
-                  onChange={handleChange}
-                  className="input-field w-full"
-                  placeholder="1"
-                />
-                <FieldError name="minTeamSize" />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">Max Team Size</label>
-                <input
-                  type="number"
-                  name="maxTeamSize"
-                  min="1"
-                  max="10"
-                  value={formData.maxTeamSize}
-                  onChange={handleChange}
-                  className="input-field w-full"
-                  placeholder="5"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">Banner URL</label>
-                <div className="relative">
-                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <input
-                    type="url"
-                    name="bannerUrl"
-                    value={formData.bannerUrl}
-                    onChange={handleChange}
-                    className="input-field w-full pl-11"
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-white/60">Website URL</label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-                  <input
-                    type="url"
-                    name="websiteUrl"
-                    value={formData.websiteUrl}
-                    onChange={handleChange}
-                    className="input-field w-full pl-11"
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 3: Skills & Review ────────────────────────────────────── */}
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="glass p-6 rounded-xl space-y-4">
-              <h2 className="text-xl font-bold text-white">Required Skills</h2>
-              <p className="text-white/50 text-sm">
-                Select skills participants should have. This helps AI matching
-                recommend the best teammates.
-              </p>
-
-              {skillsLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="animate-spin text-white/40" size={24} />
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {Object.entries(skillsByCategory).map(
-                    ([category, catSkills]) => (
-                      <div key={category}>
-                        <h3 className="text-sm font-semibold text-white/70 mb-2">
-                          {category}
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {catSkills.map((skill) => {
-                            const selected = formData.requiredSkillIds.includes(
-                              skill.id,
-                            );
-                            return (
-                              <button
-                                key={skill.id}
-                                type="button"
-                                onClick={() => toggleSkill(skill.id)}
-                                className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
-                                  selected
-                                    ? "bg-primary/20 border-primary text-primary"
-                                    : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
-                                }`}
-                              >
-                                {selected && (
-                                  <Check size={12} className="inline mr-1" />
-                                )}
-                                {skill.name}
-                              </button>
-                            );
-                          })}
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div>
+                        <div className="flex items-center relative mb-1">
+                            <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                                <span className="text-white">INITIALIZE MISSION</span>
+                            </h1>
+                            <div className="flex ml-4 gap-1 opacity-60 mt-2">
+                                <div className="w-8 h-1 bg-primary"></div>
+                                <div className="w-2 h-1 bg-primary"></div>
+                                <div className="w-1 h-1 bg-primary"></div>
+                            </div>
                         </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              )}
-
-              {formData.requiredSkillIds.length > 0 && (
-                <p className="text-white/40 text-sm">
-                  {formData.requiredSkillIds.length} skill
-                  {formData.requiredSkillIds.length !== 1 ? "s" : ""} selected
-                </p>
-              )}
-            </div>
-
-            {/* Preview card */}
-            <div className="glass p-6 rounded-xl space-y-4">
-              <h2 className="text-xl font-bold text-white">Review</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-white/50">Title</span>
-                  <p className="text-white font-medium">
-                    {formData.title || "—"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-white/50">Theme</span>
-                  <p className="text-white font-medium">
-                    {formData.theme || "—"}
-                  </p>
-                </div>
-                <div className="md:col-span-2">
-                  <span className="text-white/50">Description</span>
-                  <p className="text-white/80 line-clamp-3">
-                    {formData.description || "—"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-white/50">Start Date</span>
-                  <p className="text-white font-medium">
-                    {formData.startDate
-                      ? new Date(formData.startDate).toLocaleDateString()
-                      : "—"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-white/50">End Date</span>
-                  <p className="text-white font-medium">
-                    {formData.endDate
-                      ? new Date(formData.endDate).toLocaleDateString()
-                      : "—"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-white/50">Registration Deadline</span>
-                  <p className="text-white font-medium">
-                    {formData.registrationDeadline
-                      ? new Date(
-                          formData.registrationDeadline,
-                        ).toLocaleDateString()
-                      : "—"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-white/50">Format</span>
-                  <p className="text-white font-medium">
-                    {formData.isVirtual
-                      ? "Virtual"
-                      : formData.location || "In-Person"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-white/50">Team Size</span>
-                  <p className="text-white font-medium">
-                    {formData.minTeamSize || "1"} –{" "}
-                    {formData.maxTeamSize || "∞"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-white/50">Max Participants</span>
-                  <p className="text-white font-medium">
-                    {formData.maxParticipants || "Unlimited"}
-                  </p>
-                </div>
-                {formData.requiredSkillIds.length > 0 && (
-                  <div className="md:col-span-2">
-                    <span className="text-white/50">Required Skills</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {formData.requiredSkillIds.map((sid) => {
-                        const sk = skills.find((s) => s.id === sid);
-                        return (
-                          <span
-                            key={sid}
-                            className="px-2 py-0.5 bg-primary/20 text-primary rounded-full text-xs"
-                          >
-                            {sk?.name || sid}
-                          </span>
-                        );
-                      })}
+                        <div className="flex items-center gap-2 mt-4 mb-2">
+                            <div className="w-2 h-2 bg-primary rounded-sm shadow-[0_0_8px_rgba(255,92,0,0.5)]" />
+                            <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold">
+                                CONFIGURE OPERATIONAL PARAMETERS AND MISSION LOGISTICS
+                            </span>
+                        </div>
                     </div>
-                  </div>
+                </div>
+
+                {/* Step Progress Container */}
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
+                    {STEPS.map((label, i) => (
+                        <div key={label} className="relative">
+                            <div className={`h-1 rounded-full mb-3 transition-all duration-500 ${i <= step ? "bg-primary shadow-glow-sm" : "bg-white/5"}`} />
+                            <div className={`text-[10px] font-black uppercase tracking-widest transition-colors ${i === step ? "text-white" : "text-white/20"}`}>
+                                {label}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* ── Step 1: MISSION INTEL ─────────────────────────────────────────── */}
+                {step === 0 && (
+                    <div className="bg-[#080808] border border-white/5 rounded-sm p-8 space-y-8 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-[80px] -mr-8 -mt-8 blur-2xl pointer-events-none"></div>
+                        
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-10 h-10 bg-primary/10 border border-primary/20 flex items-center justify-center rounded-sm">
+                                <Target className="w-5 h-5 text-primary" />
+                            </div>
+                            <h2 className="text-xl font-black italic text-white uppercase tracking-tighter">MISSION DATA</h2>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">MISSION TITLE <span className="text-primary">*</span></label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleChange}
+                                    className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-[11px] font-bold uppercase tracking-widest text-white focus:outline-none focus:border-primary/50 transition-all rounded-sm"
+                                    placeholder="COMMAND TITLE..."
+                                />
+                                {errors.title && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-1"><AlertCircle size={10} /> {errors.title}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">OPERATIONAL DESCRIPTION <span className="text-primary">*</span></label>
+                                <textarea
+                                    name="description"
+                                    rows={4}
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-[11px] font-bold uppercase tracking-widest text-white focus:outline-none focus:border-primary/50 transition-all rounded-sm resize-none"
+                                    placeholder="DETAIL THE MISSION OBJECTIVES..."
+                                />
+                                {errors.description && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-1"><AlertCircle size={10} /> {errors.description}</p>}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">MISSION THEME</label>
+                                    <input
+                                        type="text"
+                                        name="theme"
+                                        value={formData.theme}
+                                        onChange={handleChange}
+                                        className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-[11px] font-bold uppercase tracking-widest text-white rounded-sm focus:outline-none focus:border-primary/50"
+                                        placeholder="CORE SECTOR..."
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">VALOR POOL (PRIZES)</label>
+                                    <div className="relative">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                                        <input
+                                            type="text"
+                                            name="prizePool"
+                                            value={formData.prizePool}
+                                            onChange={handleChange}
+                                            className="w-full bg-[#0a0a0a] border border-white/10 p-3 pl-10 text-[11px] font-bold uppercase tracking-widest text-white rounded-sm focus:outline-none focus:border-primary/50"
+                                            placeholder="REWARD ALLOCATION..."
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
-              </div>
+
+                {/* ── Step 2: DEPLOYMENT LOGISTICS ──────────────────────────────────────────── */}
+                {step === 1 && (
+                    <div className="bg-[#080808] border border-white/5 rounded-sm p-8 space-y-8">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-10 h-10 bg-primary/10 border border-primary/20 flex items-center justify-center rounded-sm">
+                                <Calendar className="w-5 h-5 text-primary" />
+                            </div>
+                            <h2 className="text-xl font-black italic text-white uppercase tracking-tighter">DEPLOYMENT LOGISTICS</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">START SEQUENCE <span className="text-primary">*</span></label>
+                                    <input type="datetime-local" name="startDate" value={formData.startDate} onChange={handleChange} className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-[10px] font-bold uppercase tracking-widest text-white focus:outline-none focus:border-primary/50 rounded-sm" />
+                                    {errors.startDate && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-1"><AlertCircle size={10} /> {errors.startDate}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">ABORT/END SEQUENCE <span className="text-primary">*</span></label>
+                                    <input type="datetime-local" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-[10px] font-bold uppercase tracking-widest text-white focus:outline-none focus:border-primary/50 rounded-sm" />
+                                    {errors.endDate && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-1"><AlertCircle size={10} /> {errors.endDate}</p>}
+                                </div>
+                            </div>
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">INTAKE DEADLINE <span className="text-primary">*</span></label>
+                                    <input type="datetime-local" name="registrationDeadline" value={formData.registrationDeadline} onChange={handleChange} className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-[10px] font-bold uppercase tracking-widest text-white focus:outline-none focus:border-primary/50 rounded-sm" />
+                                    {errors.registrationDeadline && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-1"><AlertCircle size={10} /> {errors.registrationDeadline}</p>}
+                                </div>
+                                <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/5 rounded-sm">
+                                    <input type="checkbox" name="isVirtual" checked={formData.isVirtual} onChange={handleChange} className="w-4 h-4 bg-black border-white/20 text-primary rounded-sm focus:ring-0" />
+                                    <label className="text-[10px] text-white/60 font-black uppercase tracking-widest flex items-center gap-2">
+                                        <Globe className="w-3 h-3" /> VIRTUAL OPERATION
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {!formData.isVirtual && (
+                            <div className="space-y-2">
+                                <label className="text-[10px] text-white/40 font-bold uppercase tracking-widest">MISSION COMMAND HUB (LOCATION)</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                                    <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full bg-[#0a0a0a] border border-white/10 p-3 pl-10 text-[11px] font-bold uppercase tracking-widest text-white rounded-sm focus:outline-none focus:border-primary/50" placeholder="SECTOR GRID..." />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ── Step 3: OPERATIVE SKILLS ────────────────────────────────────── */}
+                {step === 2 && (
+                    <div className="bg-[#080808] border border-white/5 rounded-sm p-8 space-y-8">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-10 h-10 bg-primary/10 border border-primary/20 flex items-center justify-center rounded-sm">
+                                <Dna className="w-5 h-5 text-primary" />
+                            </div>
+                            <h2 className="text-xl font-black italic text-white uppercase tracking-tighter">OPERATIVE REQUIREMENTS</h2>
+                        </div>
+
+                        {skillsLoading ? (
+                            <div className="flex flex-col items-center justify-center py-12 gap-4">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest">SYNCING SKILL DATABASE...</div>
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {Object.entries(skills.reduce<Record<string, Skill[]>>((acc, s) => {
+                                    const cat = s.category || "GENERAL";
+                                    if (!acc[cat]) acc[cat] = [];
+                                    acc[cat].push(s);
+                                    return acc;
+                                }, {})).map(([category, catSkills]) => (
+                                    <div key={category} className="space-y-3">
+                                        <div className="text-[8px] text-white/30 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <div className="w-1 h-1 bg-white/20 rounded-full" /> {category}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {catSkills.map(skill => {
+                                                const active = formData.requiredSkillIds.includes(skill.id);
+                                                return (
+                                                    <button key={skill.id} onClick={() => toggleSkill(skill.id)} className={`px-4 py-2 text-[9px] font-bold uppercase tracking-widest border transition-all rounded-sm ${active ? 'bg-primary/20 border-primary text-primary shadow-glow-sm' : 'bg-black border-white/5 text-white/40 hover:border-white/20'}`}>
+                                                        {skill.name}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* ── Navigation ─────────────────────────────────────────── */}
+                <div className="flex justify-between items-center pt-8">
+                    <button onClick={step === 0 ? () => router.back() : prevStep} className="flex items-center gap-2 px-8 py-3 bg-transparent border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all rounded-sm text-[10px] font-bold uppercase tracking-widest">
+                        <ChevronLeft className="w-4 h-4" /> {step === 0 ? "CANCEL" : "BACK"}
+                    </button>
+                    
+                    {step < 2 ? (
+                        <button onClick={nextStep} className="flex items-center gap-2 px-10 py-3 bg-primary text-white border border-primary hover:bg-primary-dark hover:shadow-glow-sm transition-all rounded-sm text-[10px] font-bold uppercase tracking-widest">
+                            NEXT PHASE <ChevronRight className="w-4 h-4" />
+                        </button>
+                    ) : (
+                        <button onClick={handleSubmit} disabled={loading} className="flex items-center gap-2 px-10 py-3 bg-primary text-white border border-primary hover:bg-primary-dark hover:shadow-glow-sm transition-all rounded-sm text-[10px] font-bold uppercase tracking-widest disabled:opacity-50">
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                            INITIALIZE OPERATION
+                        </button>
+                    )}
+                </div>
             </div>
-          </div>
-        )}
-
-        {/* ── Navigation Buttons ─────────────────────────────────────────── */}
-        <div className="flex justify-between pt-4">
-          <button
-            type="button"
-            onClick={step === 0 ? () => router.back() : prevStep}
-            className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-lg transition-all"
-          >
-            {step === 0 ? (
-              "Cancel"
-            ) : (
-              <span className="flex items-center gap-2">
-                <ChevronLeft size={16} /> Back
-              </span>
-            )}
-          </button>
-
-          {step < 2 ? (
-            <button
-              type="button"
-              onClick={nextStep}
-              className="btn-primary flex items-center gap-2"
-            >
-              Next <ChevronRight size={16} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="btn-primary flex items-center gap-2 disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" /> Creating...
-                </>
-              ) : (
-                "Create Hackathon"
-              )}
-            </button>
-          )}
-        </div>
-      </div>
-    </DashboardLayout>
-  );
+        </OrganizerLayout>
+    );
 }

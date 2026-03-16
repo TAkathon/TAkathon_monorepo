@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, useSpring, useMotionValue, useVelocity, useTransform } from "framer-motion";
 import Image from "next/image";
 
 export default function FlyingMascot() {
     const [isVisible, setIsVisible] = useState(false);
+    const prevMouseX = useRef(0);
+    const facingRight = useRef(false);
 
     // Spring physics for smooth following
     const springConfig = { damping: 25, stiffness: 150 };
@@ -13,6 +15,15 @@ export default function FlyingMascot() {
     const mouseY = useMotionValue(0);
     const x = useSpring(mouseX, springConfig);
     const y = useSpring(mouseY, springConfig);
+
+    // Physics of the movement: lean based on velocity
+    const xVelocity = useVelocity(x);
+    // When moving fast right (positive velocity), it tilts back slightly to the left (negative rotate)
+    // When moving fast left (negative velocity), it tilts back to the right (positive rotate)
+    const tilt = useTransform(xVelocity, [-1000, 0, 1000], [15, 0, -15]);
+
+    // Spring to smoothly flip the mascot 
+    const scaleX = useSpring(1, { stiffness: 200, damping: 20 });
 
     useEffect(() => {
         const handleScroll = () => {
@@ -40,10 +51,30 @@ export default function FlyingMascot() {
 
         const handleMouseMove = (e: MouseEvent) => {
             if (isVisible) {
-                // Update target position
-                // Add slight offset so it's not directly under the cursor
-                mouseX.set(e.clientX + 20);
-                mouseY.set(e.clientY + 20);
+                // Determine direction
+                if (e.clientX > prevMouseX.current + 2) {
+                    facingRight.current = true;
+                    scaleX.set(-1); // Flip to face right
+                } else if (e.clientX < prevMouseX.current - 2) {
+                    facingRight.current = false;
+                    scaleX.set(1); // Face left
+                }
+                prevMouseX.current = e.clientX;
+
+                // Adjust offset so it moves to the opposite side of the cursor
+                const mascotWidth = 120; // approx max width to avoid cutoff
+                const mascotHeight = 120; // approx max height to avoid cutoff
+
+                const offsetX = facingRight.current ? -mascotWidth + 20 : 20;
+                let targetX = e.clientX + offsetX;
+                let targetY = e.clientY + 20;
+
+                // Keep mascot inside the window bounds
+                targetX = Math.max(0, Math.min(targetX, window.innerWidth - mascotWidth));
+                targetY = Math.max(0, Math.min(targetY, window.innerHeight - mascotHeight));
+
+                mouseX.set(targetX);
+                mouseY.set(targetY);
             }
         };
 
@@ -57,7 +88,7 @@ export default function FlyingMascot() {
             window.removeEventListener("scroll", handleScroll);
             window.removeEventListener("mousemove", handleMouseMove);
         };
-    }, [mouseX, mouseY, isVisible, x, y]);
+    }, [mouseX, mouseY, isVisible, x, y, scaleX]);
 
     return (
         <motion.div
@@ -66,7 +97,8 @@ export default function FlyingMascot() {
                 x,
                 y,
                 left: 0,
-                top: 0
+                top: 0,
+                rotate: tilt
             }}
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{
@@ -78,8 +110,7 @@ export default function FlyingMascot() {
         >
             <motion.div
                 animate={{
-                    y: [0, -10, 0],
-                    rotate: [0, 5, -5, 0]
+                    y: [0, -10, 0]
                 }}
                 transition={{
                     duration: 2,
@@ -87,6 +118,7 @@ export default function FlyingMascot() {
                     ease: "easeInOut"
                 }}
                 className="w-full h-full relative"
+                style={{ scaleX }}
             >
                 <Image
                     src="/flying.png"

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ToastProvider from "@/components/ToastProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className="antialiased">
         {children}
-        <ToastProvider />
+        <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>
   );

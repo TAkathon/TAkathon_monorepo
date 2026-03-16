@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Calendar, Users, Trophy, TrendingUp, Loader2 } from "lucide-react";
+import { Calendar, Users, Trophy, TrendingUp, Loader2, ChevronRight } from "lucide-react";
 import {
   SkeletonStatsRow,
   SkeletonHackathonCard,
   SkeletonTeamCard,
 } from "@takathon/shared/ui";
 import api from "@takathon/shared/api";
-import { useAuthStore } from "@takathon/shared/utils";
+import { useAuthStore } from "@shared/utils";
+import { toast } from "sonner";
+import { UserRole } from "@takathon/shared/types";
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -22,7 +24,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [user]);
 
   const fetchData = async () => {
     try {
@@ -78,246 +80,286 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      name: "Hackathons Joined",
+      name: "HACKATHONS JOINED",
       value: String(registeredHackathons.length),
       icon: Calendar,
       trend: `${hackathons.length} available`,
     },
     {
-      name: "Active Teams",
+      name: "ACTIVE TEAMS",
       value: String(activeTeams.length),
       icon: Users,
       trend: `${teams.length} total teams`,
     },
     {
-      name: "Completed Projects",
+      name: "COMPLETED PROJECTS",
       value: String(teams.filter((t: any) => t.status === "complete").length),
       icon: Trophy,
       trend: "Keep it up!",
-    },
-    {
-      name: "Skill Level",
-      value: skillLevel,
-      icon: TrendingUp,
-      trend: "Growing",
     },
   ];
 
   return (
     <DashboardLayout>
       {loading ? (
-        <div className="space-y-8">
+        <div className="max-w-6xl mx-auto space-y-8 pb-12">
           <div className="space-y-2">
-            <div className="h-8 w-64 bg-white/10 rounded animate-pulse" />
-            <div className="h-4 w-96 bg-white/10 rounded animate-pulse" />
+            <div className="h-12 w-96 bg-white/10 rounded animate-pulse" />
+            <div className="h-4 w-64 bg-white/10 rounded animate-pulse" />
           </div>
-          <SkeletonStatsRow count={4} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <div className="h-5 w-40 bg-white/10 rounded animate-pulse" />
-              <SkeletonHackathonCard />
-              <SkeletonHackathonCard />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="h-24 bg-white/5 rounded-sm animate-pulse" />
+            <div className="h-24 bg-white/5 rounded-sm animate-pulse" />
+            <div className="h-24 bg-white/5 rounded-sm animate-pulse" />
+          </div>
+          <div className="h-40 bg-white/5 rounded-sm animate-pulse" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
+              <div className="h-48 bg-white/5 rounded-sm animate-pulse" />
             </div>
-            <div className="space-y-3">
-              <div className="h-5 w-32 bg-white/10 rounded animate-pulse" />
-              <SkeletonTeamCard />
+            <div className="space-y-4">
+              <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
+              <div className="h-32 bg-white/5 rounded-sm animate-pulse" />
+              <div className="h-32 bg-white/5 rounded-sm animate-pulse" />
             </div>
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
-          {/* Welcome Section */}
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Welcome back,{" "}
-              <span className="text-primary">
-                {profileName.split(" ")[0] || "Student"}
-              </span>
-              !
-            </h1>
-            <p className="text-white/60">
-              Here's what's happening with your hackathons and teams
-            </p>
+        <div className="max-w-6xl mx-auto space-y-8 pb-12">
+          {/* Background Floating Objects */}
+          <div className="absolute top-20 right-10 w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none"></div>
+          <div className="absolute top-40 left-10 w-24 h-24 bg-blue-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+          <div className="absolute -top-10 right-1/3 w-40 h-40 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+          {/* Header section */}
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center relative mb-1">
+                <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                  WELCOME BACK, <span className="text-primary">{profileName.split(' ')[0] || 'STUDENT'}!</span>
+                </h1>
+                <div className="flex ml-4 gap-1 opacity-60">
+                  <div className="w-8 h-1 bg-primary"></div>
+                  <div className="w-2 h-1 bg-primary"></div>
+                  <div className="w-1 h-1 bg-primary"></div>
+                </div>
+              </div>
+              <p className="text-white/60 mt-2 uppercase text-[10px] font-bold tracking-[0.2em]">
+                HERE'S WHAT'S HAPPENING WITH YOUR HACKATHONS AND TEAMS
+              </p>
+            </div>
+            {/* Waving Image */}
+            <div className="hidden md:block w-32 h-32 relative shrink-0">
+              <img src="/waving.png" alt="Waving Hand" className="w-full h-full object-contain -scale-x-100" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none"></div>
+            </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Top Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div
-                  key={stat.name}
-                  className="glass rounded-xl p-6 hover:bg-white/10 transition-all duration-300"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <Icon className="w-8 h-8 text-primary" />
+                <div key={stat.name} className="relative p-6 border border-white/5 bg-black rounded-sm">
+                  {/* Corner accents */}
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary"></div>
+
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest mb-3">
+                        {stat.name}
+                      </p>
+                      <p className="text-4xl font-black text-white tracking-tighter">{stat.value}</p>
+                    </div>
+                    <div className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center rounded-sm">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
                   </div>
-                  <p className="text-white/60 text-sm mb-1">{stat.name}</p>
-                  <p className="text-3xl font-bold text-white mb-2">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-primary">{stat.trend}</p>
                 </div>
               );
             })}
           </div>
 
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Upcoming Hackathons */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white">
-                  Upcoming Hackathons
-                </h2>
-                <Link
-                  href="/dashboard/hackathons"
-                  className="text-sm text-primary hover:text-primary-light"
-                >
-                  View All
-                </Link>
-              </div>
-              <div className="space-y-4">
-                {hackathons.slice(0, 3).length === 0 ? (
-                  <div className="text-center py-6 text-white/40">
-                    <Calendar size={36} className="mx-auto mb-3 opacity-40" />
-                    <p className="text-sm">No hackathons available</p>
-                    <Link
-                      href="/dashboard/hackathons"
-                      className="text-xs text-primary hover:underline mt-2 inline-block"
-                    >
-                      Browse Hackathons
-                    </Link>
-                  </div>
-                ) : (
-                  hackathons.slice(0, 3).map((hackathon: any) => (
-                    <div
-                      key={hackathon.id}
-                      className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 cursor-pointer"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-white">
-                          {hackathon.title}
-                        </h3>
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            hackathon.isRegistered
-                              ? "bg-primary/20 text-primary"
-                              : hackathon.status === "registration_open"
-                                ? "bg-green-500/20 text-green-400"
-                                : "bg-white/10 text-white/60"
-                          }`}
-                        >
-                          {hackathon.isRegistered
-                            ? "Registered"
-                            : hackathon.status?.replace(/_/g, " ") || "Open"}
-                        </span>
-                      </div>
-                      <p className="text-sm text-white/60 mb-2">
-                        {hackathon.startDate
-                          ? new Date(hackathon.startDate).toLocaleDateString()
-                          : "TBD"}
-                      </p>
-                      <p className="text-xs text-white/40">
-                        {hackathon._count?.participants || 0} participants
-                        registered
-                      </p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+          {/* Level / Rank Banner */}
+          <div className="relative p-8 border border-primary/20 bg-[#080808] rounded-sm shadow-[0_0_15px_rgba(255,92,0,0.05)] overflow-hidden">
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-primary"></div>
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary"></div>
 
-            {/* My Teams */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white">My Teams</h2>
-                <Link
-                  href="/dashboard/teams"
-                  className="text-sm text-primary hover:text-primary-light"
-                >
-                  View All
-                </Link>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none"></div>
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div>
+                  <p className="text-[10px] text-primary font-bold uppercase tracking-widest mb-1">CURRENT RANK</p>
+                  <p className="text-5xl font-black text-white italic tracking-tighter uppercase">{skillLevel === "Loading..." ? "LEVEL 1" : skillLevel}</p>
+                </div>
+                <div className="hidden sm:block border-l border-white/10 h-12 mx-2"></div>
+                <div className="hidden sm:block">
+                  <p className="text-sm font-bold text-white uppercase tracking-wider mb-1">CONTINUE GROWING</p>
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest">COMPLETE PROJECTS TO RANK UP</p>
+                </div>
               </div>
-              <div className="space-y-4">
-                {teams.slice(0, 3).length === 0 ? (
-                  <div className="text-center py-6 text-white/40">
-                    <Users size={36} className="mx-auto mb-3 opacity-40" />
-                    <p className="text-sm">No teams yet</p>
-                    <Link
-                      href="/dashboard/teams"
-                      className="text-xs text-primary hover:underline mt-2 inline-block"
-                    >
-                      Create or Join a Team
-                    </Link>
-                  </div>
-                ) : (
-                  teams.slice(0, 3).map((team: any) => (
-                    <div
-                      key={team.id}
-                      className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 cursor-pointer"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="font-semibold text-white">
-                            {team.name}
-                          </h3>
-                          <p className="text-sm text-white/60">
-                            {team.hackathon?.title || "No hackathon"}
-                          </p>
-                        </div>
-                        <span className="px-2 py-1 text-xs bg-white/10 text-white/60 rounded-full">
-                          {team.currentSize}/{team.maxSize} members
-                        </span>
-                      </div>
-                      <p className="text-xs text-primary capitalize">
-                        {team.status}
-                      </p>
-                    </div>
-                  ))
-                )}
-                <Link
-                  href="/dashboard/teams"
-                  className="block w-full p-4 bg-primary/10 border-2 border-dashed border-primary/30 rounded-lg text-primary hover:bg-primary/20 hover:border-primary/50 transition-all duration-200 font-semibold text-center"
-                >
-                  + Create New Team
-                </Link>
+
+              <div className="flex-1 max-w-md w-full">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest">SKILL PROGRESS</span>
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                    READY TO LEVEL UP
+                  </span>
+                </div>
+                <div className="h-2.5 bg-white/5 rounded-sm overflow-hidden flex relative border border-white/10">
+                  <div className="h-full bg-gradient-to-r from-primary/60 to-primary w-[65%] shadow-[0_0_10px_rgba(255,92,0,0.5)]"></div>
+                </div>
+              </div>
+
+              <div className="hidden md:flex text-primary/20 ml-4">
+                <Trophy className="w-16 h-16 drop-shadow-[0_0_15px_rgba(255,92,0,0.5)]" />
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="glass rounded-xl p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Link
-                href="/dashboard/hackathons"
-                className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group"
-              >
-                <Calendar className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                <p className="font-semibold text-white mb-1">
-                  Browse Hackathons
-                </p>
-                <p className="text-xs text-white/60">
-                  Find your next challenge
-                </p>
-              </Link>
-              <Link
-                href="/dashboard/teams"
-                className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group"
-              >
-                <Users className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                <p className="font-semibold text-white mb-1">Manage Teams</p>
-                <p className="text-xs text-white/60">Build your dream team</p>
-              </Link>
-              <Link
-                href="/dashboard/profile"
-                className="p-4 bg-white/5 hover:bg-white/10 rounded-lg text-left transition-all duration-200 group"
-              >
-                <Trophy className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                <p className="font-semibold text-white mb-1">Update Profile</p>
-                <p className="text-xs text-white/60">Showcase your skills</p>
-              </Link>
+          {/* Dual Column Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+            {/* Hackathons Column */}
+            <div>
+              <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/5">
+                <div className="flex items-start gap-2">
+                  <div className="w-2 h-2 rotate-45 bg-primary mt-1.5" />
+                  <h2 className="text-2xl font-black text-white tracking-tighter uppercase leading-none">
+                    REGISTERED<br /><span className="text-white/70">HACKATHONS</span>
+                  </h2>
+                </div>
+                <Link href="/dashboard/hackathons" className="text-[10px] font-bold text-primary flex items-center gap-1 uppercase tracking-widest hover:text-primary-light transition-colors group">
+                  VIEW ALL <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+
+              <div className="space-y-4">
+                {registeredHackathons.length === 0 ? (
+                  <div className="relative p-8 bg-[#080808] border border-dashed border-white/10 rounded-sm text-center">
+                    <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">NO REGISTERED HACKATHONS FOUND</p>
+                    <Link href="/dashboard/hackathons" className="mt-4 inline-block px-6 py-2 border border-primary text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                      BROWSE CHALLENGES
+                    </Link>
+                  </div>
+                ) : (
+                  registeredHackathons.slice(0, 2).map((hackathon: any) => (
+                    <div key={hackathon.id} className="relative p-6 bg-[#080808] border border-white/5 rounded-sm hover:border-primary/30 transition-all group">
+                      <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 group-hover:border-primary"></div>
+                      <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r flex items-end justify-end">
+                        <div className="w-3 h-3 bg-white/5 group-hover:bg-primary/10"></div>
+                      </div>
+
+                      <h3 className="text-lg font-black text-white italic tracking-tighter uppercase mb-1">{hackathon.title}</h3>
+                      <p className="text-[10px] text-white/40 truncate mb-4">{hackathon.description}</p>
+
+                      <div className="flex items-center gap-6 mb-6">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest">
+                            {hackathon.startDate ? new Date(hackathon.startDate).toLocaleDateString() : 'TBD'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest">
+                            {hackathon._count?.participants || 0} OPERATIVES
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Link href={`/dashboard/hackathons/${hackathon.id}`} className="flex-1 py-2 text-center text-[10px] font-bold tracking-widest uppercase bg-transparent text-white border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all rounded-sm">
+                          VIEW INTEL
+                        </Link>
+                        <button onClick={() => toast.success('Establishing Secure Connection...')} className="flex-1 py-2 text-center text-[10px] font-bold tracking-widest uppercase bg-primary text-white border border-primary hover:bg-primary-dark transition-all rounded-sm">
+                          ACCESS HUB
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Teams Column */}
+            <div>
+              <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/5">
+                <div className="flex items-start gap-2">
+                  <div className="w-2 h-2 rotate-45 bg-primary mt-1.5" />
+                  <h2 className="text-2xl font-black text-white tracking-tighter uppercase leading-none">
+                    MY <span className="text-white/70">TEAMS</span>
+                  </h2>
+                </div>
+                <Link href="/dashboard/teams" className="text-[10px] font-bold text-primary flex items-center gap-1 uppercase tracking-widest hover:text-primary-light transition-colors group">
+                  VIEW ALL <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+
+              <div className="space-y-4">
+                {teams.length === 0 ? (
+                  <div className="relative p-8 bg-[#080808] border border-dashed border-white/10 rounded-sm text-center">
+                    <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">NO ACTIVE TEAMS FOUND</p>
+                    <Link href="/dashboard/teams" className="mt-4 inline-block px-6 py-2 border border-primary text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                      JOIN A SQUAD
+                    </Link>
+                  </div>
+                ) : (
+                  teams.slice(0, 3).map((team: any) => (
+                    <div key={team.id} className="relative p-5 bg-[#080808] border border-white/5 rounded-sm hover:border-white/20 transition-all group">
+                      <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/10 group-hover:border-primary/50 transition-colors"></div>
+
+                      <div className="flex items-start gap-4">
+                        <div className="relative flex-shrink-0 mr-2">
+                          <div className="flex -space-x-3">
+                            {[...Array(Math.min(3, team.currentSize || 1))].map((_, idx) => (
+                              <div
+                                key={idx}
+                                className="w-10 h-10 rounded-full bg-black border-2 border-[#080808] flex items-center justify-center overflow-hidden shrink-0"
+                                style={{ zIndex: 10 - idx }}
+                              >
+                                <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${team.name}-${idx}&backgroundColor=transparent`} alt="Operative" className="w-full h-full object-cover opacity-80" />
+                              </div>
+                            ))}
+                          </div>
+                          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-sm transform rotate-45 border-2 border-[#080808] z-20 shadow-[0_0_10px_rgba(255,92,0,0.5)]" />
+                        </div>
+
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-sm font-black text-white tracking-wider uppercase mb-1">{team.name}</h3>
+                              <p className="text-[10px] text-primary/80 font-bold uppercase tracking-widest truncate max-w-[150px]">{team.hackathon?.title || "GLOBAL CHALLENGE"}</p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-[10px] text-white/60 font-bold uppercase tracking-widest mb-1.5">
+                                {team.currentSize}/{team.maxSize} OPERATIVES
+                              </div>
+                              <div className="flex items-center gap-0.5 mt-1 justify-end">
+                                {[...Array(team.maxSize || 5)].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className={`w-3.5 h-1.5 rounded-sm ${i < (team.currentSize || 0) ? "bg-primary" : "bg-white/10"}`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2">
+                            <div className={`w-1.5 h-1.5 rounded-full ${team.status === 'forming' ? 'bg-primary animate-pulse' : 'bg-green-500'}`} />
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${team.status === 'forming' ? 'text-primary' : 'text-green-500'}`}>
+                              {team.status === 'forming' ? 'RECRUITING' : team.status.toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>

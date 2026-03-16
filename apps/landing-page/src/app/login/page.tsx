@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, User as UserIcon, ShieldCheck, Building2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, User as UserIcon, ShieldCheck, Building2, ChevronRight } from "lucide-react";
 import { useAuthStore, getRedirectUrl } from "@shared/utils";
 import { UserRole } from "@takathon/shared/types";
 import { loginUser } from "../../lib/api";
@@ -20,7 +20,6 @@ export default function LoginPage() {
 function LoginContent() {
   const router = useRouter();
   const { login, logout, isAuthenticated, user, _hasHydrated } = useAuthStore();
-  const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.STUDENT);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +58,9 @@ function LoginContent() {
         if (!cancelled) logout();
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isAuthenticated, user, router, _hasHydrated, logout]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,7 +73,6 @@ function LoginContent() {
         password: formData.password,
         role: selectedRole,
       });
-
       // result = { success, data: { user } } — tokens are httpOnly cookies, never in JS
       const apiUser = result.data?.user;
 
@@ -97,118 +97,186 @@ function LoginContent() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-dark via-dark-50 to-dark opacity-50" />
-      <div className="absolute top-20 left-10 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+  const roles = [
+    {
+      id: "student",
+      label: "Student",
+      image: "/students.jpg",
+    },
+    {
+      id: "organizer",
+      label: "Organizer",
+      image: "/organizers.jpg",
+    },
+    {
+      id: "sponsor",
+      label: "Sponsor",
+      image: "/sponsors.jpg",
+    },
+  ];
 
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="glass rounded-2xl p-8 shadow-2xl">
-          <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 group">
-              <span className="text-4xl font-bold text-primary transition-all duration-300 group-hover:text-glow-sm">T</span>
-              <span className="text-2xl font-semibold text-white/90 tracking-wide">AKATHON</span>
-            </Link>
-            <p className="text-white/60 mt-2 text-sm">Welcome back! Sign in to continue</p>
+  return (
+    <div className="h-screen w-screen flex items-center justify-center font-sans antialiased selection:bg-primary selection:text-white overflow-hidden bg-black">
+      {/* Digital Dust */}
+      <div className="digital-dust"></div>
+      {/* Radial gradient background */}
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-neutral-900/50 via-black to-black -z-20"></div>
+
+      {/* Main Container */}
+      <div className="relative w-full max-w-[1200px] h-full lg:h-[700px] bg-black lg:border lg:border-neutral-800 lg:rounded-xl shadow-2xl flex flex-col lg:flex-row overflow-hidden mx-auto my-auto z-10">
+
+        {/* Left Panel - Mascot */}
+        <div className="w-full lg:w-1/2 relative bg-[#050505] overflow-hidden flex items-center justify-center border-b lg:border-b-0 lg:border-r border-neutral-800 min-h-[300px] lg:min-h-0">
+          <div className="absolute inset-0 hero-pattern opacity-20"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] cinematic-glow pointer-events-none"></div>
+
+          {/* Floating Elements */}
+          <div className="absolute top-16 left-8 w-12 h-12 border border-neutral-700 bg-neutral-900/50 backdrop-blur rounded flex items-center justify-center float-slow opacity-60">
+            <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+            </svg>
+          </div>
+          <div className="absolute bottom-24 right-8 w-14 h-14 border border-neutral-700 bg-neutral-900/50 backdrop-blur rounded-full flex items-center justify-center float-med opacity-60">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5z" />
+            </svg>
+          </div>
+          <div className="absolute top-1/4 right-16 w-8 h-8 border border-primary/30 bg-primary/10 backdrop-blur rounded rotate-45 flex items-center justify-center float-fast-auth">
+            <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
           </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <button
-                type="button"
-                onClick={() => setSelectedRole(UserRole.STUDENT)}
-                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                  selectedRole === UserRole.STUDENT ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
-                }`}
-              >
-                <UserIcon className="w-5 h-5" />
-                <span className="text-xs font-medium">Student</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedRole(UserRole.ORGANIZER)}
-                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                  selectedRole === UserRole.ORGANIZER ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
-                }`}
-              >
-                <ShieldCheck className="w-5 h-5" />
-                <span className="text-xs font-medium">Organizer</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedRole(UserRole.SPONSOR)}
-                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 ${
-                  selectedRole === UserRole.SPONSOR ? "bg-primary/20 border-primary text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
-                }`}
-              >
-                <Building2 className="w-5 h-5" />
-                <span className="text-xs font-medium">Sponsor</span>
-              </button>
+          {/* Mascot */}
+          <div className="relative z-10 w-full max-w-xl aspect-square flex items-center justify-center p-6">
+            <img
+              alt="Takathon Phoenix Mascot"
+              className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(255,92,0,0.3)] filter contrast-125 saturate-150 mascot-float"
+              src="/searching.png"
+            />
+          </div>
+
+          {/* Bottom Text */}
+          <div className="absolute bottom-8 left-0 right-0 text-center px-6">
+            <h2 className="text-xl font-black text-white tracking-widest uppercase opacity-90">
+              Happy to <span className="text-primary">See You</span>
+            </h2>
+            <div className="w-12 h-1 bg-primary mx-auto mt-3"></div>
+          </div>
+        </div>
+
+        {/* Right Panel - Form */}
+        <div className="w-full lg:w-1/2 bg-black relative flex flex-col justify-center px-8 py-4 lg:px-12 lg:py-6">
+          {/* Return Link */}
+          <div className="mb-4">
+            <div className="flex justify-end items-start mb-2">
+              <Link href="/" className="flex items-center gap-1.5 text-neutral-500 hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-widest group">
+                <svg className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                Return to Home
+              </Link>
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight uppercase tracking-tight">
+              Login to <span className="text-primary">Continue</span>
+            </h1>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-center space-y-4">
+            {/* Role Selector Cards */}
+            <div>
+              <div className="grid grid-cols-3 gap-3 h-32">
+                {roles.map((role) => (
+                  <div key={role.id} className="relative group h-full">
+                    <input
+                      type="radio"
+                      name="role"
+                      id={`role-${role.id}`}
+                      className="peer sr-only role-radio"
+                      checked={selectedRole === role.id}
+                      onChange={() => setSelectedRole(role.id as UserRole)}
+                    />
+                    <label
+                      htmlFor={`role-${role.id}`}
+                      className="h-full w-full block relative rounded-lg overflow-hidden border border-neutral-800 cursor-pointer transition-all duration-300 hover:border-neutral-500"
+                    >
+                      <div
+                        className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500"
+                        style={{ backgroundImage: `url('${role.image}')` }}
+                      ></div>
+                      <div className="overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent transition-all duration-300"></div>
+                      <div className="absolute bottom-2 left-0 right-0 text-center z-10">
+                        <span className="font-black text-[10px] uppercase tracking-widest text-neutral-300 block">
+                          {role.label}
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {error && <div className="mb-4 text-sm text-red-400">{error}</div>}
+            {error && <div className="text-sm text-red-400">{error}</div>}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">Email Address</label>
+            {/* Input Fields */}
+            <div className="space-y-3">
+              <div className="group">
+                <label className="block text-[10px] font-bold mb-1 ml-1 text-neutral-500 group-focus-within:text-primary transition-colors">
+                  EMAIL IDENTITY
+                </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 z-10 pointer-events-none" />
                   <input
-                    id="email"
+                    className="tech-input w-full px-4 py-2.5 text-sm font-medium rounded-none placeholder-neutral-700"
+                    placeholder="ENTER YOUR EMAIL"
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="input-field !pl-10"
-                    placeholder="name@university.edu"
                   />
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-neutral-800 group-focus-within:bg-primary transition-colors"></div>
                 </div>
               </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">Password</label>
+              <div className="group">
+                <label className="block text-[10px] font-bold mb-1 ml-1 text-neutral-500 group-focus-within:text-primary transition-colors">
+                  PASSWORD
+                </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 z-10 pointer-events-none" />
                   <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
+                    className="tech-input w-full px-4 py-2.5 text-sm font-medium rounded-none placeholder-neutral-700"
+                    placeholder="••••••••••••"
+                    type="password"
                     required
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="input-field !pl-10"
-                    placeholder="Enter your password"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-neutral-800 group-focus-within:bg-primary transition-colors"></div>
                 </div>
               </div>
-
-              <button type="submit" disabled={loading} className="w-full btn-primary flex items-center justify-center gap-2 group">
-                <span>{loading ? "Signing In..." : `Sign In as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`}</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </form>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
-              <div className="relative flex justify-center text-sm"><span className="px-4 bg-dark text-white/40">OR</span></div>
             </div>
 
-            <p className="text-center text-sm text-white/60">
-              Don't have an account?{" "}
-              <Link href="/signup" className="text-primary hover:text-primary-light font-semibold transition-colors">Create one now</Link>
-            </p>
-        </div>
-        <div className="text-center mt-6">
-          <Link href="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">← Back to Home</Link>
+            {/* Links */}
+            <div className="flex justify-between items-center text-[10px] font-bold tracking-wide py-1">
+              <button type="button" className="text-neutral-500 hover:text-white transition-colors">
+                FORGOT PASSWORD?
+              </button>
+              <Link href="/signup" className="text-white hover:text-primary transition-colors flex items-center gap-2 group">
+                NEW TO TAKATHON? <span className="text-primary group-hover:translate-x-1 transition-transform">→</span>
+              </Link>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary btn-3d shadow-button-bevel text-white font-black text-lg tracking-widest py-3 uppercase hover:bg-[#ff7b1a] relative overflow-hidden group mt-1 disabled:opacity-50"
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {loading ? "SIGNING IN..." : "LOGIN"}
+              </span>
+            </button>
+          </form>
+          <div className="pt-3 h-4"></div>
         </div>
       </div>
     </div>
   );
 }
-

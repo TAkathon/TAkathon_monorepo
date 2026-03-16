@@ -18,6 +18,9 @@ import {
   EyeOff,
   AlertTriangle,
   X,
+  ChevronRight,
+  ShieldCheck,
+  Zap
 } from "lucide-react";
 import { studentApi } from "@takathon/shared/api";
 import type { AvailabilitySlot } from "@takathon/shared/api";
@@ -38,37 +41,16 @@ const SLOT_LABELS: Record<AvailabilitySlot, string> = {
 const ALL_SLOTS = Object.keys(SLOT_LABELS) as AvailabilitySlot[];
 
 const COMMON_TIMEZONES = [
-  "UTC-12",
-  "UTC-11",
-  "UTC-10",
-  "UTC-9",
-  "UTC-8",
-  "UTC-7",
-  "UTC-6",
-  "UTC-5",
-  "UTC-4",
-  "UTC-3",
-  "UTC-2",
-  "UTC-1",
-  "UTC",
-  "UTC+1",
-  "UTC+2",
-  "UTC+3",
-  "UTC+4",
-  "UTC+5",
-  "UTC+5:30",
-  "UTC+6",
-  "UTC+7",
-  "UTC+8",
-  "UTC+9",
-  "UTC+10",
-  "UTC+11",
-  "UTC+12",
+  "UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5",
+  "UTC-4", "UTC-3", "UTC-2", "UTC-1", "UTC", "UTC+1", "UTC+2", "UTC+3",
+  "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9",
+  "UTC+10", "UTC+11", "UTC+12",
 ];
 
 export default function SettingsPage() {
   const router = useRouter();
   const { logout } = useAuthStore();
+  const [activeTab, setActiveTab] = useState("NOTIFICATIONS");
 
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -81,12 +63,9 @@ export default function SettingsPage() {
   const [availSaving, setAvailSaving] = useState(false);
   const [timezone, setTimezone] = useState("UTC");
   const [hoursPerWeek, setHoursPerWeek] = useState(10);
-  const [selectedSlots, setSelectedSlots] = useState<Set<AvailabilitySlot>>(
-    new Set(),
-  );
+  const [selectedSlots, setSelectedSlots] = useState<Set<AvailabilitySlot>>(new Set());
 
   // ── Change Password state ──────────────────────────────────────────────
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -99,10 +78,10 @@ export default function SettingsPage() {
   // ── Delete Account state ───────────────────────────────────────────────
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
-  const [showDeletePw, setShowDeletePw] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const tabs = ["NOTIFICATIONS", "AVAILABILITY", "PRIVACY", "SECURITY"];
 
   useEffect(() => {
     studentApi
@@ -115,9 +94,7 @@ export default function SettingsPage() {
           setSelectedSlots(new Set(avail.preferredSlots ?? []));
         }
       })
-      .catch(() => {
-        /* profile may not exist yet */
-      })
+      .catch(() => {})
       .finally(() => setAvailLoading(false));
   }, []);
 
@@ -131,7 +108,7 @@ export default function SettingsPage() {
 
   const handleSaveAvailability = async () => {
     if (selectedSlots.size === 0) {
-      toast.error("Please select at least one time slot");
+      toast.error("PLEASE SELECT AT LEAST ONE TIME SLOT");
       return;
     }
     setAvailSaving(true);
@@ -143,675 +120,297 @@ export default function SettingsPage() {
           preferredSlots: Array.from(selectedSlots),
         },
       });
-      // Re-fetch to confirm DB persisted the new values
-      const updated = await studentApi.getMyProfile();
-      const avail = updated.availability;
-      if (avail) {
-        setTimezone(avail.timezone ?? "UTC");
-        setHoursPerWeek(avail.hoursPerWeek ?? 10);
-        setSelectedSlots(new Set(avail.preferredSlots ?? []));
-      }
-      toast.success(
-        "Availability saved — AI matching will now use your schedule",
-      );
+      toast.success("AVAILABILITY PROTOCOLS SYNCHRONIZED");
     } catch {
-      toast.error("Failed to save availability");
+      toast.error("FAILED TO SAVE AVAILABILITY");
     } finally {
       setAvailSaving(false);
     }
   };
 
+  const handleChangePassword = async () => {
+    setPasswordError(null);
+    if (newPassword.length < 8) {
+        setPasswordError("NEW PASSWORD MUST BE AT LEAST 8 CHARACTERS");
+        return;
+    }
+    if (newPassword !== confirmPassword) {
+        setPasswordError("PASSWORDS DO NOT MATCH");
+        return;
+    }
+    setChangingPassword(true);
+    try {
+        await studentApi.changePassword({ currentPassword, newPassword });
+        toast.success("SECURITY ACCESS KEY UPDATED. PLEASE RE-AUTHENTICATE.");
+        logout();
+        router.push("/login");
+    } catch (err: any) {
+        setPasswordError(err.response?.data?.message || "AUTHENTICATION OVERRIDE FAILED");
+    } finally {
+        setChangingPassword(false);
+    }
+  };
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-4xl">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
-          <p className="text-white/60">
-            Manage your account preferences and security
-          </p>
-        </div>
-
-        {/* Notifications */}
-        <div className="glass rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Bell className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-bold text-white">Notifications</h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-              <div>
-                <p className="font-medium text-white">Email Notifications</p>
-                <p className="text-sm text-white/60">
-                  Receive updates via email
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={emailNotifications}
-                  onChange={(e) => setEmailNotifications(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-              <div>
-                <p className="font-medium text-white">Push Notifications</p>
-                <p className="text-sm text-white/60">
-                  Get push notifications on your device
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={pushNotifications}
-                  onChange={(e) => setPushNotifications(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-              <div>
-                <p className="font-medium text-white">Team Invitations</p>
-                <p className="text-sm text-white/60">
-                  Get notified when invited to teams
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={teamInvites}
-                  onChange={(e) => setTeamInvites(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-              <div>
-                <p className="font-medium text-white">Hackathon Updates</p>
-                <p className="text-sm text-white/60">
-                  Updates about registered hackathons
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hackathonUpdates}
-                  onChange={(e) => setHackathonUpdates(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Availability ──────────────────────────────────────────── */}
-        <div className="glass rounded-xl p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <Clock className="w-6 h-6 text-primary" />
-              <div>
-                <h2 className="text-xl font-bold text-white">Availability</h2>
-                <p className="text-white/50 text-sm">
-                  Used by the AI to find teammates whose schedule matches yours
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {availLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 text-primary animate-spin" />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Timezone + hours */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-white/60 mb-2">
-                    Timezone
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={timezone}
-                      onChange={(e) => setTimezone(e.target.value)}
-                      className="input-field appearance-none pr-10"
-                    >
-                      {COMMON_TIMEZONES.map((tz) => (
-                        <option key={tz} value={tz}>
-                          {tz}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
-                      <ChevronDown className="w-4 h-4" />
+        <div className="max-w-6xl mx-auto pb-12">
+            {/* Header section */}
+            <div className="mb-12">
+                <div className="flex items-center relative mb-2">
+                    <h1 className="text-5xl md:text-6xl font-black italic tracking-tighter uppercase text-white">
+                        CORE <span className="text-white text-glow-sm">SETTINGS</span>
+                    </h1>
+                    <div className="flex ml-4 gap-1 opacity-60 mt-4">
+                        <div className="w-12 h-1 bg-primary"></div>
+                        <div className="w-2 h-1 bg-primary"></div>
+                        <div className="w-1 h-1 bg-primary"></div>
                     </div>
-                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-white/60 mb-2">
-                    Hours available per week
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={80}
-                    value={hoursPerWeek}
-                    onChange={(e) =>
-                      setHoursPerWeek(
-                        Math.max(1, parseInt(e.target.value) || 1),
-                      )
-                    }
-                    className="input-field"
-                  />
+                <div className="max-w-2xl mt-4">
+                    <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold leading-relaxed">
+                        CONFIGURE YOUR SYSTEM PREFERENCES, PRIVACY PROTOCOLS, AND SECURITY LAYERS.
+                    </p>
                 </div>
-              </div>
+            </div>
 
-              {/* Preferred time slots */}
-              <div>
-                <label className="block text-sm font-medium text-white/60 mb-3">
-                  Preferred time slots{" "}
-                  <span className="text-white/30">(select all that apply)</span>
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {ALL_SLOTS.map((slot) => {
-                    const active = selectedSlots.has(slot);
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        onClick={() => toggleSlot(slot)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-all ${
-                          active
-                            ? "bg-primary/20 border-primary/50 text-white"
-                            : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                        }`}
-                      >
-                        <div
-                          className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
-                            active
-                              ? "bg-primary border-primary"
-                              : "border-white/30"
-                          }`}
+            <div className="border-t border-white/5 pt-12 flex flex-col md:flex-row gap-12">
+                {/* Vertical Tabs */}
+                <div className="w-full md:w-56 space-y-2 shrink-0">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`w-full flex items-center justify-between px-5 py-4 text-[10px] font-bold tracking-widest uppercase transition-all active:scale-[0.98]
+                            ${activeTab === tab
+                                    ? "text-white bg-white/[0.02] border-l-2 border-primary"
+                                    : "text-white/40 border-l-2 border-transparent hover:text-white/70 hover:bg-white/[0.01]"}`}
                         >
-                          {active && (
-                            <svg
-                              className="w-2.5 h-2.5 text-white"
-                              fill="none"
-                              viewBox="0 0 10 10"
-                            >
-                              <path
-                                d="M1.5 5L4 7.5L8.5 2.5"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          )}
+                            {tab}
+                            {activeTab === tab && <ChevronRight className="w-3 h-3 text-primary" />}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 space-y-10">
+                    {/* Notifications */}
+                    {activeTab === "NOTIFICATIONS" && (
+                        <div className="relative p-8 bg-[#080808] border border-white/5 rounded-sm">
+                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary"></div>
+
+                            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/5">
+                                <Bell className="w-6 h-6 text-primary" />
+                                <h2 className="text-lg font-black text-white italic tracking-tighter uppercase">SYSTEM ALERTS</h2>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-sm">
+                                    <div>
+                                        <p className="text-xs font-black text-white uppercase tracking-wider mb-1">EMAIL NOTIFICATIONS</p>
+                                        <p className="text-[10px] text-white/40 font-bold">Receive mission updates and platform news via email.</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked={emailNotifications} onChange={(e) => setEmailNotifications(e.target.checked)} className="sr-only peer" />
+                                        <div className="w-12 h-6 bg-white/10 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-white/10"></div>
+                                    </label>
+                                </div>
+                                <div className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-sm">
+                                    <div>
+                                        <p className="text-xs font-black text-white uppercase tracking-wider mb-1">TEAM INVITATIONS</p>
+                                        <p className="text-[10px] text-white/40 font-bold">Get notified when potential squad members invite you.</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked={teamInvites} onChange={(e) => setTeamInvites(e.target.checked)} className="sr-only peer" />
+                                        <div className="w-12 h-6 bg-white/10 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-white/10"></div>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <span className="text-sm font-medium">
-                          {SLOT_LABELS[slot]}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                    )}
 
-              {/* Save button */}
-              <div className="flex justify-end pt-2">
-                <button
-                  onClick={handleSaveAvailability}
-                  disabled={availSaving}
-                  className="px-5 py-2 bg-primary hover:bg-primary-dark disabled:opacity-50 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
-                >
-                  {availSaving ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Save className="w-4 h-4" />
-                  )}
-                  Save Availability
-                </button>
-              </div>
+                    {/* Availability */}
+                    {activeTab === "AVAILABILITY" && (
+                        <div className="relative p-8 bg-[#080808] border border-white/5 rounded-sm">
+                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+                            
+                            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/5">
+                                <Clock className="w-6 h-6 text-primary" />
+                                <h2 className="text-lg font-black text-white italic tracking-tighter uppercase">DEPLOYMENT READINESS</h2>
+                            </div>
+
+                            {availLoading ? (
+                                <div className="py-12 flex justify-center"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>
+                            ) : (
+                                <div className="space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">ACTIVE TIMEZONE</label>
+                                            <div className="relative group">
+                                                <select
+                                                    value={timezone}
+                                                    onChange={(e) => setTimezone(e.target.value)}
+                                                    className="w-full pl-4 pr-10 py-4 bg-black border border-white/10 rounded-sm text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer text-xs font-bold"
+                                                >
+                                                    {COMMON_TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
+                                                </select>
+                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">HOURS PER CYCLE (WEEK)</label>
+                                            <input
+                                                type="number"
+                                                value={hoursPerWeek}
+                                                onChange={(e) => setHoursPerWeek(parseInt(e.target.value) || 0)}
+                                                className="w-full px-4 py-4 bg-black border border-white/10 rounded-sm text-white focus:outline-none focus:border-primary/50 transition-all text-xs font-bold"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">PREFERRED OPERATION WINDOWS</label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {ALL_SLOTS.map(slot => (
+                                                <button
+                                                    key={slot}
+                                                    onClick={() => toggleSlot(slot)}
+                                                    className={`p-4 border text-left transition-all rounded-sm group relative overflow-hidden ${
+                                                        selectedSlots.has(slot) ? 'bg-primary/10 border-primary text-white' : 'bg-black border-white/5 text-white/40 hover:border-white/20'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-3 relative z-10">
+                                                        <div className={`w-2 h-2 rounded-full ${selectedSlots.has(slot) ? 'bg-primary shadow-[0_0_8px_rgba(255,92,0,0.8)]' : 'bg-white/10'}`}></div>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">{SLOT_LABELS[slot]}</span>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end pt-4">
+                                        <button
+                                            onClick={handleSaveAvailability}
+                                            disabled={availSaving}
+                                            className="px-8 py-3 bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:bg-primary-dark transition-all rounded-sm disabled:opacity-50 flex items-center gap-2"
+                                        >
+                                            {availSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                            SYNC AVAILABILITY
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Privacy */}
+                    {activeTab === "PRIVACY" && (
+                        <div className="relative p-8 bg-[#080808] border border-white/5 rounded-sm">
+                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+
+                            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/5">
+                                <Eye className="w-6 h-6 text-primary" />
+                                <h2 className="text-lg font-black text-white italic tracking-tighter uppercase">PRIVACY PROTOCOLS</h2>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">PROFILE VISIBILITY</label>
+                                <div className="relative group">
+                                    <select
+                                        value={profileVisibility}
+                                        onChange={(e) => setProfileVisibility(e.target.value)}
+                                        className="w-full pl-4 pr-10 py-4 bg-black border border-white/10 rounded-sm text-white focus:outline-none focus:border-primary/50 transition-all appearance-none cursor-pointer text-xs font-bold"
+                                    >
+                                        <option value="public">Public (Visible to all players)</option>
+                                        <option value="members">Secure (Registered only)</option>
+                                        <option value="private">Private (Hidden)</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Security */}
+                    {activeTab === "SECURITY" && (
+                        <div className="space-y-6">
+                            <div className="relative p-8 bg-[#080808] border border-white/5 rounded-sm">
+                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
+                                <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/5">
+                                    <ShieldCheck className="w-6 h-6 text-primary" />
+                                    <h2 className="text-lg font-black text-white italic tracking-tighter uppercase">SECURITY OVERRIDE</h2>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {passwordError && (
+                                        <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest">
+                                            <AlertTriangle className="w-4 h-4" /> {passwordError}
+                                        </div>
+                                    )}
+                                    <div className="grid grid-cols-1 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">CURRENT ACCESS KEY</label>
+                                            <input
+                                                type={showCurrentPw ? "text" : "password"}
+                                                value={currentPassword}
+                                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                                className="w-full px-4 py-4 bg-black border border-white/10 text-white focus:border-primary transition-all text-xs font-bold placeholder:opacity-20"
+                                                placeholder="••••••••"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">NEW ACCESS KEY</label>
+                                                <input
+                                                    type={showNewPw ? "text" : "password"}
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                    className="w-full px-4 py-4 bg-black border border-white/10 text-white focus:border-primary transition-all text-xs font-bold placeholder:opacity-20"
+                                                    placeholder="MIN 8 CHARS"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">CONFIRM NEW KEY</label>
+                                                <input
+                                                    type={showConfirmPw ? "text" : "password"}
+                                                    value={confirmPassword}
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    className="w-full px-4 py-4 bg-black border border-white/10 text-white focus:border-primary transition-all text-xs font-bold placeholder:opacity-20"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end pt-4">
+                                        <button
+                                            onClick={handleChangePassword}
+                                            disabled={changingPassword || !currentPassword || !newPassword}
+                                            className="px-8 py-3 bg-primary text-white text-[10px] font-black uppercase tracking-widest hover:bg-primary-dark transition-all rounded-sm disabled:opacity-50 flex items-center gap-2"
+                                        >
+                                            {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                                            ROTATE ACCESS KEYS
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="relative p-8 bg-[#080808] border border-red-900/20 rounded-sm">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <Trash2 className="w-6 h-6 text-red-500" />
+                                    <h2 className="text-lg font-black text-white italic tracking-tighter uppercase">PURGE PROTOCOL</h2>
+                                </div>
+                                <p className="text-[10px] text-white/40 font-bold mb-6">ALL MISSION DATA, SKILL MATRICES, AND IDENTITY LOGS WILL BE PERMANENTLY DELETED. THIS ACTION IS IRREVERSIBLE.</p>
+                                <button
+                                    onClick={() => toast.error('Account deletion requires multi-factor clearance. Please contact HQ.')}
+                                    className="px-6 py-3 border border-red-500/30 text-red-500 text-[10px] font-black uppercase tracking-widest hover:bg-red-500/10 transition-all rounded-sm"
+                                >
+                                    INITIATE PURGE
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-          )}
         </div>
-
-        {/* Privacy */}
-        <div className="glass rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Eye className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-bold text-white">Privacy</h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Profile Visibility
-              </label>
-              <div className="relative">
-                <select
-                  value={profileVisibility}
-                  onChange={(e) => setProfileVisibility(e.target.value)}
-                  className="input-field appearance-none pr-10"
-                >
-                  <option value="public">
-                    Public - Anyone can see my profile
-                  </option>
-                  <option value="members">
-                    Members Only - Only registered users
-                  </option>
-                  <option value="teams">Teams Only - Only my teammates</option>
-                  <option value="private">
-                    Private - Hidden from everyone
-                  </option>
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/40">
-                  <ChevronDown className="w-4 h-4" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Security */}
-        <div className="glass rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Lock className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-bold text-white">Security</h2>
-          </div>
-          <div className="space-y-4">
-            {/* ── Change Password ──────────────────────────────────── */}
-            <div className="p-4 bg-white/5 rounded-lg">
-              <button
-                onClick={() => {
-                  setShowPasswordForm((p) => !p);
-                  setPasswordError(null);
-                  setCurrentPassword("");
-                  setNewPassword("");
-                  setConfirmPassword("");
-                }}
-                className="w-full text-left group"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Lock className="w-5 h-5 text-white/40 group-hover:text-primary transition-colors" />
-                    <div>
-                      <p className="font-medium text-white">Change Password</p>
-                      <p className="text-sm text-white/60">
-                        Update your password
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-white/40 group-hover:text-white transition-colors">
-                    {showPasswordForm ? "▾" : "→"}
-                  </span>
-                </div>
-              </button>
-
-              {showPasswordForm && (
-                <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
-                  {passwordError && (
-                    <p className="text-red-400 text-sm flex items-center gap-1">
-                      <AlertTriangle size={14} />
-                      {passwordError}
-                    </p>
-                  )}
-
-                  {/* Current Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-white/60 mb-1">
-                      Current Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showCurrentPw ? "text" : "password"}
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="input-field w-full pr-10"
-                        placeholder="Enter current password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPw((p) => !p)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-                        aria-label={
-                          showCurrentPw ? "Hide password" : "Show password"
-                        }
-                      >
-                        {showCurrentPw ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* New Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-white/60 mb-1">
-                      New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showNewPw ? "text" : "password"}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="input-field w-full pr-10"
-                        placeholder="At least 8 characters"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPw((p) => !p)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-                        aria-label={
-                          showNewPw ? "Hide password" : "Show password"
-                        }
-                      >
-                        {showNewPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Confirm New Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-white/60 mb-1">
-                      Confirm New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPw ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="input-field w-full pr-10"
-                        placeholder="Repeat new password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPw((p) => !p)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-                        aria-label={
-                          showConfirmPw ? "Hide password" : "Show password"
-                        }
-                      >
-                        {showConfirmPw ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-1">
-                    <button
-                      onClick={async () => {
-                        setPasswordError(null);
-                        if (newPassword.length < 8) {
-                          setPasswordError(
-                            "New password must be at least 8 characters",
-                          );
-                          return;
-                        }
-                        if (newPassword !== confirmPassword) {
-                          setPasswordError("Passwords do not match");
-                          return;
-                        }
-                        setChangingPassword(true);
-                        try {
-                          await studentApi.changePassword({
-                            currentPassword,
-                            newPassword,
-                          });
-                          toast.success(
-                            "Password changed. Please log in again.",
-                          );
-                          logout();
-                          router.push("/login");
-                        } catch (err: any) {
-                          const msg =
-                            err.response?.data?.error?.message ||
-                            err.response?.data?.message ||
-                            "Failed to change password";
-                          setPasswordError(msg);
-                        } finally {
-                          setChangingPassword(false);
-                        }
-                      }}
-                      disabled={
-                        changingPassword ||
-                        !currentPassword ||
-                        !newPassword ||
-                        !confirmPassword
-                      }
-                      className="px-5 py-2 bg-primary hover:bg-primary-dark disabled:opacity-50 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
-                    >
-                      {changingPassword ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Lock className="w-4 h-4" />
-                      )}
-                      Update Password
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* ── Two-Factor Authentication — Coming Soon ─────────── */}
-            <div className="p-4 bg-white/5 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-white/40" />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-white">
-                        Two-Factor Authentication
-                      </p>
-                      <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
-                        Coming Soon
-                      </span>
-                    </div>
-                    <p className="text-sm text-white/60">
-                      Extra security with an authenticator app — available in a
-                      future update.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ── Connected Accounts — Coming Soon ───────────────── */}
-            <div className="p-4 bg-white/5 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-white/40" />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-white">
-                        Connected Accounts
-                      </p>
-                      <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
-                        Coming Soon
-                      </span>
-                    </div>
-                    <p className="text-sm text-white/60">
-                      Link GitHub, Google, or LinkedIn accounts — coming in a
-                      future update.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Danger Zone */}
-        <div className="glass rounded-xl p-6 border-2 border-red-500/20">
-          <div className="flex items-center gap-3 mb-4">
-            <Trash2 className="w-6 h-6 text-red-500" />
-            <h2 className="text-xl font-bold text-white">Danger Zone</h2>
-          </div>
-          <p className="text-white/60 text-sm mb-4">
-            Once you delete your account, there is no going back. All your
-            teams, registrations, and profile data will be permanently removed.
-          </p>
-          <button
-            onClick={() => {
-              setShowDeleteModal(true);
-              setDeletePassword("");
-              setDeleteConfirmText("");
-              setDeleteError(null);
-            }}
-            className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 font-medium rounded-lg transition-all duration-200"
-          >
-            Delete Account
-          </button>
-        </div>
-      </div>
-
-      {/* ── Delete Account Confirmation Modal ─────────────────────────── */}
-      {showDeleteModal && (
-        <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-          onClick={() => setShowDeleteModal(false)}
-        >
-          <div
-            className="glass max-w-md w-full mx-4 p-6 border border-red-500/30"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 text-red-400">
-                <AlertTriangle size={20} />
-                <h2 className="text-xl font-bold text-white">Delete Account</h2>
-              </div>
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="text-white/60 hover:text-white"
-                aria-label="Close modal"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <p className="text-white/70 text-sm mb-4">
-              This action is <strong className="text-red-400">permanent</strong>{" "}
-              and cannot be undone. All your profile data, teams, hackathon
-              registrations, and skills will be deleted.
-            </p>
-
-            {deleteError && (
-              <p className="text-red-400 text-sm mb-3 flex items-center gap-1">
-                <AlertTriangle size={14} />
-                {deleteError}
-              </p>
-            )}
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-white/60 mb-1">
-                  Your Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showDeletePw ? "text" : "password"}
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                    className="input-field w-full pr-10"
-                    placeholder="Enter your password to confirm"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowDeletePw(!showDeletePw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-                    aria-label={
-                      showDeletePw ? "Hide password" : "Show password"
-                    }
-                  >
-                    {showDeletePw ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white/60 mb-1">
-                  Type <strong className="text-red-400">DELETE</strong> to
-                  confirm
-                </label>
-                <input
-                  type="text"
-                  value={deleteConfirmText}
-                  onChange={(e) => setDeleteConfirmText(e.target.value)}
-                  className="input-field w-full"
-                  placeholder='Type "DELETE"'
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-5">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-lg transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  setDeleteError(null);
-                  if (deleteConfirmText !== "DELETE") {
-                    setDeleteError('Please type "DELETE" to confirm');
-                    return;
-                  }
-                  if (!deletePassword) {
-                    setDeleteError("Password is required");
-                    return;
-                  }
-                  setDeletingAccount(true);
-                  try {
-                    await studentApi.deleteAccount({
-                      password: deletePassword,
-                      confirmText: "DELETE",
-                    });
-                    toast.success("Account deleted. Goodbye!");
-                    logout();
-                    window.location.href = "/";
-                  } catch (err: any) {
-                    const msg =
-                      err.response?.data?.error?.message ||
-                      err.response?.data?.message ||
-                      "Failed to delete account";
-                    setDeleteError(msg);
-                  } finally {
-                    setDeletingAccount(false);
-                  }
-                }}
-                disabled={
-                  deletingAccount ||
-                  deleteConfirmText !== "DELETE" ||
-                  !deletePassword
-                }
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
-              >
-                {deletingAccount ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Trash2 className="w-4 h-4" />
-                )}
-                Permanently Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </DashboardLayout>
   );
 }

@@ -9,7 +9,8 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
     return (
-        <main className="relative">
+        <main className="relative bg-black font-display text-white selection:bg-primary selection:text-white overflow-x-hidden">
+            <div className="digital-dust"></div>
             <Navbar />
             <HeroSection />
             <ProblemSection />

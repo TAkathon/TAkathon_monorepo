@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import ToastProvider from "@/components/ToastProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Organizer Dashboard | TAkathon",
-  description: "Manage your hackathons, participants, and teams with ease.",
+  title: "COMMAND CENTER | TAkathon Organizer",
+  description: "Global Mission Control, Squad Formations, and Intel Analytics Dashboard.",
 };
 
 export default function RootLayout({
@@ -13,10 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="scroll-smooth">
+      <body className="antialiased bg-[#050505] selection:bg-primary/30">
         {children}
-        <ToastProvider />
+        <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>
   );
