@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { useAuthStore, getRedirectUrl, getLandingUrl } from "@shared/utils";
+import api from "@takathon/shared/api";
 import {
     LayoutDashboard,
     Trophy,
@@ -43,20 +44,48 @@ export default function OrganizerLayout({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
-    const { user, isAuthenticated, logout, _hasHydrated } = useAuthStore();
+    const { user, isAuthenticated, login, logout, _hasHydrated } = useAuthStore();
 
+    // Auth/Hydration Logic: fetch session via cookie if Zustand is empty
     useEffect(() => {
         if (!_hasHydrated) return;
-
-        if (!isAuthenticated) {
-            window.location.href = `${getLandingUrl()}/login`;
-        } else if (user?.role && user.role !== "organizer") {
-            const url = getRedirectUrl(user.role);
-            window.location.href = url;
+        if (isAuthenticated && user) {
+            // If authenticated but wrong role, redirect to correct portal
+            if (user.role && user.role !== "organizer") {
+                const url = getRedirectUrl(user.role);
+                window.location.href = url;
+            }
+            return;
         }
-    }, [isAuthenticated, user, router, _hasHydrated]);
 
-    const handleLogout = () => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await api.get("/api/v1/auth/me");
+                const u = res.data?.data ?? res.data;
+                if (!cancelled && u?.id) {
+                    login({
+                        id: u.id,
+                        email: u.email,
+                        fullName: u.fullName,
+                        role: u.role,
+                    });
+                }
+            } catch {
+                // 401 is handled by the global api interceptor which routes back to login
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [_hasHydrated, isAuthenticated, user, login, router]);
+
+    const handleLogout = async () => {
+        try {
+            await api.post("/api/v1/auth/logout");
+        } catch {
+            /* best-effort */
+        }
         logout();
         window.location.href = `${getLandingUrl()}/login`;
     };

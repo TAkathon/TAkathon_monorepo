@@ -7,7 +7,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx next build",
+        "command": "..\\..\\node_modules\\.bin\\next.cmd build",
         "cwd": "apps/landing-page"
       }
     },

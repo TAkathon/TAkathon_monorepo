@@ -91,7 +91,7 @@ function LoginContent() {
         router.push(url);
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Authentication failed. Please try again.");
+      setError(err?.response?.data?.error?.message || err?.message || "Authentication failed. Please try again.");
     } finally {
       setLoading(false);
     }

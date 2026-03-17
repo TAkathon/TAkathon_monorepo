@@ -27,10 +27,17 @@ function decodeJwtRole(token: string): string | null {
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("accessToken")?.value;
+
+  // If no cookie is present, let the request through.
+  // In local dev the gateway (localhost:8000) sets the cookie on its own origin,
+  // so it is never sent to the student portal (localhost:3001).
+  // Client-side auth guards handle unauthenticated users via the Zustand store.
   if (!token) {
-    return NextResponse.redirect(`${LANDING_URL}/login`);
+    return NextResponse.next();
   }
 
+  // When the cookie IS available (e.g. production behind a reverse proxy sharing
+  // the same domain), enforce that only students can access dashboard routes.
   const role = decodeJwtRole(token);
   if (role !== "student") {
     return NextResponse.redirect(`${LANDING_URL}/login`);

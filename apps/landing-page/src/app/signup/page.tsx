@@ -76,7 +76,7 @@ function SignUpContent() {
         router.push(url);
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Registration failed. Please try again.");
+      setError(err?.response?.data?.error?.message || err?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
