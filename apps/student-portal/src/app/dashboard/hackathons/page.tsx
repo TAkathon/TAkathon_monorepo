@@ -75,7 +75,7 @@ function getHackathonButtonState(
     return { action: "completed", label: "TARGET SECURED", disabled: true, reason: "MISSION DATA FINALIZED." };
   }
   if (hackathon.status === "in_progress") {
-    return { action: "in_progress", label: "ACTIVE ENGAGEMENT", disabled: true, reason: "OPERATION CURRENTLY RUNNING." };
+    return { action: "in_progress", label: "IN PROGRESS", disabled: true, reason: "OPERATION CURRENTLY RUNNING." };
   }
   if (hackathon.status === "registration_closed") {
     return { action: "ended", label: "OPS CLOSED", disabled: true, reason: "DEPLOYMENT WINDOW EXPIRED." };
