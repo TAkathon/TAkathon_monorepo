@@ -3,7 +3,9 @@
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "lint": {
       "cache": true
@@ -13,7 +15,10 @@
     }
   },
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -75,8 +80,13 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint", "test"]
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test"
+        ]
       }
     }
-  }
+  },
+  "nxCloudId": "69a392bc7d26481eaa28a2e1"
 }
